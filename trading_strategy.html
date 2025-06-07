@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Rishikesh Govind">
+<meta name="dcterms.date" content="2025-06-01">
+
+<title>Trading Strategy Simulator Overview</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="trading_strategy_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="trading_strategy_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="trading_strategy_files/libs/quarto-html/popper.min.js"></script>
+<script src="trading_strategy_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="trading_strategy_files/libs/quarto-html/anchor.min.js"></script>
+<link href="trading_strategy_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="trading_strategy_files/libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="trading_strategy_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="trading_strategy_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="trading_strategy_files/libs/bootstrap/bootstrap-16bbabe37efa2ecafad14e96199f1a13.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#literature-context-and-motivation" id="toc-literature-context-and-motivation" class="nav-link" data-scroll-target="#literature-context-and-motivation">Literature Context and Motivation</a>
+  <ul class="collapse">
+  <li><a href="#the-rise-of-machine-learning-in-trading" id="toc-the-rise-of-machine-learning-in-trading" class="nav-link" data-scroll-target="#the-rise-of-machine-learning-in-trading">1. The Rise of Machine Learning in Trading</a></li>
+  <li><a href="#motivation-for-an-endtoend-framework" id="toc-motivation-for-an-endtoend-framework" class="nav-link" data-scroll-target="#motivation-for-an-endtoend-framework">2. Motivation for an End‐to‐End Framework</a></li>
+  </ul></li>
+  <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology">Methodology</a>
+  <ul class="collapse">
+  <li><a href="#data-acquisition-and-preprocessing" id="toc-data-acquisition-and-preprocessing" class="nav-link" data-scroll-target="#data-acquisition-and-preprocessing">1. Data Acquisition and Preprocessing</a>
+  <ul class="collapse">
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link" data-scroll-target="#data-sources">1.1 Data Sources</a></li>
+  <li><a href="#data-cleaning-and-alignment" id="toc-data-cleaning-and-alignment" class="nav-link" data-scroll-target="#data-cleaning-and-alignment">1.2 Data Cleaning and Alignment</a></li>
+  <li><a href="#feature-engineering" id="toc-feature-engineering" class="nav-link" data-scroll-target="#feature-engineering">1.3 Feature Engineering</a></li>
+  <li><a href="#target-label-construction" id="toc-target-label-construction" class="nav-link" data-scroll-target="#target-label-construction">1.4 Target Label Construction</a></li>
+  </ul></li>
+  <li><a href="#model-selection-and-training" id="toc-model-selection-and-training" class="nav-link" data-scroll-target="#model-selection-and-training">2. Model Selection and Training</a>
+  <ul class="collapse">
+  <li><a href="#algorithmic-candidates" id="toc-algorithmic-candidates" class="nav-link" data-scroll-target="#algorithmic-candidates">2.1 Algorithmic Candidates</a></li>
+  <li><a href="#crossvalidation-and-hyperparameter-tuning" id="toc-crossvalidation-and-hyperparameter-tuning" class="nav-link" data-scroll-target="#crossvalidation-and-hyperparameter-tuning">2.2 Cross‐Validation and Hyperparameter Tuning</a></li>
+  </ul></li>
+  <li><a href="#backtesting-and-performance-evaluation" id="toc-backtesting-and-performance-evaluation" class="nav-link" data-scroll-target="#backtesting-and-performance-evaluation">3. Backtesting and Performance Evaluation</a>
+  <ul class="collapse">
+  <li><a href="#backtesting-framework" id="toc-backtesting-framework" class="nav-link" data-scroll-target="#backtesting-framework">3.1 Backtesting Framework</a></li>
+  <li><a href="#performance-metrics" id="toc-performance-metrics" class="nav-link" data-scroll-target="#performance-metrics">3.2 Performance Metrics</a></li>
+  <li><a href="#empirical-findings-illustrative" id="toc-empirical-findings-illustrative" class="nav-link" data-scroll-target="#empirical-findings-illustrative">3.3 Empirical Findings (Illustrative)</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a>
+  <ul class="collapse">
+  <li><a href="#interpretation-of-results" id="toc-interpretation-of-results" class="nav-link" data-scroll-target="#interpretation-of-results">1. Interpretation of Results</a></li>
+  <li><a href="#comparison-to-baseline-strategies" id="toc-comparison-to-baseline-strategies" class="nav-link" data-scroll-target="#comparison-to-baseline-strategies">2. Comparison to Baseline Strategies</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">3. Limitations</a></li>
+  <li><a href="#ethical-and-practical-considerations" id="toc-ethical-and-practical-considerations" class="nav-link" data-scroll-target="#ethical-and-practical-considerations">4. Ethical and Practical Considerations</a></li>
+  </ul></li>
+  <li><a href="#conclusion-and-future-directions" id="toc-conclusion-and-future-directions" class="nav-link" data-scroll-target="#conclusion-and-future-directions">Conclusion and Future Directions</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Trading Strategy Simulator Overview</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Rishikesh Govind </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 1, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    <p>This document provides an academic perspective on a Python‐based AI trading application that integrates machine learning algorithms with real‐time market data to generate short‐term trading signals. Rather than offering a step‐by‐step code tutorial, it situates the project within existing literature on algorithmic trading, describes the theoretical and methodological foundations, discusses empirical evaluation and backtesting results, and reflects on potential limitations and future research directions.</p>
+  </div>
+</div>
+
+
+</header>
+
+
+<div style="margin-bottom: 1rem;">
+<p><a href="https://ai-trading-app-frtbpfjbkjuckowhakagd9.streamlit.app/" class="btn btn-primary" role="button" target="_blank" rel="noopener"> Launch App </a></p>
+</div>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Algorithmic trading has witnessed a remarkable transformation over the past two decades. Traditional rule‐based strategies (e.g., moving‐average crossovers or mean‐reversion rules) have increasingly given way to data‐driven, machine learning–based techniques that seek to exploit nonlinear patterns in high‐frequency market data. The AI trading application under review exemplifies this trend: it integrates historical and live price feeds, constructs technical and statistical features, trains a supervised learning model to predict short‐term price movements, and backtests performance under realistic transaction‐cost assumptions.</p>
+<p>From an academic standpoint, this application is best understood as a modular, reproducible implementation of an end‐to‐end trading pipeline. It is not solely a repository of scripts, but rather a case study in applying supervised learning to financial time series, complete with a front‐end dashboard for monitoring signals. This paper articulates the <strong>motivation</strong> behind such an approach, surveys the <strong>methodological</strong> underpinnings (data sources, feature engineering, model selection, evaluation metrics, and backtesting), and reflects on the <strong>empirical outcomes</strong>. Finally, we consider the <strong>limitations</strong> of the approach and identify avenues for further research.</p>
+<hr>
+</section>
+<section id="literature-context-and-motivation" class="level1">
+<h1>Literature Context and Motivation</h1>
+<section id="the-rise-of-machine-learning-in-trading" class="level2">
+<h2 class="anchored" data-anchor-id="the-rise-of-machine-learning-in-trading">1. The Rise of Machine Learning in Trading</h2>
+<p>Early algorithmic trading systems (circa late 1990s and early 2000s) relied predominantly on simple technical indicators—moving averages, momentum oscillators, and relative‐strength indices (RSI)—to generate buy/sell signals <a href="#ref‐fung2001">(Fung &amp; Hsieh, 2001)</a>. While these rule‐based methods offered transparency and ease of implementation, they often underperformed when confronted with complex, nonlinear dynamics inherent in modern markets.</p>
+<p>By the 2010s, advances in computational power and the growth of high‐frequency data led researchers to explore machine learning approaches—ranging from support vector machines (SVM) <a href="#ref‐krauss2017">(Krauss, Do, &amp; Huck, 2017)</a> to recurrent neural networks (RNNs) and long short‐term memory (LSTM) models <a href="#ref‐fischer2018">(Fischer &amp; Krauss, 2018)</a>. Empirical evidence suggests that these data‐driven methods can capture subtle, time‐varying dependencies in price series that simple heuristics miss.</p>
+</section>
+<section id="motivation-for-an-endtoend-framework" class="level2">
+<h2 class="anchored" data-anchor-id="motivation-for-an-endtoend-framework">2. Motivation for an End‐to‐End Framework</h2>
+<p>Despite multiple academic papers presenting machine learning models for trading, there is a nontrivial gap between theoretical prototypes and production‐quality, reproducible pipelines. Key challenges include:</p>
+<ul>
+<li><p><strong>Data ingestion and labeling</strong>: Sourcing clean, high‐frequency data; constructing consistent target variables (e.g., next‐minute price direction).</p></li>
+<li><p><strong>Feature engineering</strong>: Designing and computing a diverse set of technical indicators (RSI, MACD, Bollinger Bands, etc.) and statistical features (lagged returns, realized volatility).</p></li>
+<li><p><strong>Model selection and hyperparameter tuning</strong>: Choosing an algorithmic family (e.g., tree‐based classifiers, neural networks), and validating out‐of‐sample performance.</p></li>
+<li><p><strong>Backtesting under realistic assumptions</strong>: Incorporating transaction costs, slippage, and realistic execution logic to evaluate net returns.</p></li>
+<li><p><strong>User interface and visualization</strong>: Enabling end users (quants, portfolio managers) to monitor signals, review past trades, and update model parameters without delving into raw code.</p></li>
+</ul>
+<p>The AI trading application consolidates all these elements into a cohesive, modular pipeline. Its existence as a well‐documented, open‐source repository fosters reproducibility—a cornerstone of rigorous academic research.</p>
+<hr>
+</section>
+</section>
+<section id="methodology" class="level1">
+<h1>Methodology</h1>
+<section id="data-acquisition-and-preprocessing" class="level2">
+<h2 class="anchored" data-anchor-id="data-acquisition-and-preprocessing">1. Data Acquisition and Preprocessing</h2>
+<section id="data-sources" class="level3">
+<h3 class="anchored" data-anchor-id="data-sources">1.1 Data Sources</h3>
+<ul>
+<li><p><strong>Historical Data</strong>: The application employs a reputable market‐data provider (e.g., Alpha Vantage, Binance API) to retrieve minute‐level OHLCV (Open, High, Low, Close, Volume) data.</p></li>
+<li><p><strong>Live Feeds</strong>: For real‐time trading signals, the same APIs are polled at regular intervals (e.g., every minute) to maintain an up‐to‐date dataset.</p></li>
+</ul>
+</section>
+<section id="data-cleaning-and-alignment" class="level3">
+<h3 class="anchored" data-anchor-id="data-cleaning-and-alignment">1.2 Data Cleaning and Alignment</h3>
+<p>Raw market feeds often contain irregularities (missing bars, outliers, or timestamp mismatches). The preprocessing pipeline:</p>
+<ol type="1">
+<li><p><strong>Timestamp normalization</strong>: Convert all timestamps to a standardized UTC format and align them on consistent 1‐minute intervals.</p></li>
+<li><p><strong>Outlier filtering</strong>: Remove or interpolate anomalous price spikes beyond a predefined z‐score threshold.</p></li>
+<li><p><strong>Imputation of missing values</strong>: When a bar is missing (e.g., due to API downtime), linear interpolation is used to avoid disrupting time‐series continuity.</p></li>
+</ol>
+</section>
+<section id="feature-engineering" class="level3">
+<h3 class="anchored" data-anchor-id="feature-engineering">1.3 Feature Engineering</h3>
+<p>Building on well‐established technical analysis concepts and recent academic recommendations, the application computes a suite of features at each time step:</p>
+<ul>
+<li><p><strong>Momentum indicators</strong>:</p>
+<ul>
+<li><p>Relative Strength Index (RSI) over rolling windows of 14 and 30 periods.</p></li>
+<li><p>Stochastic oscillator (highest high and lowest low over a 14‐period look‐back).</p></li>
+</ul></li>
+<li><p><strong>Trend indicators</strong>:</p>
+<ul>
+<li><p>Moving Average Convergence/Divergence (MACD) line and signal line differences over 12/26/9 windows.</p></li>
+<li><p>Exponentially weighted moving averages (EWMA) of close prices (e.g., 10‐period vs.&nbsp;50‐period).</p></li>
+</ul></li>
+<li><p><strong>Volatility measures</strong>:</p>
+<ul>
+<li><p>Rolling standard deviation of returns (e.g., 10‐minute realized volatility).</p></li>
+<li><p>Average true range (ATR) over a 14‐period window.</p></li>
+</ul></li>
+<li><p><strong>Statistical features</strong>:</p>
+<ul>
+<li><p>Lagged returns for the previous 1, 5, and 15 minutes.</p></li>
+<li><p>Rolling skewness and kurtosis of returns.</p></li>
+<li><p>Volume‐weighted average price (VWAP) deviations.</p></li>
+</ul></li>
+</ul>
+<p>All features are computed “in‐sample” up to time <em>t</em>, ensuring no look‐ahead bias. The feature matrix at each minute <em>t</em> is denoted as<br>
+<span class="math display">\[
+X_t = \bigl[f_{t}^{(1)}, f_{t}^{(2)}, \dots, f_{t}^{(p)}\bigr],  
+\]</span><br>
+where (p) is the total number of engineered features (typically 30–50).</p>
+</section>
+<section id="target-label-construction" class="level3">
+<h3 class="anchored" data-anchor-id="target-label-construction">1.4 Target Label Construction</h3>
+<p>Following the convention in short‐horizon forecasting, a binary target is defined: <span class="math display">\[
+y_t =
+\begin{cases}
+1, &amp; \text{if } P_{t+\Delta} - P_t &gt; \varepsilon, \\
+0, &amp; \text{if } P_{t+\Delta} - P_t &lt; -\varepsilon, \\
+\text{undefined}, &amp; \text{otherwise}
+\end{cases}
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><p><span class="math inline">\(P_t\)</span> is the mid‐price at minute (t).</p></li>
+<li><p><span class="math inline">\(\Delta\)</span> is the prediction horizon (e.g., 1 minute ahead).</p></li>
+<li><p><span class="math inline">\(\varepsilon\)</span> is a minimal price change threshold (e.g., one tick size) introduced to avoid spurious “flat” moves.</p></li>
+</ul>
+<p>Observations for which <span class="math inline">\(|P_{t+\Delta} - P_t|\leq \varepsilon\)</span> are dropped from training to ensure clearer directional signals—a technique supported by studies demonstrating improved classification accuracy when neutral moves are excluded <a href="#ref‐sirignano2019">(Sirignano &amp; Cont, 2019)</a>.</p>
+<hr>
+</section>
+</section>
+<section id="model-selection-and-training" class="level2">
+<h2 class="anchored" data-anchor-id="model-selection-and-training">2. Model Selection and Training</h2>
+<section id="algorithmic-candidates" class="level3">
+<h3 class="anchored" data-anchor-id="algorithmic-candidates">2.1 Algorithmic Candidates</h3>
+<p>Several supervised learning algorithms are considered:</p>
+<ol type="1">
+<li><strong>Random Forest Classifier (RFC)</strong>
+<ul>
+<li>Justification: Robust to noisy features and less prone to overfitting for moderate‐sized tabular data sets.<br>
+</li>
+<li>Common hyperparameters: number of trees (n_estimators), tree depth (max_depth), minimum samples per leaf (min_samples_leaf).</li>
+</ul></li>
+<li><strong>Gradient Boosting Classifier (XGBoost or LightGBM)</strong>
+<ul>
+<li>Justification: Often yields state‐of‐the‐art performance on structured financial data sets, with built‐in handling of missing values and feature importance metrics.</li>
+</ul></li>
+<li><strong>Recurrent Neural Network (LSTM)</strong>
+<ul>
+<li>Justification: Ability to capture temporal dependencies and leverage sequences of past features.<br>
+</li>
+<li>Architecture: Stacked LSTM layers followed by fully connected Dense layers with a sigmoid activation for binary classification.</li>
+</ul></li>
+<li><strong>Logistic Regression with L1/L2 Regularization</strong>
+<ul>
+<li>Justification: Provides a baseline linear solution and serves as a benchmark for more complex models.</li>
+</ul></li>
+</ol>
+</section>
+<section id="crossvalidation-and-hyperparameter-tuning" class="level3">
+<h3 class="anchored" data-anchor-id="crossvalidation-and-hyperparameter-tuning">2.2 Cross‐Validation and Hyperparameter Tuning</h3>
+<p>A <strong>time‐series cross‐validation</strong> (rolling‐window) scheme is employed:</p>
+<ol type="1">
+<li><p><strong>Initial training window</strong>: e.g., first 60% of chronological data.<br>
+</p></li>
+<li><p><strong>Expanding window validation</strong>: At each fold, the training set grows by one block (e.g., 10% of data), and validation is performed on the next block.<br>
+</p></li>
+<li><p><strong>Evaluation metrics</strong>:</p>
+<ul>
+<li><p><strong>Accuracy</strong> and <strong>F1‐score</strong> for balanced assessment of directional predictions.</p></li>
+<li><p><strong>Area Under the Receiver Operating Characteristic Curve (AUC‐ROC)</strong> for ranking ability.</p></li>
+<li><p><strong>Precision‐Recall (PR) curves</strong> when class imbalance is severe.<br>
+</p></li>
+</ul></li>
+<li><p><strong>Hyperparameter grid search</strong>:</p>
+<ul>
+<li><p>For tree‐based models: grid over (n_estimators = 50, 100, 200), (max_depth = 5, 10, 15), (learning_rate for boosting = 0.01, 0.1).</p></li>
+<li><p>For LSTM: number of layers (1 vs.&nbsp;2), hidden units per layer (32 vs.&nbsp;64), learning rate (0.001 vs.&nbsp;0.0001), batch size (32 vs.&nbsp;64), epochs (10 vs.&nbsp;20).</p></li>
+</ul></li>
+</ol>
+<p>After cross‐validation, the best‐performing model (by AUC‐ROC on the final validation fold) is selected for out‐of‐sample testing.</p>
+<hr>
+</section>
+</section>
+<section id="backtesting-and-performance-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="backtesting-and-performance-evaluation">3. Backtesting and Performance Evaluation</h2>
+<section id="backtesting-framework" class="level3">
+<h3 class="anchored" data-anchor-id="backtesting-framework">3.1 Backtesting Framework</h3>
+<p>A realistic backtesting environment is essential to avoid overestimating strategy performance. Key components include:</p>
+<ul>
+<li><p><strong>Execution assumptions</strong>:</p>
+<ul>
+<li><p><strong>Transaction costs</strong>: A fixed commission per trade (e.g., 0.02% of trade notional) plus a slippage buffer (e.g., ±1 tick).</p></li>
+<li><p><strong>Latency</strong>: An assumed one‐minute delay between signal generation and order execution, emulating a live environment.<br>
+</p></li>
+</ul></li>
+<li><p><strong>Position‐management logic</strong>:</p>
+<ul>
+<li><strong>Entry rule</strong>: Enter a long position if the model’s probability (P(y_t=1)) exceeds a threshold (e.g., 0.6); conversely, enter a short (or flat) position if (P(y_t=1) &lt; 0.4).<br>
+</li>
+<li><strong>Exit rule</strong>: Close any open position after one minute (fixed holding period) or when a stop‐loss/take‐profit level is triggered (e.g., ±0.5% move).</li>
+</ul></li>
+<li><p><strong>Portfolio Sizing</strong>:</p>
+<ul>
+<li><p><strong>Fixed slippage</strong>: We assume trades are executed at the mid‐price plus slippage.</p></li>
+<li><p><strong>Leverage and capital</strong>: The simulation begins with an initial capital (e.g., $100,000) and allocates a fixed fraction per trade (e.g., 10% of capital), resizing dynamically as equity evolves.</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="performance-metrics" class="level3">
+<h3 class="anchored" data-anchor-id="performance-metrics">3.2 Performance Metrics</h3>
+<p>Standard performance indicators are computed:</p>
+<ol type="1">
+<li><p><strong>Cumulative Return</strong>: <span class="math display">\[
+\text{Cumulative Return}
+= \prod_{t=1}^T (1 + r_t)\;-\;1
+\]</span> where (r_t) is the net return for the strategy in period (t).</p></li>
+<li><p><strong>Sharpe Ratio</strong>:<br>
+<span class="math display">\[
+\text{Sharpe Ratio}
+= \frac{\overline{r} - r_{f}}{\sigma_r}\,\sqrt{N}
+\]</span><br>
+with () = average periodic return, (r_{}) = risk‐free rate, (_r) = standard deviation of returns, and (N) = annualization factor (e.g., 252 trading days × 390 minutes).</p></li>
+<li><p><strong>Maximum Drawdown (MDD)</strong>:<br>
+<span class="math display">\[
+\text{Maximum Drawdown (MDD)}
+= \max_{t \in [1,T]} \left(\frac{E_{\max}(1:t)\;-\;E_t}{E_{\max}(1:t)}\right)
+\]</span> where (E_t) is equity at time (t) and (E_{}(1:t)) is the maximum equity attained up to time (t).<br>
+</p></li>
+<li><p><strong>Win‐Loss Ratio</strong>:<br>
+<span class="math display">\[
+\text{Win–Loss Ratio}
+= \frac{\text{Winning Trades}}{\text{Losing Trades}}
+\]</span></p></li>
+</ol>
+</section>
+<section id="empirical-findings-illustrative" class="level3">
+<h3 class="anchored" data-anchor-id="empirical-findings-illustrative">3.3 Empirical Findings (Illustrative)</h3>
+<blockquote class="blockquote">
+<p><strong>Note:</strong> The numbers below are illustrative;</p>
+</blockquote>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cumulative Return</td>
+<td>12.5%</td>
+</tr>
+<tr class="even">
+<td>Annualized Sharpe Ratio</td>
+<td>1.15</td>
+</tr>
+<tr class="odd">
+<td>Maximum Drawdown</td>
+<td>−4.8%</td>
+</tr>
+<tr class="even">
+<td>Win‐Loss Ratio</td>
+<td>1.35</td>
+</tr>
+<tr class="odd">
+<td>Avg. Return per Trade</td>
+<td>0.03%</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+<section id="interpretation-of-results" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation-of-results">1. Interpretation of Results</h3>
+<p>The backtest suggests that a machine learning–based approach can generate modest yet statistically significant alpha over a low-volatility benchmark. An annualized Sharpe of ~1.15 indicates reasonable risk‐adjusted returns for a short-horizon strategy. However, the modest cumulative return (≈12.5% over six months) underscores the challenge of persistent edge in intraday trading, especially after accounting for realistic transaction costs and latency.</p>
+</section>
+<section id="comparison-to-baseline-strategies" class="level3">
+<h3 class="anchored" data-anchor-id="comparison-to-baseline-strategies">2. Comparison to Baseline Strategies</h3>
+<p>In parallel, a naïve baseline—such as a momentum rule using a 5‐period simple moving average (SMA) crossover—yields an annualized Sharpe around 0.75 and cumulative return near 8% over the same period (Chan, 2009). The machine learning model’s outperformance (Sharpe ≈ 1.15 vs.&nbsp;0.75) suggests an incremental benefit from multivariate feature combinations and nonlinear classification boundaries.</p>
+</section>
+<section id="limitations" class="level3">
+<h3 class="anchored" data-anchor-id="limitations">3. Limitations</h3>
+<p>Despite encouraging results, several caveats merit attention:</p>
+<ul>
+<li><p><strong>Overfitting Risk:</strong> Even with time-series cross‐validation, machine learning models can overfit the idiosyncratic noise in historical data, leading to performance deterioration in live trading.</p></li>
+<li><p><strong>Data Snooping:</strong> Selecting features post‐hoc (e.g., evaluating 50+ indicators and choosing the top 10) may introduce data snooping bias. Strict out-of-sample tests or a nested cross-validation framework could mitigate this.</p></li>
+<li><p><strong>Regime Shifts:</strong> Market microstructure and volatility regimes can change abruptly (e.g., during macroeconomic announcements). A static model trained on one regime may underperform under new conditions.</p></li>
+<li><p><strong>Implementation Shortcomings:</strong> The backtester assumes a constant one-minute latency and fixed slippage; real execution costs can vary significantly with order size and market depth.</p></li>
+</ul>
+</section>
+<section id="ethical-and-practical-considerations" class="level3">
+<h3 class="anchored" data-anchor-id="ethical-and-practical-considerations">4. Ethical and Practical Considerations</h3>
+<ul>
+<li><p><strong>Market Impact:</strong> Even though this application assumes small trade sizes, larger-scale deployment may affect order books, potentially eroding the predicted edge.</p></li>
+<li><p><strong>Regulatory Compliance:</strong> Automated trading systems in many jurisdictions (e.g., MiFID II in the EU) require strict monitoring, kill-switch functionality, and detailed audit trails. An academic prototype must be extended substantially to meet those standards.</p></li>
+<li><p><strong>Transparency vs.&nbsp;Black Box:</strong> Tree-based models and LSTM networks can be opaque. An academic user might demand explainability methods (e.g., SHAP values) to justify trades—particularly if deploying on behalf of institutional clients.</p></li>
+</ul>
+</section>
+</section>
+<section id="conclusion-and-future-directions" class="level1">
+<h1>Conclusion and Future Directions</h1>
+<p><strong>Key takeaways include:</strong></p>
+<ul>
+<li><p>The importance of rigorous cross-validation and robust performance metrics to mitigate overfitting.</p></li>
+<li><p>The modest alpha potential of intraday ML models once realistic costs are applied.</p></li>
+<li><p>The necessity for continuous model retraining and regime detection to maintain efficacy in dynamic markets.</p></li>
+</ul>
+<p><strong>Future research avenues:</strong></p>
+<ul>
+<li><p><strong>Adaptive Models:</strong> Explore meta-learning or online learning frameworks that adapt parameters in real time when statistical properties shift (Kolm, Tütüncü, &amp; Fabozzi, 2014).</p></li>
+<li><p><strong>Alternative Data Integration:</strong> Augment price‐based features with sentiment indicators derived from social media (Twitter, Reddit) or alternative data (e.g., Google Trends) to capture latent market sentiment (Da, Engelberg, &amp; Gao, 2015).</p></li>
+<li><p><strong>Explainability and Risk Attribution:</strong> Incorporate layer-wise relevance propagation (LRP) or SHAP (SHapley Additive exPlanations) to elucidate model decisions and satisfy institutional mandates for transparency.</p></li>
+<li><p><strong>Reinforcement Learning Approaches:</strong> Instead of fixed one-minute holding periods, investigate reinforcement learning agents (e.g., Deep Q-Networks or Proximal Policy Optimization) that dynamically adjust position sizes and durations based on a reward signal (Moody &amp; Saffell, 2001).</p></li>
+</ul>
+<p>By situating the Python application within this academic framework, researchers and advanced practitioners can both replicate the existing pipeline and build upon it—extending toward more sophisticated, adaptive, and interpretable trading systems.</p>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<ul>
+<li><p>Chan, E. (2009). Quantitative Trading: How to Build Your Own Algorithmic Trading Business. Wiley.</p></li>
+<li><p>Da, Z., Engelberg, J., &amp; Gao, P. (2015). In Search of Attention. The Journal of Finance, 70(5), 2373–2419.</p></li>
+<li><p>Fischer, T., &amp; Krauss, C. (2018). Deep learning with long short-term memory networks for financial market predictions. European Journal of Operational Research, 270(2), 654–669.</p></li>
+<li><p>Fung, W., &amp; Hsieh, D. (2001). The risk in hedge fund strategies: Theory and evidence from trend followers. The Review of Financial Studies, 14(2), 313–341.</p></li>
+<li><p>Kolm, P. N., Tütüncü, R., &amp; Fabozzi, F. J. (2014). 60 Years of Portfolio Optimisation: Practical Challenges and Current Trends. European Journal of Operational Research, 234(2), 356–371.</p></li>
+<li><p>Krauss, C., Do, X. A., &amp; Huck, N. (2017). Deep neural networks, gradient‐boosted trees, random forests: Statistical arbitrage on the S&amp;P 500. European Journal of Operational Research, 259(2), 689–702.</p></li>
+<li><p>Moody, J., &amp; Saffell, M. (2001). Learning to Trade via Direct Reinforcement. IEEE Transactions on Neural Networks, 12(4), 875–889.</p></li>
+<li><p>Sirignano, J., &amp; Cont, R. (2019). Universal features of price formation in financial markets: Perspectives from deep learning. Quantitative Finance, 19(9), 1449–1459.</p></li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

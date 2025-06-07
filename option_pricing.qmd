@@ -1,0 +1,423 @@
+---
+title: Option Pricing Simulator Overview
+author: Rishikesh Govind
+date: "2025-06-01"
+format:
+  html:
+    toc: true
+    code-fold: false
+    code-copy: false
+abstract: |
+  This document provides an academic perspective on a Python-based interactive application for pricing European options. Rather than detailing implementation specifics, it situates the project within foundational academic literature on option valuation, outlines the theoretical underpinnings of each pricing methodology, discusses empirical convergence and sensitivity analyses, and reflects on the pedagogical and research implications of integrating multiple models in a unified interface.
+---
+
+<div style="margin-bottom: 1rem;">
+  <a href="https://option-pricing-app-gceooubxr85x4y9lbsqxvn.streamlit.app/" 
+     class="btn btn-primary" 
+     role="button"
+     target="_blank"
+     rel="noopener">
+    Launch App
+  </a>
+</div>
+
+# Introduction
+
+Option pricing lies at the core of modern financial theory and practice. Beginning with the seminal Black–Scholes model (Black & Scholes, 1973) and its later numerical extensions (Cox, Ross, & Rubinstein, 1979; Boyle, 1977), academic research has continuously refined techniques to value derivatives under various stochastic frameworks. The Option Pricing Streamlit App exemplifies this tradition by unifying three canonical European‐option pricing methods—the Black–Scholes closed‐form solution, the recombining binomial lattice, and Monte Carlo simulation—into a single interactive dashboard. Rather than merely serving as a codebase, this application functions as an academic demonstration: it allows learners and researchers to manipulate model parameters (underlying price, strike, volatility, maturity, risk‐free rate), observe real‐time valuations, and compare convergence behavior across methods.
+
+From an academic standpoint, the app bridges theoretical derivations (e.g., solving the Black–Scholes partial differential equation via risk-neutral valuation) with empirical intuition obtained through numerical approximation. For researchers, the platform facilitates exploratory analyses—such as assessing discretisation error in binomial trees or variance reduction in Monte Carlo estimators—and can serve as a prototype for extensions involving stochastic volatility or jump‐diffusion processes. This overview outlines the **motivation** for integrating multiple pricing approaches in one interface, situates the app within established literature on option valuation, explicates the **methodological foundations** of each module, and reflects on **empirical insights**, **limitations**, and **future directions**.
+
+---
+
+# Literature Context and Motivation
+
+## 1. Foundations of European Option Valuation
+
+- **Black–Scholes Analytical Framework**  
+  
+  Fischer Black and Myron Scholes (1973), later complemented by Robert Merton (1973), derived a closed‐form solution for European call and put options under the assumptions of lognormal asset dynamics, constant volatility, and frictionless markets. By solving the Black–Scholes partial differential equation (PDE) subject to terminal payoff conditions, they demonstrated that an option price could be expressed as:  
+  $$
+    C(S_0, K, T, r, \sigma) = S_0\,\Phi(d_1) - K\,e^{-rT}\,\Phi(d_2)
+  $$  
+  where  
+  $$
+    d_{1} = \frac{\ln\bigl(S_0 / K \bigr) + \bigl(r + \tfrac{1}{2}\sigma^2\bigr)T}{\sigma\sqrt{T}},
+    \quad
+    d_{2} = d_1 - \sigma\sqrt{T}
+  $$  
+  and $\Phi()$ is the standard normal cumulative distribution function (Black & Scholes, 1973; Merton, 1973). This breakthrough established risk‐neutral valuation—discounting expected payoffs under a martingale measure—as the cornerstone of derivative pricing.
+
+- **Binomial Lattice Approximation**  
+  
+  Recognising that continuous‐time models may not capture certain market features (e.g., early exercise, discrete dividends), Cox, Ross, and Rubinstein (1979) introduced a discrete‐time binomial lattice. By partitioning the time interval $[0, T]$ into $M$ steps of size $\Delta t = T/M$, they modeled the underlying asset price $S_t$ to move up by factor $u = e^{\sigma\sqrt{\Delta t}}$ or down by $d = e^{-\sigma\sqrt{\Delta t}}$ at each step. Under risk‐neutral probabilities  
+  $$
+    p = \frac{e^{r \Delta t} - d}{u - d},
+    \quad
+    1 - p = \frac{u - e^{r \Delta t}}{u - d}
+  $$  
+  the option value is obtained by backward induction on a recombining tree, converging to the Black–Scholes price as $M \to \infty$ (Cox, Ross, & Rubinstein, 1979; Hull, 2018).
+
+- **Monte Carlo Simulation**  
+  
+  Pioneered by Broadie and Glasserman (1996) for option pricing, Monte Carlo methods approximate expectations under the risk‐neutral measure by generating a large number $N$ of sample paths for $S_t$ (often assuming geometric Brownian motion) and averaging discounted payoffs at maturity:  
+  $$
+    C \approx e^{-rT}\,\frac{1}{N}\sum_{i=1}^N \max\bigl(S^{(i)}_T - K,\,0 \bigr)
+  $$  
+  While computationally intensive ($O(N)$ per path), Monte Carlo offers flexibility to handle path‐dependent payoffs, stochastic volatility, or jump processes that lack closed‐form solutions (Glasserman, 2004; Boyle, Broadie, & Glasserman, 1997).
+
+## 2. Motivation for a Unified Interactive Platform
+
+Despite ample theoretical exposition in textbooks and lectures (Black & Scholes, 1973; Cox, Ross, & Rubinstein, 1979; Hull, 2018), students and researchers often learn individual methods in isolation—performing separate code runs or analytical exercises. An integrated interface addresses several pedagogical and research‐oriented needs:
+
+1. **Comparative Understanding**  
+   
+   Juxtaposing closed‐form, lattice, and simulation‐based valuations highlights trade‐offs: analytical tractability versus numerical flexibility, convergence rates, and error sources (bias in binomial approximations vs. variance in Monte Carlo).
+
+2. **Parameter Sensitivity Exploration**  
+   
+   Interactive sliders or input fields allow users to vary $\sigma$, $T$, or $r$ and instantly observe how option prices and Greeks (delta, gamma, vega) respond—reinforcing intuition behind phenomena like volatility skew or time decay.
+
+3. **Empirical Convergence Analysis**  
+   
+   By adjusting the number of binomial steps $M$ or Monte Carlo paths $N$, users can empirically verify theoretical convergence rates: binomial lattice error decaying as $O(1/M)$ for European options (Phelim P. Boyle, 1977) and Monte Carlo standard error scaling as $O(1/\sqrt{N})$ (Kloeden & Platen, 1992).
+
+4. **Research Prototyping**  
+   Modular design enables extensions—such as incorporating Heston’s stochastic volatility model (Heston, 1993) or Merton’s jump‐diffusion (Merton, 1976)—with minimal refactoring, fostering rapid experimentation.
+
+5. **Bridging Theory and Practice**  
+   
+   Integrating market‐data fetching (e.g., via Yahoo Finance) for live underlying prices positions the app as a prototype for practitioners who wish to calibrate models to real‐world quotes or extract implied volatilities.
+
+In sum, the Option Pricing Streamlit App occupies a niche between textbook exposition and bespoke research code: it encapsulates foundational models, promotes empirical learning, and sets the stage for advanced academic inquiry.
+
+---
+
+# Methodology
+
+## 1. Model Inputs and Risk‐Neutral Framework
+
+### 1.1 Parameter Specification
+
+Users specify:
+
+- $S_0$: Current price of the underlying asset.
+
+- $K$: Option strike price.
+
+- $T$: Time to maturity (in years), typically computed as $\frac{\text{days to expiration}}{252}$.
+
+- $r$: Continuously compounded, annualised risk‐free rate.
+
+- $\sigma$: Annualised volatility estimate (e.g., historical or implied).
+
+Under the **risk‐neutral measure** $\mathbb{Q}$, the discounted asset process $e^{-rt}S_t$ is a martingale. Consequently, the no‐arbitrage price of a European call satisfies:
+$$
+  C(S_0, K, T, r, \sigma) = e^{-rT}\,\mathbb{E}^{\mathbb{Q}}\bigl[\max(S_T - K,\,0)\bigr]
+$$
+This principle underlies each pricing module, with differences only in how $\mathbb{E}^{\mathbb{Q}}[\cdot]$ is evaluated.
+
+### 1.2 Underlying Price Retrieval 
+
+While not central to academic exposition, the app can fetch live or historical $S_0$ data via APIs (e.g., Yahoo Finance using `pandas_datareader`), enabling calibration to current market levels. Caching ensures efficient repeated queries for historical series used in implied volatility estimation or empirical calibration tasks.
+
+---
+
+## 2. Black–Scholes Analytical Module
+
+### 2.1 Assumptions and PDE Derivation
+Assume $S_t$ follows geometric Brownian motion under $\mathbb{Q}$:
+
+$$
+  dS_t = r\,S_t\,dt + \sigma\,S_t\,dW_t
+$$
+where $W_t$ is a standard Wiener process. By applying Itô’s lemma to the option price function $V(S,t)$ and constructing a risk‐free hedge portfolio, one deduces the Black–Scholes PDE:
+
+$$
+  \frac{\partial V}{\partial t} + \tfrac{1}{2}\sigma^2 S^2 \frac{\partial^2 V}{\partial S^2} + r S\,\frac{\partial V}{\partial S} - r V = 0
+$$
+with terminal condition $V(S,T) = \max(S - K,\,0)$.
+
+### 2.2 Closed‐Form Solution and Greeks
+
+Solving the PDE yields the classical formula:
+$$
+  C = S_0\,\Phi(d_1) - K e^{-rT}\,\Phi(d_2),
+  \quad
+  P = K e^{-rT}\,\Phi(-d_2) - S_0\,\Phi(-d_1),
+$$
+
+where $d_{1,2}$ are defined as above. From this expression, one derives **Greeks**:
+
+- **Delta**: $\Delta = \Phi(d_1)$ (call) or $\Phi(d_1) - 1$ (put).
+
+- **Gamma**: $\Gamma = \frac{\phi(d_1)}{S_0 \sigma \sqrt{T}}$, with $\phi(\cdot)$ the standard normal density.
+
+- **Vega**: $\nu = S_0 \phi(d_1) \sqrt{T}$.
+
+- **Theta**, **Rho**: computed via partial derivatives w.r.t. $t$ and $r$.
+
+### 2.3 Academic Considerations
+
+- **Model Limitations**: Constant volatility and risk‐free rate, no jumps, continuous trading—assumptions that fail in practice (Bakshi, Cao, & Chen, 1997).  
+
+- **Boundary Behavior**: As $\sigma \to 0$, $C \to \max(S_0 - K,\,0)$; as $T \to 0$, $C$ approaches intrinsic value.  
+
+- **Implied Volatility**: Invert the above formula to solve for $\sigma_{\text{imp}}$ given a market price $C_{\text{mkt}}$, yielding the implied‐volatility surface often studied in academic research (Gatheral, 2006).
+
+---
+
+## 3. Recombining Binomial Lattice Module
+
+### 3.1 Discrete‐Time Approximation
+
+Partition $[0, T]$ into $M$ steps of size $\Delta t = T/M$. At each node $j$ (time $j \Delta t$), the underlying price takes values:
+$$
+  S_{j,i} = S_0 \,u^i \,d^{\,j - i}, 
+  \quad
+  u = e^{\sigma \sqrt{\Delta t}},
+  \quad
+  d = e^{-\sigma \sqrt{\Delta t}}
+$$
+for $i = 0, 1, \dots, j$. This recombining structure yields $\tfrac{1}{2}(M+1)(M+2)$ nodes in total.
+
+### 3.2 Risk‐Neutral Probabilities and Backward Induction
+
+At each step:
+$$
+  p = \frac{e^{r\Delta t} - d}{u - d}, 
+  \quad 
+  1 - p = \frac{u - e^{r\Delta t}}{u - d}
+$$
+Initialise at maturity ($j=M$) with terminal payoffs:
+$$
+  V_{M,i} = \max\bigl(S_{M,i} - K,\,0\bigr)
+$$
+Then, for $j = M-1,\,M-2,\,\ldots,\,0$ and $i = 0,\ldots,j$:
+$$
+  V_{j,i} = e^{-r \Delta t}\bigl[p\,V_{j+1,i+1} \;+\; (1-p)\,V_{j+1,i}\bigr]
+$$
+The root node $V_{0,0}$ yields the binomial implied option price.
+
+### 3.3 Convergence Analysis
+
+- **Bias**: For European options, the binomial price exhibits bias $O(1/M)$ relative to Black–Scholes (Phelim P. Boyle, 1977).  
+
+- **Computational Complexity**: Building and rolling back the tree is $O(M^2)$. In an interactive setting, practical ceiling for $M$ might be $100$–$500$ to maintain responsiveness.
+
+### 3.4 Extensions
+- **American Options**: By replacing the backward‐induction formula with  
+  \[
+    V_{j,i} = \max\bigl(\max(S_{j,i} - K,0),\;e^{-r \Delta t}[\,p\,V_{j+1,i+1} + (1-p)\,V_{j+1,i}\,]\bigr),
+  \]  
+  one can handle early exercise features (Cox, Ross, & Rubinstein, 1979; Hull, 2018). Although not the app’s primary focus, the framework is readily adaptable.
+
+---
+
+## 4. Monte Carlo Simulation Module
+
+### 4.1 Geometric Brownian Motion Sampling
+Under the risk‐neutral measure, simulate terminal prices $S_T$ as:
+$$
+  S_T^{(k)} = S_0 \exp\Bigl[\bigl(r - \tfrac{1}{2}\sigma^2\bigr)T + \sigma \sqrt{T}\,Z^{(k)}\Bigr],
+  \quad
+  Z^{(k)} \sim \mathcal{N}(0,1),
+  \quad
+  k = 1,2,\dots,N
+$$
+Alternatively, for path‐dependent extensions, discretize intermediate times $t_1, t_2, \ldots, t_{M-1}$ with the Euler-Maruyama method.
+
+### 4.2 Payoff Averaging and Discounting
+
+Compute the payoff for each simulated path:
+$$
+  \pi^{(k)} = \max\bigl(S_T^{(k)} - K,\,0\bigr)
+$$
+then estimate:
+$$
+  \hat{C}_{\text{MC}} = e^{-rT}\,\frac{1}{N}\sum_{k=1}^N \pi^{(k)}
+$$
+By the Central Limit Theorem,  
+$$
+  \text{SE}\bigl(\hat{C}_{\text{MC}}\bigr) = O\bigl(\sigma_{\pi}/\sqrt{N}\bigr)
+$$
+where $\sigma_{\pi}$ is the standard deviation of the discount‐adjusted payoffs (Glasserman, 2004).
+
+### 4.3 Variance Reduction Techniques (Optional)
+
+- **Antithetic Variates**: Simultaneously simulate $Z$ and $-Z$ to reduce variance (Boyle, 1977).  
+
+- **Control Variates**: Use the known Black–Scholes price as a control:  
+  $$
+    \hat{C}_{\text{CV}} = \hat{C}_{\text{MC}} + \beta\bigl(C_{\text{BS}} - \hat{C}_{\text{BS,MC}}\bigr)
+  $$
+  where $\hat{C}_{\text{BS,MC}}$ is the Monte Carlo estimate under Black–Scholes dynamics and $\beta$ is chosen to minimise variance.  
+
+- **Quasi-Monte Carlo**: Employ low-discrepancy sequences (Sobol, Halton) to accelerate convergence (Caflisch, 1998).
+
+### 4.4 Computational Considerations
+
+- **Path Count vs. Accuracy**: In practice, $N$ may range from $10^4$ to $10^6$. Within an interactive app, default $N\approx10^4$–$5\times10^4$ balances speed and precision.  
+
+- **Parallelisation**: Vectorised operations (NumPy) or GPU acceleration can reduce runtime, but browser‐based constraints often limit batch sizes.
+
+---
+
+## 5. Convergence and Sensitivity Analysis Module
+
+### 5.1 Empirical Convergence Studies
+
+- **Binomial vs. Black–Scholes**: For fixed $(S_0,K,T,r,\sigma)$, compute binomial prices for $M = \{50, 100, 200, 400\}$ and plot $\lvert V_{0,0}^{(M)} - C_{\text{BS}}\rvert$ versus $M$, verifying $O(1/M)$ decay.  
+
+- **Monte Carlo Error Scaling**: For $N = \{10^3, 10^4, 10^5\}$, plot standard error of $\hat{C}_{\text{MC}}$ against $1/\sqrt{N}$ to confirm theoretical rate. These plots reinforce academic understanding of bias–variance trade-offs.
+
+### 5.2 Sensitivity (Greek) Visualisation
+
+- **Delta Approximation**: Numerically estimate $\Delta \approx \frac{V(S_0 + \delta) - V(S_0 - \delta)}{2\delta}$ for small $\delta$, comparing to the analytical $\Phi(d_1)$.  
+
+- **Gamma and Vega**: Similar finite-difference approximations versus closed-form Greek expressions. Visualisation of Greeks across $S_0\in[0.5K,\,1.5K]$ or $\sigma\in[0.1,\,0.5]$ elucidates risk sensitivities.
+
+---
+
+## 6. Visualisation and User Interface
+
+While the **Streamlit interface** is not the focus here, certain UI elements underscore academic utility:
+
+
+- **Dynamic Input Widgets**: Sliders for $\sigma$ and $T$, date pickers for expiration, numeric fields for $S_0$ and $K$ facilitate real‐time experimentation.  
+
+- **Tabulated Outputs**: Side‐by‐side display of Black–Scholes, binomial, and Monte Carlo prices for calls and puts promotes direct comparison.  
+
+- **Graphs**:  
+  
+  - **Convergence Plots** (binomial error vs. $M$; Monte Carlo standard error vs. $N$).  
+  - **Payoff Histogram**: Distribution of discounted Monte Carlo payoffs at maturity.  
+  
+  - **Greek Surface**: 3D or contour plots of delta/gamma as functions of $S_0$ and $\sigma$.  
+  
+  - **Binomial Tree Heatmap**: Visual representation of option values at lattice nodes.
+
+These interactive visualisations transform abstract mathematical concepts into tangible insights, fostering deeper comprehension among students.
+
+---
+
+# Discussion
+
+### 1. Comparative Analysis of Pricing Methods
+
+- **Analytical vs. Numerical**  
+  
+  - The **Black–Scholes** formula is $O(1)$ per evaluation, providing immediate results and exact Greeks under model assumptions. However, it fails when assumptions break (e.g., discrete dividends, early exercise).  
+  
+  - The **Binomial Lattice** converges deterministically to the Black–Scholes price for European options as $M\to\infty$ (bias $O(1/M)$) and can be adapted to American‐style claims. Its computational cost is $O(M^2)$, which can become burdensome for large $M$ in an interactive setting.  
+  
+  - **Monte Carlo Simulation** offers versatility for complex payoff structures and alternative stochastic dynamics. Its computational complexity scales as $O(N)$ per path generation (assuming one‐step paths) with random error $O(1/\sqrt{N})$. For European options, Monte Carlo is slower and less precise than binomial or analytical methods, but it excels when no closed‐form exists.
+
+- **Error Sources and Trade-Offs**  
+  
+  - **Binomial Bias**: Even with $M=500$, the binomial price may deviate by a few basis points from Black–Scholes, which is critical when calibrating models to market quotes.  
+  
+  - **Monte Carlo Variance**: Without variance reduction, Monte Carlo prices may exhibit standard errors of similar magnitude for $N=10^4$, making the method impractical for sub‐$0.01$ tolerance unless $N$ is large or advanced techniques (e.g., antithetic variates) are employed.
+
+### 2. Pedagogical Insights
+
+- **Intuition Behind Greeks**: Visualising how delta approaches a Heaviside step function as $T\to0$ or how vega peaks at at‐the‐money options underscores theoretical derivations in coursework.  
+
+- **Reality of Discretisation**: Empirical demonstration that binomial trees converge slowly for deep‐in or deep‐out‐of‐the‐money options can prompt discussion on using Richardson extrapolation or finite‐difference PDE solvers.  
+
+- **Monte Carlo Variance**: Observing noisy payoff distributions motivates study of variance reduction and importance sampling in computational finance curricula.
+
+### 3. Research and Extension Potential
+
+- **Stochastic Volatility Models**  
+  
+  - **Heston Model (1993)**: Characteristic‐function methods (Fourier inversion) afford semi‐analytical pricing. Integrating a Heston module would require implementing numeric inversion (e.g., Carr–Madan) or using complex‐valued integrals, illustrating advanced quantitative techniques (Heston, 1993; Lord, Fang, Bervoets, & Oosterlee, 2008).
+
+- **Jump‐Diffusion and Lévy Processes**  
+  
+  - **Merton’s Jump‐Diffusion (1976)** combines a Poisson‐jump component with Brownian motion, capturing leptokurtic features. Pricing requires summing over jump counts or using Fourier approaches, thereby enriching the app’s scope.
+
+- **Finite‐Difference PDE Solvers**  
+  
+  - For exotic payoffs (barrier, Asian, lookback), closed‐form solutions may not exist. Implementing Crank–Nicolson or explicit/implicit finite‐difference schemes offers hands‐on experience with numerical PDE techniques (Wilmott, Howison, & Dewynne, 1995).
+
+- **Implied Volatility Surface Analysis**  
+  
+  - By retrieving market quotes for various strikes and maturities, students can invert to implied volatilities and plot the volatility smile/surface. This empirical exercise underscores limitations of constant‐volatility models and introduces local vol or stochastic vol calibration.
+
+- **American Option Pricing**  
+  
+  - Extending the binomial framework to include early‐exercise features invites discussion on free‐boundary problems and exercise boundaries, bridging discrete and continuous models (Broadie & Detemple, 1996).
+
+### 4. Limitations and Practical Considerations
+
+- **Model Risk**: All modules assume specific stochastic dynamics (e.g., geometric Brownian motion). Real markets exhibit stochastic volatility, jumps, and regime changes that these modules do not capture.  
+
+- **Computational Constraints**: In a browser‐based interface, high $M$ or $N$ values may exceed time budgets. Caching and sensible defaults mitigate this but limit extreme parameter exploration.  
+
+- **Data Latency and Quality**: If employing live market data, API delays or stale quotes can distort valuations. Academics should be aware that calibration to historical data may not translate to real‐time performance.
+
+---
+
+# Conclusion and Future Directions
+
+**Key Takeaways:**
+
+1. **Unified Pedagogical Platform**: The Option Pricing Streamlit App integrates three core valuation methodologies, facilitating comparative learning about model assumptions, convergence behavior, and computational trade‐offs.
+
+2. **Empirical Learning**: Interactive sliders and live visual feedback deepen intuition on how volatility, maturity, and strike influence prices and Greeks, reinforcing theoretical constructs from classic texts (Black & Scholes, 1973; Cox, Ross, & Rubinstein, 1979; Hull, 2018).
+
+3. **Research Foundation**: Modular architecture invites extension to more sophisticated frameworks—stochastic volatility, jump processes, finite‐difference solvers, and implied‐volatility calibration—making it a springboard for graduate‐level projects or exploratory research.
+
+**Future Research Directions:**
+
+- **Adaptive Calibration**: Implement rolling calibration routines that update $\sigma$ or other parameters to minimise pricing errors against real‐time market quotes, thereby exploring market‐microstructure effects on implied parameters.
+
+- **Advanced Numerical Techniques**: Integrate Fourier transform methods (Carr & Madan, 1999) for Lévy‐driven models, or tree‐based schemes with Richardson extrapolation to accelerate convergence.
+
+- **Machine Learning Integration**: Investigate data‐driven approaches to approximate pricing functions (e.g., neural networks as function approximators for option prices across parameter grids) to achieve “instantaneous” valuations for large portfolios (Han, Jentzen, & E, 2018).
+
+- **Risk Management Extensions**: Embed dynamic hedging simulations to track P&L under delta‐ or vega‐neutral strategies, exploring discrete rebalancing errors and transaction costs.
+
+By presenting a cohesive academic framework, this overview underscores how the Option Pricing Streamlit App transcends a mere code repository to become a dynamic pedagogical and research instrument. It embodies the synergy between mathematical finance theory and computational experimentation, charting a path for continued scholarly exploration.
+
+---
+
+# References
+
+- Black, F., & Scholes, M. (1973). The Pricing of Options and Corporate Liabilities. *Journal of Political Economy*, 81(3), 637–654.
+
+- Broadie, M., & Detemple, J. (1996). American Option Valuation: New Bounds, Approximations, and a Comparison of Existing Methods. *Review of Financial Studies*, 9(4), 1211–1250.
+
+- Broadie, M., & Glasserman, P. (1996). Estimating Security Price Derivatives Using Simulation. *Management Science*, 42(2), 269–285.
+
+- Boyle, P. P. (1977). Options: A Monte Carlo Approach. *Journal of Financial Economics*, 4(3), 323–338.
+
+- Boyle, P. P., Broadie, M., & Glasserman, P. (1997). Monte Carlo Methods for Security Pricing. *Journal of Economic Dynamics and Control*, 21(8–9), 1267–1321.
+
+- Carr, P., & Madan, D. (1999). Option Valuation Using the Fast Fourier Transform. *Journal of Computational Finance*, 2(4), 61–73.
+
+- Caflisch, R. E. (1998). Monte Carlo and Quasi‐Monte Carlo Methods. *Acta Numerica*, 7, 1–49.
+
+- Cox, J. C., Ross, S. A., & Rubinstein, M. (1979). Option Pricing: A Simplified Approach. *Journal of Financial Economics*, 7(3), 229–263.
+
+- Gatheral, J. (2006). *The Volatility Surface: A Practitioner’s Guide*. Wiley.
+
+- Glasserman, P. (2004). *Monte Carlo Methods in Financial Engineering*. Springer.
+
+- Heston, S. L. (1993). A Closed‐Form Solution for Options with Stochastic Volatility with Applications to Bond and Currency Options. *Review of Financial Studies*, 6(2), 327–343.
+
+- Hull, J. C. (2018). *Options, Futures, and Other Derivatives* (10th ed.). Pearson.
+
+- Kloeden, P. E., & Platen, E. (1992). *Numerical Solution of Stochastic Differential Equations*. Springer.
+
+- Lord, R., Fang, F., Bervoets, F., & Oosterlee, C. W. (2008). A Fast and Accurate FFT‐Based Method for Pricing Early‐Exercise Options Under Lévy Processes. *SIAM Journal on Scientific Computing*, 30(4), 1678–1705.
+
+- Merton, R. C. (1973). Theory of Rational Option Pricing. *The Bell Journal of Economics and Management Science*, 4(1), 141–183.
+
+- Merton, R. C. (1976). Option Pricing When Underlying Stock Returns Are Discontinuous. *Journal of Financial Economics*, 3(1–2), 125–144.
+
+- Phelim P. Boyle. (1977). Options: A Monte Carlo Approach. *Journal of Financial Economics*, 4(3), 323–338.
+
+- Wilmott, P., Howison, S., & Dewynne, J. (1995). *The Mathematics of Financial Derivatives: A Student Introduction*. Cambridge University Press.
+
+- Han, J., Jentzen, A., & E, W. (2018). Solving High‐Dimensional Partial Differential Equations Using Deep Learning. *Proceedings of the National Academy of Sciences*, 115(34), 8505–8510.
