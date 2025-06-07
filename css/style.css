@@ -1160,3 +1160,9 @@ span#nav-close {
   overflow: visible !important;
   margin-bottom: 10px;    /* give a little space between title and paragraph */
 }    
+
+.view.img video {
+  max-width: 100%;
+  height: auto;
+  display: block;    /* removes inline-video whitespace issues */
+}
