@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Rishikesh Govind">
+<meta name="dcterms.date" content="2025-12-10">
+
+<title>Breakeven Revenue and ML-Implied Fundamental Curves for Equity Valuation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="ml_implied_fundamentals_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="ml_implied_fundamentals_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="ml_implied_fundamentals_files/libs/quarto-html/popper.min.js"></script>
+<script src="ml_implied_fundamentals_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ml_implied_fundamentals_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ml_implied_fundamentals_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ml_implied_fundamentals_files/libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ml_implied_fundamentals_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ml_implied_fundamentals_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ml_implied_fundamentals_files/libs/bootstrap/bootstrap-a5f8558feb849f0e262f365295844a56.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#background-and-related-literature" id="toc-background-and-related-literature" class="nav-link" data-scroll-target="#background-and-related-literature">Background and Related Literature</a>
+  <ul class="collapse">
+  <li><a href="#discounted-cash-flow-and-residual-income-models" id="toc-discounted-cash-flow-and-residual-income-models" class="nav-link" data-scroll-target="#discounted-cash-flow-and-residual-income-models">Discounted cash flow and residual-income models</a></li>
+  <li><a href="#implied-fundamentals-and-reverse-valuation" id="toc-implied-fundamentals-and-reverse-valuation" class="nav-link" data-scroll-target="#implied-fundamentals-and-reverse-valuation">Implied fundamentals and reverse valuation</a></li>
+  <li><a href="#machine-learning-in-empirical-asset-pricing" id="toc-machine-learning-in-empirical-asset-pricing" class="nav-link" data-scroll-target="#machine-learning-in-empirical-asset-pricing">Machine learning in empirical asset pricing</a></li>
+  </ul></li>
+  <li><a href="#breakeven-revenue-in-a-stable-growth-fcfe-model" id="toc-breakeven-revenue-in-a-stable-growth-fcfe-model" class="nav-link" data-scroll-target="#breakeven-revenue-in-a-stable-growth-fcfe-model">Breakeven Revenue in a Stable-Growth FCFE Model</a>
+  <ul class="collapse">
+  <li><a href="#model-setup" id="toc-model-setup" class="nav-link" data-scroll-target="#model-setup">Model setup</a></li>
+  <li><a href="#breakeven-revenue-identity" id="toc-breakeven-revenue-identity" class="nav-link" data-scroll-target="#breakeven-revenue-identity">Breakeven revenue identity</a></li>
+  </ul></li>
+  <li><a href="#fundamental-curves-and-machine-learning" id="toc-fundamental-curves-and-machine-learning" class="nav-link" data-scroll-target="#fundamental-curves-and-machine-learning">Fundamental Curves and Machine Learning</a>
+  <ul class="collapse">
+  <li><a href="#definition-fundamental-curve" id="toc-definition-fundamental-curve" class="nav-link" data-scroll-target="#definition-fundamental-curve">Definition: fundamental curve</a></li>
+  <li><a href="#ml-approximation-of-fundamental-curves" id="toc-ml-approximation-of-fundamental-curves" class="nav-link" data-scroll-target="#ml-approximation-of-fundamental-curves">ML approximation of fundamental curves</a>
+  <ul class="collapse">
+  <li><a href="#supervised-learning-formulation" id="toc-supervised-learning-formulation" class="nav-link" data-scroll-target="#supervised-learning-formulation">Supervised learning formulation</a></li>
+  <li><a href="#regularization-and-structure" id="toc-regularization-and-structure" class="nav-link" data-scroll-target="#regularization-and-structure">Regularization and structure</a></li>
+  </ul></li>
+  <li><a href="#from-curves-to-cross-sectional-tests" id="toc-from-curves-to-cross-sectional-tests" class="nav-link" data-scroll-target="#from-curves-to-cross-sectional-tests">From curves to cross-sectional tests</a></li>
+  </ul></li>
+  <li><a href="#implementation-the-breakeven-revenue-dashboard" id="toc-implementation-the-breakeven-revenue-dashboard" class="nav-link" data-scroll-target="#implementation-the-breakeven-revenue-dashboard">Implementation: The Breakeven Revenue Dashboard</a>
+  <ul class="collapse">
+  <li><a href="#data-and-inputs" id="toc-data-and-inputs" class="nav-link" data-scroll-target="#data-and-inputs">Data and inputs</a></li>
+  <li><a href="#breakeven-revenue-computation-and-visualization" id="toc-breakeven-revenue-computation-and-visualization" class="nav-link" data-scroll-target="#breakeven-revenue-computation-and-visualization">Breakeven revenue computation and visualization</a></li>
+  <li><a href="#sector-relative-breakeven-analysis" id="toc-sector-relative-breakeven-analysis" class="nav-link" data-scroll-target="#sector-relative-breakeven-analysis">Sector-relative breakeven analysis</a></li>
+  </ul></li>
+  <li><a href="#research-directions-and-phd-level-extensions" id="toc-research-directions-and-phd-level-extensions" class="nav-link" data-scroll-target="#research-directions-and-phd-level-extensions">Research Directions and PhD-Level Extensions</a>
+  <ul class="collapse">
+  <li><a href="#cross-sectional-return-prediction-using-breakeven-metrics" id="toc-cross-sectional-return-prediction-using-breakeven-metrics" class="nav-link" data-scroll-target="#cross-sectional-return-prediction-using-breakeven-metrics">1. Cross-sectional return prediction using breakeven metrics</a></li>
+  <li><a href="#ml-implied-fundamental-surfaces-and-consistency-constraints" id="toc-ml-implied-fundamental-surfaces-and-consistency-constraints" class="nav-link" data-scroll-target="#ml-implied-fundamental-surfaces-and-consistency-constraints">2. ML-implied fundamental surfaces and consistency constraints</a></li>
+  <li><a href="#linking-fundamental-curves-to-narratives" id="toc-linking-fundamental-curves-to-narratives" class="nav-link" data-scroll-target="#linking-fundamental-curves-to-narratives">3. Linking fundamental curves to narratives</a></li>
+  <li><a href="#robustness-under-model-and-parameter-uncertainty" id="toc-robustness-under-model-and-parameter-uncertainty" class="nav-link" data-scroll-target="#robustness-under-model-and-parameter-uncertainty">4. Robustness under model and parameter uncertainty</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Breakeven Revenue and ML-Implied Fundamental Curves for Equity Valuation</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Rishikesh Govind </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 10, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    <p>This note develops a breakeven-revenue representation of Aswath Damodaran’s stable-growth free-cash-flow-to-equity (FCFE) model and proposes a machine learning (ML) framework for estimating “fundamental curves” for individual equities. Rather than mapping fundamentals into a point estimate of intrinsic value, we invert the valuation identity: given market capitalization and assumptions on the cost of equity and long-run growth, we solve for the level of revenue consistent with the observed price. The resulting breakeven revenue enables a narrative classification of firms as “probable”, “plausible”, or “stretch” based on the revenue expansion required to justify current valuations. Building on this idea, we outline how to learn high-dimensional fundamental curves i.e.&nbsp;surfaces relating valuation assumptions to implied fundamentals using modern ML methods. An interactive Streamlit dashboard accompanies the paper and serves as a prototype research tool for exploring these curves at the single-firm and cross-sectional levels.</p>
+  </div>
+</div>
+
+
+</header>
+
+
+<div style="margin-bottom: 1rem;">
+<p><a href="https://breakeven-revenue-valuation.streamlit.app/" class="btn btn-primary" role="button" target="_blank" rel="noopener"> Launch App </a></p>
+</div>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Equity valuation is traditionally framed as a forward problem: given a set of assumptions about a firm’s future cash flows and discount rates, we compute a present value and compare it to the observed market price. In practice, however, the opposite question is often more informative:</p>
+<blockquote class="blockquote">
+<p><em>What fundamental trajectory must be true for today’s market capitalization to be justified?</em></p>
+</blockquote>
+<p>Aswath Damodaran’s work on narrative and intrinsic valuation emphasizes that valuations implicitly encode stories about growth, profitability, and reinvestment, and that distinguishing <em>possible</em>, <em>plausible</em>, and <em>probable</em> narratives is central to disciplined investing . This paper takes that perspective seriously and pushes it in two directions:</p>
+<ol type="1">
+<li><p><strong>Reverse-engineered fundamentals.</strong> Starting from Damodaran’s stable-growth FCFE model, we algebraically invert the valuation identity to express <em>current revenue</em> as the unknown. Given observed market capitalization and assumptions on net margin, return on equity (ROE), cost of equity, and stable growth, we obtain a <em>breakeven revenue</em>—the revenue level implied by the current price.</p></li>
+<li><p><strong>ML-implied fundamental curves.</strong> Rather than computing a single breakeven point, we propose learning <em>fundamental curves</em> for each firm: smooth mappings from valuation assumptions (e.g., cost of equity, long-run growth, margins, reinvestment) to implied fundamentals that clear the valuation identity. Modern machine learning methods, already widely used in empirical asset pricing , offer a natural toolkit for estimating such curves in a high-dimensional, non-linear setting.</p></li>
+</ol>
+<p>To make these ideas concrete, I have implemented a Streamlit dashboard—<strong>Breakeven Revenue Valuation</strong>—which, for a given listed equity:</p>
+<ul>
+<li>computes breakeven revenue under user-specified cost of equity and growth assumptions,</li>
+<li>compares this figure to the firm’s latest reported revenue,</li>
+<li>visualizes the revenue “gap” and simple growth scenarios, and</li>
+<li>positions the firm relative to sector peers on a common breakeven-revenue basis.</li>
+</ul>
+<p>This note formalizes the underlying mathematics, situates the approach in the academic literature, and sketches how one might extend the prototype into a full PhD-level research agenda on ML-implied fundamental curves.</p>
+<hr>
+</section>
+<section id="background-and-related-literature" class="level1">
+<h1>Background and Related Literature</h1>
+<section id="discounted-cash-flow-and-residual-income-models" class="level2">
+<h2 class="anchored" data-anchor-id="discounted-cash-flow-and-residual-income-models">Discounted cash flow and residual-income models</h2>
+<p>The starting point is the standard present-value paradigm: the value of equity is the discounted sum of future cash flows to shareholders. Classical variants include dividend discount models, free-cash-flow-to-equity (FCFE) models, and residual-income or abnormal-earnings formulations (e.g., Ohlson 1995; Penman and Sougiannis 1998) .</p>
+<p>Damodaran’s exposition of FCFE-based valuation has become particularly influential in practice, combining a detailed treatment of cash-flow forecasting with a simple <em>stable-growth</em> terminal value representation . In that representation, once the firm reaches steady state, equity value is pinned down by three quantities:</p>
+<ul>
+<li>next period’s free cash flow to equity <span class="math inline">\(\mathrm{FCFE}_1\)</span>,</li>
+<li>the cost of equity <span class="math inline">\(r\)</span>, and</li>
+<li>the perpetual growth rate <span class="math inline">\(g\)</span>.</li>
+</ul>
+<p>The stable-growth value of equity is <span class="math display">\[
+V_0 = \frac{\mathrm{FCFE}_1}{r - g},
+\]</span> with <span class="math inline">\(r &gt; g\)</span> required for convergence.</p>
+</section>
+<section id="implied-fundamentals-and-reverse-valuation" class="level2">
+<h2 class="anchored" data-anchor-id="implied-fundamentals-and-reverse-valuation">Implied fundamentals and reverse valuation</h2>
+<p>Reverse valuation—solving for an implied <em>driver</em> rather than value—is a recurrent theme in both practice and research. Examples include:</p>
+<ul>
+<li><strong>Implied growth rates</strong> from price–earnings (P/E) or price–sales (P/S) multiples,</li>
+<li><strong>Implied cost of capital</strong> from residual-income or dividend models, and</li>
+<li><strong>Implied volatilities</strong> from option prices (a fully mature instance of this idea).</li>
+</ul>
+<p>Recent work on “requirements for growth” and “implied fundamentals” typically proceeds by numerically inverting DCF models or by solving simple algebraic identities in the case of one-factor multiples. The present paper is in this spirit but focuses on <em>revenue</em> as the implied fundamental, using a specific FCFE representation closely aligned with Damodaran’s teaching materials on growth, ROE, and reinvestment .</p>
+</section>
+<section id="machine-learning-in-empirical-asset-pricing" class="level2">
+<h2 class="anchored" data-anchor-id="machine-learning-in-empirical-asset-pricing">Machine learning in empirical asset pricing</h2>
+<p>Machine learning has been widely adopted in cross-sectional asset pricing, largely to model expected returns as flexible functions of firm characteristics and macro variables (see Gu, Kelly, and Xiu 2020; Bryzgalova, Pelger, and Zhu 2023, among many others) . Typical applications treat price as the dependent variable (via returns), while fundamentals enter as features.</p>
+<p>By contrast, the proposal here is to use ML <em>inside</em> the valuation engine, not to predict returns directly. The ML model learns the mapping from assumptions to <em>implied</em> fundamentals consistent with observed prices, smoothing noise and capturing non-linearities in how the market prices different regions of the state space. This is closer in spirit to the use of neural networks as surrogates for option pricing PDEs or as non-parametric term-structure models.</p>
+<hr>
+</section>
+</section>
+<section id="breakeven-revenue-in-a-stable-growth-fcfe-model" class="level1">
+<h1>Breakeven Revenue in a Stable-Growth FCFE Model</h1>
+<p>In this section we formalize the breakeven revenue quantity computed by the dashboard and derive a closed-form expression under standard assumptions.</p>
+<section id="model-setup" class="level2">
+<h2 class="anchored" data-anchor-id="model-setup">Model setup</h2>
+<p>We adopt a simplified FCFE framework with the following objects:</p>
+<ul>
+<li><strong><span class="math inline">\(V_0\)</span>:</strong> market value of equity (market capitalization),</li>
+<li><strong><span class="math inline">\(R_0\)</span>:</strong> current annual revenue,</li>
+<li><strong><span class="math inline">\(\mathrm{Margin}\)</span>:</strong> net profit margin, defined as net income divided by revenue,</li>
+<li><strong><span class="math inline">\(\mathrm{ROE}\)</span>:</strong> return on equity,</li>
+<li><strong><span class="math inline">\(r\)</span>:</strong> cost of equity,</li>
+<li><strong><span class="math inline">\(g\)</span>:</strong> perpetual stable growth rate (in both earnings and dividends/cash flows).</li>
+</ul>
+<p>We assume that the firm is already in, or quickly converges to, a stable regime in which:</p>
+<ol type="1">
+<li><p><strong>Revenue growth:</strong> Revenue grows at rate <span class="math inline">\(g\)</span>, <span class="math display">\[
+R_1 = R_0 (1+g).
+\]</span></p></li>
+<li><p><strong>Profitability:</strong> Net income in the next period is given by a constant net margin, <span class="math display">\[
+\mathrm{NI}_1 = R_1 \times \mathrm{Margin} = R_0 (1+g) \, \mathrm{Margin}.
+\]</span></p></li>
+<li><p><strong>Reinvestment and growth:</strong> Growth in equity is financed via reinvestment of earnings at ROE. The reinvestment rate necessary to sustain growth <span class="math inline">\(g\)</span> is <span class="math display">\[
+\text{Reinvestment Rate} = \frac{g}{\mathrm{ROE}},
+\]</span> giving reinvestment <span class="math display">\[
+\mathrm{Reinvestment}_1 = \mathrm{NI}_1 \cdot \frac{g}{\mathrm{ROE}}.
+\]</span></p></li>
+<li><p><strong>Free cash flow to equity:</strong> Free cash flow to equity in the next period is net income minus reinvestment, <span class="math display">\[
+\mathrm{FCFE}_1 = \mathrm{NI}_1 - \mathrm{Reinvestment}_1
+= \mathrm{NI}_1 \left( 1 - \frac{g}{\mathrm{ROE}} \right).
+\]</span></p></li>
+</ol>
+<p>Substituting the expression for <span class="math inline">\(\mathrm{NI}_1\)</span>, we obtain <span class="math display">\[
+\mathrm{FCFE}_1
+= R_0 (1+g) \, \mathrm{Margin}
+\left( 1 - \frac{g}{\mathrm{ROE}} \right).
+\]</span></p>
+<p>This is precisely the representation emphasized in Damodaran’s treatment of growth and reinvestment: growth is not free; it requires reinvestment of earnings at rate <span class="math inline">\(g / \mathrm{ROE}\)</span> to sustain.</p>
+</section>
+<section id="breakeven-revenue-identity" class="level2">
+<h2 class="anchored" data-anchor-id="breakeven-revenue-identity">Breakeven revenue identity</h2>
+<p>The stable-growth FCFE model values equity as <span class="math display">\[
+V_0 = \frac{\mathrm{FCFE}_1}{r - g},
+\quad r &gt; g.
+\]</span></p>
+<p>Substituting the expression for <span class="math inline">\(\mathrm{FCFE}_1\)</span>, <span class="math display">\[
+V_0 = \frac{
+R_0 (1+g)\,\mathrm{Margin}
+\left( 1 - \frac{g}{\mathrm{ROE}} \right)
+}{
+r - g
+}.
+\]</span></p>
+<p>We now view <span class="math inline">\(V_0\)</span> as <em>given</em> (observed market capitalization) and solve instead for the current revenue <span class="math inline">\(R_0\)</span> consistent with this identity. Simple algebra yields the <em>breakeven revenue</em>:</p>
+<p><span class="math display">\[
+R_0^{\ast} =
+\frac{
+V_0 (r - g)
+}{
+\mathrm{Margin} (1+g)
+\left( 1 - \frac{g}{\mathrm{ROE}} \right)
+}.
+\]</span></p>
+<p>The breakeven revenue <span class="math inline">\(R_0^{\ast}\)</span> is the revenue level that, if combined with the assumed margin, ROE, cost of equity, and growth rate, would rationalise the observed market capitalization <span class="math inline">\(V_0\)</span>.</p>
+<p>For empirical implementation, the dashboard:</p>
+<ul>
+<li>sets <span class="math inline">\(V_0\)</span> equal to the current market capitalization,</li>
+<li>estimates <span class="math inline">\(\mathrm{Margin}\)</span> and <span class="math inline">\(\mathrm{ROE}\)</span> from the latest annual financial statements, and</li>
+<li>treats <span class="math inline">\(r\)</span> and <span class="math inline">\(g\)</span> as user-controlled sliders.</li>
+</ul>
+<p>The ratio <span class="math display">\[
+\Gamma \equiv \frac{R_0^{\ast}}{R_0}
+\]</span> then measures the <em>implied revenue multiple</em>:</p>
+<ul>
+<li><span class="math inline">\(\Gamma \approx 1\)</span>: the valuation is largely grounded in current fundamentals (“probable” narrative),</li>
+<li><span class="math inline">\(\Gamma \in (1, 2]\)</span>: the valuation requires substantial but not outrageous revenue growth (“plausible” narrative),</li>
+<li><span class="math inline">\(\Gamma \gg 2\)</span>: the valuation embeds a very aggressive revenue story (“stretch” narrative).</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="fundamental-curves-and-machine-learning" class="level1">
+<h1>Fundamental Curves and Machine Learning</h1>
+<p>The breakeven revenue identity above is algebraic and closed-form. However, it is also highly stylized. Real-world valuations:</p>
+<ul>
+<li>deviate from strict stable growth,</li>
+<li>incorporate multiple growth phases,</li>
+<li>depend on a richer set of state variables (leverage, tax rates, competitive dynamics), and</li>
+<li>reflect non-linearities and interaction effects that are difficult to capture in closed-form.</li>
+</ul>
+<p>This motivates the notion of <em>fundamental curves</em> and the use of ML to estimate them.</p>
+<section id="definition-fundamental-curve" class="level2">
+<h2 class="anchored" data-anchor-id="definition-fundamental-curve">Definition: fundamental curve</h2>
+<p>Fix a firm <span class="math inline">\(i\)</span>. We consider a vector of valuation assumptions <span class="math display">\[
+\theta = (r, g, \mathrm{Margin}, \mathrm{ROE}, \ldots) \in \Theta,
+\]</span> and one or more <em>implied fundamentals</em> <span class="math inline">\(f \in \mathcal{F}\)</span> (revenue, margins, reinvestment, etc.).</p>
+<p>Let <span class="math inline">\(V_0^{(i)}\)</span> denote the observed market value of equity and <span class="math display">\[
+\mathcal{V}\big( f; \theta \big)
+\]</span> be a valuation operator predicting equity value as a function of fundamentals and assumptions (for instance, a multi-stage DCF model, residual-income model, or a hybrid DCF/multiples structure).</p>
+<p>The <strong>fundamental curve</strong> for firm <span class="math inline">\(i\)</span> is the set of <span class="math inline">\((f, \theta)\)</span> pairs that satisfy <span class="math display">\[
+\mathcal{V}\big( f; \theta \big) = V_0^{(i)}.
+\]</span></p>
+<p>In practice, we often restrict attention to one implied dimension at a time (e.g., revenue) and view the curve as a function <span class="math display">\[
+f^{(i)}(\theta) = \text{the implied fundamental that rationalizes } V_0^{(i)}.
+\]</span></p>
+<p>The breakeven revenue formula above is one specific, analytically tractable example of such a curve, in which:</p>
+<ul>
+<li><span class="math inline">\(\mathcal{V}\)</span> is the stable-growth FCFE model,</li>
+<li><span class="math inline">\(f\)</span> is current revenue, and</li>
+<li>the functional form collapses to a rational expression in <span class="math inline">\(\theta\)</span>.</li>
+</ul>
+</section>
+<section id="ml-approximation-of-fundamental-curves" class="level2">
+<h2 class="anchored" data-anchor-id="ml-approximation-of-fundamental-curves">ML approximation of fundamental curves</h2>
+<p>Once we move beyond the single-stage FCFE representation, closed forms disappear. We may have:</p>
+<ul>
+<li>multiple forecast horizons with time-varying margins,</li>
+<li>stochastic dynamics for cash flows,</li>
+<li>balance-sheet adjustments and capital structure changes, or</li>
+<li>regime-switching growth assumptions.</li>
+</ul>
+<p>In these settings, computing the implied fundamental becomes a numerical inversion problem. For a given firm <span class="math inline">\(i\)</span>, we could, in principle:</p>
+<ol type="1">
+<li>For each <span class="math inline">\(\theta\)</span>, solve <span class="math inline">\(\mathcal{V}(f; \theta) = V_0^{(i)}\)</span> numerically for <span class="math inline">\(f\)</span>.</li>
+<li>Store the resulting mapping <span class="math inline">\(f^{(i)}(\theta)\)</span> on a grid or as sampled pairs.</li>
+<li>Interpolate as needed.</li>
+</ol>
+<p>However, doing this for thousands of firms and a high-dimensional <span class="math inline">\(\theta\)</span>-space quickly becomes computationally burdensome. A more scalable approach is to <em>learn</em> the mapping from data using a parameterized ML model.</p>
+<section id="supervised-learning-formulation" class="level3">
+<h3 class="anchored" data-anchor-id="supervised-learning-formulation">Supervised learning formulation</h3>
+<p>Suppose we construct a training set from a historical panel of firms and dates:</p>
+<ul>
+<li>Inputs <span class="math inline">\(x_{it}\)</span>: firm characteristics (size, leverage, sector dummies, historical margins/ROE, volatility measures, etc.) at time <span class="math inline">\(t\)</span>.</li>
+<li>Scenario parameters <span class="math inline">\(\theta_t\)</span>: valuation assumptions (e.g., a cross-section of discount-rate estimates and long-run growth scenarios).</li>
+<li>Observed market capitalization <span class="math inline">\(V_{it}\)</span>.</li>
+</ul>
+<p>We can then define, for each firm-date pair, the model-implied breakeven revenue <span class="math inline">\(R^{\ast}_{it}\)</span> by inverting a chosen valuation engine <span class="math inline">\(\mathcal{V}\)</span>, either exactly (when possible) or numerically. These <span class="math inline">\(R^{\ast}_{it}\)</span> values serve as supervised targets.</p>
+<p>A flexible ML model—such as a deep feed-forward network, gradient-boosted trees, or a monotone neural network—can then be trained to approximate <span class="math display">\[
+R^{\ast}_{it} \approx \hat{R}(x_{it}, \theta_t; \phi),
+\]</span> where <span class="math inline">\(\phi\)</span> denotes model parameters. The resulting fitted function <span class="math inline">\(\hat{R}(\cdot)\)</span> provides an efficient, differentiable approximation to the fundamental curve mapping.</p>
+</section>
+<section id="regularization-and-structure" class="level3">
+<h3 class="anchored" data-anchor-id="regularization-and-structure">Regularization and structure</h3>
+<p>An attractive feature of this setup is that the algebraic breakeven identity provides <em>strong prior structure</em>. For example:</p>
+<ul>
+<li>In the stylized FCFE setting, holding everything else fixed, <span class="math inline">\(R_0^{\ast}\)</span> is increasing in <span class="math inline">\(V_0\)</span> and in <span class="math inline">\(r\)</span>, and decreasing in <span class="math inline">\(\mathrm{Margin}\)</span>, <span class="math inline">\(\mathrm{ROE}\)</span>, and <span class="math inline">\(g\)</span> (subject to <span class="math inline">\(g &lt; r\)</span>).</li>
+<li>We can enforce monotonicity or sign constraints on the ML approximation to respect such comparative statics.</li>
+<li>We can pre-train the model on synthetic data generated from the analytic formula and fine-tune it on richer, multi-stage DCF or market data.</li>
+</ul>
+<p>These elements align with recent “economic constraints in ML” literature, which emphasizes embedding financial structure into flexible statistical models.</p>
+</section>
+</section>
+<section id="from-curves-to-cross-sectional-tests" class="level2">
+<h2 class="anchored" data-anchor-id="from-curves-to-cross-sectional-tests">From curves to cross-sectional tests</h2>
+<p>Once fundamental curves are estimated, they can be used to construct a variety of cross-sectional signals:</p>
+<ul>
+<li><strong>Revenue stretch factor:</strong> <span class="math inline">\(\Gamma_{it} = R^{\ast}_{it} / R_{it}\)</span>, as in the dashboard.</li>
+<li><strong>Implied margin stretch:</strong> solving for the net margin that rationalizes <span class="math inline">\(V_{it}\)</span> given revenue and other assumptions.</li>
+<li><strong>Scenario sensitivity:</strong> measuring how <span class="math inline">\(\Gamma_{it}\)</span> changes with small perturbations in <span class="math inline">\(r\)</span> or <span class="math inline">\(g\)</span>, capturing how “fragile” a valuation is to discount-rate changes.</li>
+</ul>
+<p>These quantities can be tested for predictive power in cross-sectional expected returns, either alone or in combination with standard characteristics (value, profitability, investment, momentum, etc.), following the empirical asset-pricing ML literature .</p>
+<hr>
+</section>
+</section>
+<section id="implementation-the-breakeven-revenue-dashboard" class="level1">
+<h1>Implementation: The Breakeven Revenue Dashboard</h1>
+<p>To make the breakeven revenue concept accessible and to build intuition for fundamental curves, I implemented an interactive web application using Streamlit and Python.</p>
+<section id="data-and-inputs" class="level2">
+<h2 class="anchored" data-anchor-id="data-and-inputs">Data and inputs</h2>
+<p>For each user-selected ticker:</p>
+<ul>
+<li><strong>Market capitalization</strong> and <strong>current price</strong> are obtained from <code>yfinance</code>, which wraps Yahoo Finance data.</li>
+<li><strong>Income statement</strong> and <strong>balance-sheet</strong> items (revenue, net income, shareholders’ equity) are pulled in their latest annual form.</li>
+<li><strong>Net margin</strong> is computed as net income divided by revenue.</li>
+<li><strong>ROE</strong> is computed as net income divided by average equity (approximate implementation based on the latest reported equity).</li>
+</ul>
+<p>Users specify two key valuation parameters:</p>
+<ul>
+<li>a <strong>cost of equity</strong> <span class="math inline">\(r\)</span>, typically in the range 5–15%, and</li>
+<li>a <strong>stable growth rate</strong> <span class="math inline">\(g\)</span>, typically between 0–6%.</li>
+</ul>
+<p>These two parameters define the stable-growth regime in the underlying FCFE formula.</p>
+</section>
+<section id="breakeven-revenue-computation-and-visualization" class="level2">
+<h2 class="anchored" data-anchor-id="breakeven-revenue-computation-and-visualization">Breakeven revenue computation and visualization</h2>
+<p>The app computes breakeven revenue <span class="math inline">\(R_0^{\ast}\)</span> using the closed-form identity above. It then reports:</p>
+<ul>
+<li>current revenue <span class="math inline">\(R_0\)</span>,</li>
+<li>breakeven revenue <span class="math inline">\(R_0^{\ast}\)</span>,</li>
+<li>the implied revenue stretch factor <span class="math inline">\(\Gamma = R_0^{\ast} / R_0\)</span>, and</li>
+<li>a narrative label: “probable”, “plausible”, or “stretch”, based on simple thresholds.</li>
+</ul>
+<p>Two visualizations help build intuition:</p>
+<ol type="1">
+<li><p><strong>Slope chart:</strong> a two-point line plot from “Current” to “Breakeven” revenue, with both values annotated. This highlights the magnitude of the required jump in fundamentals.</p></li>
+<li><p><strong>Donut chart:</strong> a pie chart decomposing the breakeven revenue into “Current” and “Still Needed” portions (or, when <span class="math inline">\(R_0 &gt; R_0^{\ast}\)</span>, “Up to Breakeven” and “Above Breakeven”). This gives a quick sense of how far along the firm is towards the revenue story embedded in its current price.</p></li>
+</ol>
+<p>An additional scenario analysis allows users to assume a constant annual revenue growth rate <span class="math inline">\(\hat{g}\)</span> and compute the time needed for <span class="math inline">\(R_t\)</span> to reach <span class="math inline">\(R_0^{\ast}\)</span>, <span class="math display">\[
+t_{\mathrm{reach}} \approx
+\frac{\log\left(R_0^{\ast} / R_0 \right)}{\log(1+\hat{g})},
+\]</span> again emphasizing that this is a <em>what-if</em> calculation rather than a forecast.</p>
+</section>
+<section id="sector-relative-breakeven-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="sector-relative-breakeven-analysis">Sector-relative breakeven analysis</h2>
+<p>To provide cross-sectional context, the dashboard leverages a local S&amp;P 500 constituent file stored as a CSV, avoiding the need to scrape sector-level screens at runtime. For a given focal ticker:</p>
+<ol type="1">
+<li>The app maps the company’s sector (as reported by Yahoo Finance) into the sector definitions in the S&amp;P file.</li>
+<li>It retrieves all same-sector S&amp;P 500 names and allows the user to select a subset of peers.</li>
+<li>For each selected peer, the app computes breakeven revenue under the <em>same</em> <span class="math inline">\(r\)</span> and <span class="math inline">\(g\)</span> assumptions.</li>
+<li>It tabulates current revenue, breakeven revenue, net margin, ROE, and implied revenue stretch factor for the peer set.</li>
+<li>A bar plot of required revenue upside by ticker summarizes relative valuation pressure.</li>
+</ol>
+<p>By holding <span class="math inline">\(r\)</span> and <span class="math inline">\(g\)</span> fixed across peers, differences in required revenue expansion are directly attributable to differences in margins, ROE, and current pricing. This is an embryonic example of a fundamental curve comparison in a low-dimensional parameter space.</p>
+<hr>
+</section>
+</section>
+<section id="research-directions-and-phd-level-extensions" class="level1">
+<h1>Research Directions and PhD-Level Extensions</h1>
+<p>The breakeven revenue dashboard is intentionally simple. Its primary purpose is pedagogical and exploratory. Nevertheless, it points towards several research questions at the intersection of machine learning, financial mathematics, and quantitative asset pricing.</p>
+<section id="cross-sectional-return-prediction-using-breakeven-metrics" class="level2">
+<h2 class="anchored" data-anchor-id="cross-sectional-return-prediction-using-breakeven-metrics">1. Cross-sectional return prediction using breakeven metrics</h2>
+<p>One straightforward agenda is to treat revenue stretch factors and related breakeven metrics as cross-sectional characteristics and test whether they predict realized returns, either:</p>
+<ul>
+<li>on their own, or</li>
+<li>in addition to standard factors (size, value, profitability, investment, momentum, intangibles).</li>
+</ul>
+<p>This would involve:</p>
+<ul>
+<li>constructing a large panel of firms with estimated <span class="math inline">\(R_0^{\ast}\)</span> and <span class="math inline">\(\Gamma\)</span>,</li>
+<li>sorting or running Fama–MacBeth cross-sectional regressions, and</li>
+<li>controlling for known anomalies and risk factors.</li>
+</ul>
+<p>The key questions are:</p>
+<ul>
+<li>Do stocks with very high implied revenue stretch subsequently underperform, on average?</li>
+<li>Are such effects concentrated in particular sectors (e.g., high-growth technology, biotech)?</li>
+<li>Can ML help isolate non-linear interactions between breakeven metrics and other firm characteristics?</li>
+</ul>
+</section>
+<section id="ml-implied-fundamental-surfaces-and-consistency-constraints" class="level2">
+<h2 class="anchored" data-anchor-id="ml-implied-fundamental-surfaces-and-consistency-constraints">2. ML-implied fundamental surfaces and consistency constraints</h2>
+<p>Going beyond revenue, one could define a higher-dimensional fundamental vector <span class="math inline">\(f = (R_0, \mathrm{Margin}, \mathrm{ROE}, \ldots)\)</span> and study multi-dimensional implied-fundamental surfaces. ML models could be trained to approximate these surfaces under structural constraints such as:</p>
+<ul>
+<li>monotonicity in discount rates and risk measures,</li>
+<li>homogeneity or scale invariance in certain variables,</li>
+<li>no-arbitrage conditions under alternative model specifications (e.g., consistency with residual-income and DCF representations).</li>
+</ul>
+<p>This line of work would combine techniques from constrained ML, shape-constrained regression, and financial mathematics, with the goal of learning economically sensible fundamental curves that are both flexible and interpretable.</p>
+</section>
+<section id="linking-fundamental-curves-to-narratives" class="level2">
+<h2 class="anchored" data-anchor-id="linking-fundamental-curves-to-narratives">3. Linking fundamental curves to narratives</h2>
+<p>Damodaran’s “possible–plausible–probable” taxonomy for narratives suggests a qualitative classification of valuation stories. Fundamental curves provide a quantitative backbone for such classification. A potential research direction is to:</p>
+<ul>
+<li>design narrative features (e.g., textual analysis of management discussion and analysis, earnings call transcripts),</li>
+<li>relate them to positions on the fundamental curve (how far a firm is along its implied revenue path), and</li>
+<li>study the dynamics of narrative revisions and curve shifts around major events (IPOs, earnings surprises, macro shocks).</li>
+</ul>
+<p>Machine learning models that jointly embed textual and numerical information could map firms into a latent “narrative–fundamental” space, in which regions of persistent misalignment (e.g., “story stocks” with extreme revenue stretch but fragile fundamentals) may exhibit distinctive risk and return patterns.</p>
+</section>
+<section id="robustness-under-model-and-parameter-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="robustness-under-model-and-parameter-uncertainty">4. Robustness under model and parameter uncertainty</h2>
+<p>Finally, fundamental curves are necessarily model-dependent: different choices of valuation engine <span class="math inline">\(\mathcal{V}\)</span>, discount-rate specification, and growth assumptions will yield different implied fundamentals. A mathematically rich set of questions arises:</p>
+<ul>
+<li>How sensitive are inferred fundamentals to perturbations in <span class="math inline">\(r\)</span>, <span class="math inline">\(g\)</span>, or the functional form of <span class="math inline">\(\mathcal{V}\)</span>?</li>
+<li>Can we construct <em>confidence bands</em> around fundamental curves, accounting for estimation error in both inputs and ML parameters?</li>
+<li>Is it possible to define <em>model-averaged</em> fundamental curves that integrate over a family of valuation models, as in Bayesian model averaging?</li>
+</ul>
+<p>These questions naturally connect to modern work on uncertainty quantification in ML and to robust control in continuous-time asset-pricing models.</p>
+<hr>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>This note has presented two tightly related ideas:</p>
+<ol type="1">
+<li><p>An algebraic breakeven-revenue representation of a stable-growth FCFE model, implemented in an interactive Streamlit app, which helps investors articulate and visualize the revenue stories embedded in current market prices.</p></li>
+<li><p>A broader conceptual framework of ML-implied fundamental curves for equities, in which machine learning models approximate the mapping from valuation assumptions to implied fundamentals consistent with observed prices, under economically motivated constraints.</p></li>
+</ol>
+<p>Taken together, these ideas suggest a research agenda that is both practically relevant and mathematically rich. The breakeven revenue dashboard serves as a prototype, offering intuition and a sandbox for experimenting with inputs and peer comparisons. Extending this prototype into a full-scale empirical and theoretical investigation—estimating fundamental curves at scale, embedding them into cross-sectional return tests, and integrating narrative information—constitutes a promising direction for a PhD at the intersection of quantitative finance, machine learning, and financial mathematics.</p>
+<hr>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<ul>
+<li>Damodaran, A. (2012). <em>Investment Valuation: Tools and Techniques for Determining the Value of Any Asset</em> (3rd ed.). Wiley.</li>
+<li>Damodaran, A. (2017). <em>Narrative and Numbers: The Value of Stories in Business</em>. Columbia Business School Publishing.</li>
+<li>Damodaran, A. (2022). “Uber: Possible, Plausible and Probable.” Teaching slides, NYU Stern.</li>
+<li>Gu, S., B. Kelly, and D. Xiu (2020). “Empirical Asset Pricing via Machine Learning.” <em>Review of Financial Studies</em> 33(5), 2223–2273.</li>
+<li>Heaton, J., N. G. Polson, and J. H. Witte (2017). “Deep Learning in Finance.” <em>Applied Stochastic Models in Business and Industry</em> 33(1), 3–12.</li>
+<li>Ohlson, J. (1995). “Earnings, Book Values, and Dividends in Equity Valuation.” <em>Contemporary Accounting Research</em> 11(2), 661–687.</li>
+<li>Penman, S. H., and T. Sougiannis (1998). “A Comparison of Dividend, Cash Flow, and Earnings Approaches to Equity Valuation.” <em>Contemporary Accounting Research</em> 15(3), 343–383.</li>
+<li>Additional FCFE applications and case studies can be found in, for example, recent practitioner and academic discussions of FCFE-based business valuation.</li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -4,6 +4,7 @@ author: Rishikesh Govind
 date: 2024-11-18
 format:
   html:
+    theme: cosmo
     toc: true
     code-fold: false
     code-copy: false
