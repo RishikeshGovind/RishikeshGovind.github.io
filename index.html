@@ -496,16 +496,20 @@
 	<!--contact area starts-->
 	<section class="contact-area section-padding" id="contact">
 		<div class="container">
+			
 			<div class="row">
 				<div class="col-md-6 col-md-offset-3">
 					<div class="section-header">
 						<span>CONTACT</span>
 						<h2>Hire me</h2>
-						<p>Want to get in touch with me. Drop a line</p>
+						<p>Want to get in touch with me? Drop a line.</p>
 					</div>
 				</div>
 			</div>
+
 			<div class="row">
+
+				<!-- Left side -->
 				<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 left-contact">
 					<div class="address wow fadeInLeft" data-wow-delay="0.2s">
 						<a>
@@ -514,43 +518,53 @@
 							<p>Belfast, Northern Ireland</p>
 						</a>
 					</div>
+
 					<div class="address wow fadeInRight" data-wow-delay="0.2s">
 						<a href="mailto:rishikeshg179@gmail.com">
 							<i class="fa-fw fa fa-envelope-o"></i>
 							<span>Get in online</span>
-							<p>rishikeshg179@gmail.com</p>
+							<p>aethernalytics@gmail.com</p>
 						</a>
 					</div>
 				</div>
-				<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 box-contact-form">
-					<form action="MAILTO:rishikeshg179@gmail.com" enctype="text/plain" id="contact-form" method="post" name="contact-form">
-						<div class="messages"></div>
-						<div class="controls">
-							<div class="row">
-								<div class="col-md-6">
-									<div class="form-group">
-										<input id="form_name" name="name" placeholder="Enter your full name *" required="required" type="text">
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<input id="form_email" name="email" placeholder="Enter your email *" required="required" type="email">
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12">
-									<div class="form-group">
-										<textarea id="form_message" name="message" placeholder="Your Message *" required="required" rows="4"></textarea>
 
+				<!-- Right side (FORM) -->
+				<div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 box-contact-form">
+					
+					<form action="https://api.web3forms.com/submit" method="POST" id="contact-form">
+						<input type="hidden" name="access_key" value="c84b48ad-b9ed-4ceb-a83c-f76522cf89d8">
+
+						<div class="controls">
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<input id="form_name" name="name" placeholder="Enter your full name *" required type="text">
 									</div>
 								</div>
-								<div class="col-md-12">
-									<button class="btn btn-send" type="submit" value="">Send message</button>
+
+								<div class="col-md-6">
+									<div class="form-group">
+										<input id="form_email" name="email" placeholder="Enter your email *" required type="email">
+									</div>
 								</div>
 							</div>
+
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<textarea id="form_message" name="message" placeholder="Your Message *" required rows="4"></textarea>
+									</div>
+								</div>
+
+								<div class="col-md-12">
+									<button class="btn btn-send" type="submit">Send message</button>
+								</div>
+							</div>
+
 						</div>
 					</form>
+
 				</div>
 			</div>
 		</div>
