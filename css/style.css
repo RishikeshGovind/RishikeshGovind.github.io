@@ -1166,3 +1166,121 @@ span#nav-close {
   height: auto;
   display: block;    /* removes inline-video whitespace issues */
 }
+
+.phone-preview {
+  max-width: 320px;          /* controls phone size */
+  margin: 0 auto;            /* center horizontally */
+}
+
+.phone-preview video {
+  width: 100%;
+  height: auto;
+  border-radius: 28px;       /* iPhone-like corners */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* ================================
+   App portfolio case study styles
+   ================================ */
+
+/* Neutralize theme opacity + hover behavior */
+.app-project {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+
+/* === App case study layout === */
+.app-case-study {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) 1fr;
+  gap: 60px;
+  align-items: center;
+  padding: 40px 0;
+}
+
+/* === Phone preview === */
+.app-phone {
+  display: flex;
+  justify-content: center;
+}
+
+.app-phone video {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  display: block;
+  border-radius: 28px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* === App info panel (TEXT FIX) === */
+.app-info {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 28px;
+  border-radius: 14px;
+  color: #f2f2f2;
+}
+
+.app-info h2 {
+  margin-top: 0;
+  color: #ffffff;
+}
+
+.app-info p {
+  color: #e0e0e0;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.app-info strong {
+  color: #ffffff;
+}
+
+.app-info a {
+  color: #5db2ff;
+  text-decoration: underline;
+}
+
+/* === Feature list === */
+.app-features {
+  padding-left: 18px;
+  margin: 16px 0;
+}
+
+.app-features li {
+  margin-bottom: 8px;
+}
+
+/* === Meta spacing === */
+.app-meta,
+.app-support {
+  margin-top: 16px;
+}
+
+/* === Disable theme overlay logic completely === */
+.app-project .gallery-text,
+.app-project:hover .gallery-text {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  position: static !important;
+  background: transparent !important;
+}
+
+/* === Responsive: stack on mobile === */
+@media (max-width: 768px) {
+  .app-case-study {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    text-align: center;
+  }
+
+  .app-info {
+    text-align: left;
+  }
+
+  .app-features {
+    display: inline-block;
+    text-align: left;
+  }
+}
