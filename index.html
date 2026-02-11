@@ -172,154 +172,141 @@
 		</div>
 	</section>
 	<!--Slider area ends-->
-	<!--About area starts-->
-	<section class="about-area section-padding" id="about">
+	<!-- About area starts -->
+	<section class="about-area section-padding animated-bg" id="about">
+
+	<!-- Animated background canvas -->
+	<canvas class="bg-canvas"></canvas>
+
+	<!-- Content layer -->
+	<div class="bg-content">
 		<div class="container">
-			<div class="card-grid">
-				<!-- 1. The Data Deluge Dilemma -->
-				<div class="flip-card">
-					<div class="flip-card-inner">
-						<div class="flip-card-front">
-							<img
-								src="images/about/datadeluge.jpg"
-								alt="Card Front"
-								class="card-front-img"
-							/>
-							<div class="front-overlay">
-								<h3>The Data Deluge Dilemma</h3>
-							</div>
-						</div>
-						<div class="flip-card-back">
-							<p>
-								Every trading desk and quant team today is awash in data—market ticks, alternative signals,
-								economic indicators—yet raw volume alone doesn’t translate into alpha. It’s all too easy to drown
-								in noise. The real challenge is engineering those terabytes into reliable features, validated
-								models, and real-time indicators that confidently guide decisions under pressure.
-							</p>
-						</div>
-					</div>
-				</div>
+		<div class="card-grid">
 
-				<!-- 2. Bridging Theory and Production -->
-				<div class="flip-card">
-					<div class="flip-card-inner">
-						<div class="flip-card-front">
-							<img
-								src="images/about/2.jpg"
-								alt="Card Front"
-								class="card-front-img"
-							/>
-							<div class="front-overlay">
-								<h3>Bridging Theory & Production</h3>
-							</div>
-						</div>
-						<div class="flip-card-back">
-							<p>
-								Elegant PDE solvers, variance-reduced Monte Carlo, or deep-learning architectures on paper become
-								shelfware the moment they hit brittle pipelines. True impact lies in closing the loop: turning
-								academic-grade code into scalable services, wrapping models with APIs and dashboards, and ensuring
-								every new release slides smoothly into your cloud infrastructure.
-							</p>
-						</div>
-					</div>
+			<!-- 1. The Data Deluge Dilemma -->
+			<div class="flip-card">
+			<div class="flip-card-inner">
+				<div class="flip-card-front">
+				<img src="images/about/datadeluge.jpg" alt="The Data Deluge Dilemma">
+				<div class="front-overlay">
+					<h3>The Data Deluge Dilemma</h3>
 				</div>
-
-				<!-- 3. Democratizing Quant Insights -->
-				<div class="flip-card">
-					<div class="flip-card-inner">
-						<div class="flip-card-front">
-							<img
-								src="images/about/3.jpg"
-								alt="Card Front"
-								class="card-front-img"
-							/>
-							<div class="front-overlay">
-								<h3>Democratizing Quant Insights</h3>
-							</div>
-						</div>
-						<div class="flip-card-back">
-							<p>
-								By surfacing advanced analytics behind intuitive Streamlit apps or Plotly dashboards, you empower
-								traders, risk analysts, and business stakeholders alike to run “what-if” scenarios, explore risk
-								surfaces, and export results—all without delving into the Jupyter notebooks that power them.
-							</p>
-						</div>
-					</div>
 				</div>
-
-				<!-- 4. Resilience Through Automation -->
-				<div class="flip-card">
-					<div class="flip-card-inner">
-						<div class="flip-card-front">
-							<img
-								src="images/about/4.jpg"
-								alt="Card Front"
-								class="card-front-img"
-							/>
-							<div class="front-overlay">
-								<h3>Resilience Through Automation</h3>
-							</div>
-						</div>
-						<div class="flip-card-back">
-							<p>
-								Manual backtests, ad-hoc scripts, and outdated CSV exports lead straight to version-control hell and
-								missed opportunities. Automated CI/CD pipelines, containerised microservices, and orchestrated ETL
-								workflows are the unsung heroes of a modern quant stack, guaranteeing that code, data, and results
-								stay in sync as markets and requirements evolve.
-							</p>
-						</div>
-					</div>
-				</div>
-
-				<!-- 5. Continuous Calibration & Monitoring -->
-				<div class="flip-card">
-					<div class="flip-card-inner">
-						<div class="flip-card-front">
-							<img
-								src="images/about/5.jpg"
-								alt="Card Front"
-								class="card-front-img"
-							/>
-							<div class="front-overlay">
-								<h3>Continuous Calibration & Monitoring</h3>
-							</div>
-						</div>
-						<div class="flip-card-back">
-							<p>
-								Models degrade. Data drifts. Overnight, your 99%-accurate credit-risk scorecard can become a liability.
-								Instrumenting health checks, anomaly detectors, and automated retraining schedules means you catch
-								breakpoints before they become blowups—keeping production systems robust in the face of shifting regimes.
-							</p>
-						</div>
-					</div>
-				</div>
-
-				<!-- 6. Toward Next-Gen Financial Tools -->
-				<div class="flip-card">
-					<div class="flip-card-inner">
-						<div class="flip-card-front">
-							<img
-								src="images/about/6.jpg"
-								alt="Card Front"
-								class="card-front-img"
-							/>
-							<div class="front-overlay">
-								<h3>Toward Next-Gen Financial Tools</h3>
-							</div>
-						</div>
-						<div class="flip-card-back">
-							<p>
-								From real-time streaming analytics to physics-informed models that respect market microstructure, the
-								frontier of quantitative finance is constantly shifting. Staying ahead demands a mindset of experimentation:
-								rapid prototyping, open-source collaboration, and a relentless focus on reproducibility.
-							</p>
-						</div>
-					</div>
+				<div class="flip-card-back">
+				<p>
+					Every trading desk and quant team today is awash in data—market ticks,
+					alternative signals, economic indicators—yet raw volume alone doesn’t
+					translate into alpha. The real challenge is engineering those terabytes
+					into reliable features, validated models, and real-time indicators that
+					confidently guide decisions under pressure.
+				</p>
 				</div>
 			</div>
+			</div>
+
+			<!-- 2. Bridging Theory and Production -->
+			<div class="flip-card">
+			<div class="flip-card-inner">
+				<div class="flip-card-front">
+				<img src="images/about/2.jpg" alt="Bridging Theory and Production">
+				<div class="front-overlay">
+					<h3>Bridging Theory & Production</h3>
+				</div>
+				</div>
+				<div class="flip-card-back">
+				<p>
+					Elegant PDE solvers, variance-reduced Monte Carlo, or deep-learning
+					architectures on paper become shelfware the moment they hit brittle
+					pipelines. True impact lies in closing the loop: turning academic-grade
+					code into scalable services and production-ready systems.
+				</p>
+				</div>
+			</div>
+			</div>
+
+			<!-- 3. Democratizing Quant Insights -->
+			<div class="flip-card">
+			<div class="flip-card-inner">
+				<div class="flip-card-front">
+				<img src="images/about/3.jpg" alt="Democratizing Quant Insights">
+				<div class="front-overlay">
+					<h3>Democratizing Quant Insights</h3>
+				</div>
+				</div>
+				<div class="flip-card-back">
+				<p>
+					By surfacing advanced analytics behind intuitive Streamlit apps or
+					Plotly dashboards, you empower traders, risk analysts, and stakeholders
+					to explore scenarios and insights—without diving into notebooks.
+				</p>
+				</div>
+			</div>
+			</div>
+
+			<!-- 4. Resilience Through Automation -->
+			<div class="flip-card">
+			<div class="flip-card-inner">
+				<div class="flip-card-front">
+				<img src="images/about/4.jpg" alt="Resilience Through Automation">
+				<div class="front-overlay">
+					<h3>Resilience Through Automation</h3>
+				</div>
+				</div>
+				<div class="flip-card-back">
+				<p>
+					Manual backtests and ad-hoc scripts lead to fragile systems.
+					Automated CI/CD pipelines, containerised services, and orchestrated
+					workflows ensure consistency as markets and requirements evolve.
+				</p>
+				</div>
+			</div>
+			</div>
+
+			<!-- 5. Continuous Calibration & Monitoring -->
+			<div class="flip-card">
+			<div class="flip-card-inner">
+				<div class="flip-card-front">
+				<img src="images/about/5.jpg" alt="Continuous Calibration and Monitoring">
+				<div class="front-overlay">
+					<h3>Continuous Calibration & Monitoring</h3>
+				</div>
+				</div>
+				<div class="flip-card-back">
+				<p>
+					Models drift. Data shifts. Instrumenting health checks, anomaly
+					detection, and automated retraining catches breakpoints before they
+					become costly failures.
+				</p>
+				</div>
+			</div>
+			</div>
+
+			<!-- 6. Toward Next-Gen Financial Tools -->
+			<div class="flip-card">
+			<div class="flip-card-inner">
+				<div class="flip-card-front">
+				<img src="images/about/6.jpg" alt="Toward Next-Gen Financial Tools">
+				<div class="front-overlay">
+					<h3>Toward Next-Gen Financial Tools</h3>
+				</div>
+				</div>
+				<div class="flip-card-back">
+				<p>
+					From real-time streaming analytics to physics-informed models,
+					the frontier of quantitative finance demands rapid prototyping,
+					reproducibility, and continuous experimentation.
+				</p>
+				</div>
+			</div>
+			</div>
+
 		</div>
+		</div>
+	</div>
+
 	</section>
-	<!--About area ends-->
+	<!-- About area ends -->
+
 	<!--Services area starts-->
 	<section class="services-area section-padding" id="services">
 		<div class="container">
@@ -370,146 +357,152 @@
 		</div>
 	</section>
 	<!--Services area ends-->
-	<!--Portfolio area starts-->
-	<section class="portfolio-area section-padding" id="portfolio">
+	<!-- Portfolio area starts -->
+	<section class="portfolio-area section-padding animated-bg" id="portfolio">
+
+	<!-- Animated background canvas -->
+	<canvas class="bg-canvas"></canvas>
+
+	<!-- Content layer -->
+	<div class="bg-content">
 		<div class="container">
-			<div class="row">
-				<div class="col-md-6 col-md-offset-3">
-					<div class="section-header">
-						<span>PORTFOLIO</span>
-						<h2>My Work</h2>
-						<p>Here are a few projects I've worked on recently.</p>
-					</div>
-				</div>
+
+		<!-- Section header -->
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3">
+			<div class="section-header">
+				<span>PORTFOLIO</span>
+				<h2>My Work</h2>
+				<p>Here are a few projects I've worked on recently.</p>
 			</div>
-			<div class="row  gy-4">
-				<div class="col-sm-12 col-md-12 col-lg-12">
-					<div class="gallery-items app-project wow fadeInDown" data-wow-delay="0.2s">
-
-						<div class="app-case-study">
-
-						<!-- Phone demo -->
-						<div class="app-phone">
-							<video autoplay loop muted playsinline>
-							<source src="images/portfolio/simulatorrecording.webm" type="video/webm">
-							<source src="images/portfolio/simulatorrecording.mov" type="video/mov">
-							</video>
-						</div>
-
-						<!-- App info -->
-						<div class="app-info">
-							<h2>Invoice Generator Billing (iOS App)</h2>
-
-							<p>
-							A native iOS application for freelancers and small businesses to create,
-							manage, and track invoices. Features include multi-page PDF invoice
-							generation, client management, tax and currency support, invoice status
-							tracking (Draft, Sent, Paid, Overdue), and a financial dashboard.
-							</p>
-
-							<p>
-							<strong>Platform:</strong> iOS<br>
-							
-							</p>
-
-							<p>
-							<strong>App Support:</strong>
-							<a href="mailto:aethernalytics@gmail.com">
-								aethernalytics@gmail.com
-							</a>
-							</p>
-						</div>
-
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-12 col-md-12 col-lg-12">
-					<a class="gallery-items wow fadeInRight" data-wow-delay="1.2s"
-						href="option_pricing.html">
-						<div class="view img">
-						<video autoplay loop muted playsinline>
-							<source src="images/portfolio/optionpricing.webm" type="video/webm">
-							<source src="images/portfolio/optionpricing.mp4"  type="video/mp4">
-							<!-- fallback if video unsupported 
-							<img alt="Trading Strategy Explorer"
-								src="images/portfolio/optionpricing.gif">-->
-						</video>
-						</div>
-
-						<div class="gallery-text">
-							<h2>Real-World Options Analyser</h2>
-							<p>
-								This interactive Streamlit dashboard allows you to analyse real-world options data for any stock symbol. 
-								It calculates Black-Scholes option prices, Greeks, implied volatility, and offers intuitive visualisations to help you understand market sensitivity and time decay.
-							</p>
-						</div>
-					</a>
-				</div>
-				<div class="col-sm-12 col-md-12 col-lg-12">
-					<a class="gallery-items wow fadeInDown" data-wow-delay="0.4s"
-						href="Risk_Analysis_Lending_Club.html" 
-						style="text-decoration: none; color: inherit;">
-						
-						<div class="view img">
-							<img alt="Risk Analysis for Lending Club" src="images/portfolio/credit.jpg">
-						</div>
-						
-						<div class="gallery-text">
-							<h2>Risk Analysis for Lending Club</h2>
-							<p>
-								This project builds cost-sensitive machine learning models to predict Lending Club loan default probabilities using only origination features. 
-								It explores preprocessing, feature selection, and imbalance handling, comparing logistic regression, XGBoost, and neural networks for robust credit risk assessment.
-							</p>
-						</div>
-					</a>
-				</div>
-
-				<div class="col-sm-12 col-md-12 col-lg-12">
-					<a class="gallery-items wow fadeInRight" data-wow-delay="1.2s"
-						href="trading_strategy.html">
-						<div class="view img">
-						<video autoplay loop muted playsinline>
-							<source src="images/portfolio/tradingstrat.webm" type="video/webm">
-							<source src="images/portfolio/tradingstrat.mp4"  type="video/mp4">
-							<!-- fallback if video unsupported
-							<img alt="Trading Strategy Explorer"
-								src="images/portfolio/tradingstrat.gif">-->
-						</video>
-						</div>
-						<div class="gallery-text">
-							<h2>Trading Strategy Explorer</h2>
-							<p>
-								This project is a complete end-to-end AI-based trading strategy evaluator built using Python and Streamlit. 
-								It allows users to analyse stock or crypto tickers and compare an ML-driven trading strategy vs the actual market performance.
-							</p>
-						</div>
-					</a>
-				</div>
-				<div class="col-sm-12 col-md-12 col-lg-12">
-					<a class="gallery-items wow fadeInRight" data-wow-delay="1.2s"
-						href="ml_implied_fundamentals.html">
-						<div class="view img">
-						<video autoplay loop muted playsinline>
-							<source src="images/portfolio/breakevenrevenue.webm" type="video/webm">
-							<source src="images/portfolio/breakevenrevenue.mov"  type="video/mov">
-							<!-- fallback if video unsupported
-							<img alt="Breakeven Revenue Valuation"
-								src="images/portfolio/breakevenrevenue.gif">-->
-						</video>
-						</div>
-						<div class="gallery-text">
-							<h2>Breakeven Revenue Valuation</h2>
-							<p>
-								This project uses a theoretically grounded equity valuation identity to derive the revenue required to justify a firm's current market capitalization.
-								The interactive dashboard visualises valuation pressure and allows side-by-side comparison of comparable companies.
-							</p>
-						</div>
-					</a>
-				</div>
-
 			</div>
 		</div>
+
+		<!-- Portfolio items -->
+		<div class="row gy-4">
+
+			<!-- App case study -->
+			<div class="col-sm-12 col-md-12 col-lg-12">
+			<div class="gallery-items app-project wow fadeInDown" data-wow-delay="0.2s">
+				<div class="app-case-study">
+
+				<!-- Phone demo -->
+				<div class="app-phone">
+					<video autoplay loop muted playsinline>
+					<source src="images/portfolio/simulatorrecording.webm" type="video/webm">
+					<source src="images/portfolio/simulatorrecording.mov" type="video/mov">
+					</video>
+				</div>
+
+				<!-- App info -->
+				<div class="app-info">
+					<h2>Invoice Generator Billing (iOS App)</h2>
+					<p>
+					A native iOS application for freelancers and small businesses to create,
+					manage, and track invoices. Features include multi-page PDF invoice
+					generation, client management, tax and currency support, invoice status
+					tracking (Draft, Sent, Paid, Overdue), and a financial dashboard.
+					</p>
+					<p><strong>Platform:</strong> iOS</p>
+					<p>
+					<strong>App Support:</strong>
+					<a href="mailto:aethernalytics@gmail.com">aethernalytics@gmail.com</a>
+					</p>
+				</div>
+
+				</div>
+			</div>
+			</div>
+
+			<!-- Options analyser -->
+			<div class="col-sm-12 col-md-12 col-lg-12">
+			<a class="gallery-items wow fadeInRight" data-wow-delay="1.2s"
+				href="option_pricing.html">
+				<div class="view img">
+				<video autoplay loop muted playsinline>
+					<source src="images/portfolio/optionpricing.webm" type="video/webm">
+					<source src="images/portfolio/optionpricing.mp4" type="video/mp4">
+				</video>
+				</div>
+				<div class="gallery-text">
+				<h2>Real-World Options Analyser</h2>
+				<p>
+					This interactive Streamlit dashboard allows you to analyse real-world
+					options data for any stock symbol, calculating Black–Scholes prices,
+					Greeks, implied volatility, and intuitive visualisations.
+				</p>
+				</div>
+			</a>
+			</div>
+
+			<!-- Risk analysis -->
+			<div class="col-sm-12 col-md-12 col-lg-12">
+			<a class="gallery-items wow fadeInDown" data-wow-delay="0.4s"
+				href="Risk_Analysis_Lending_Club.html"
+				style="text-decoration: none; color: inherit;">
+				<div class="view img">
+				<img src="images/portfolio/credit.jpg" alt="Risk Analysis for Lending Club">
+				</div>
+				<div class="gallery-text">
+				<h2>Risk Analysis for Lending Club</h2>
+				<p>
+					Cost-sensitive machine learning models predicting loan default
+					probabilities using origination features, comparing logistic regression,
+					XGBoost, and neural networks.
+				</p>
+				</div>
+			</a>
+			</div>
+
+			<!-- Trading strategy -->
+			<div class="col-sm-12 col-md-12 col-lg-12">
+			<a class="gallery-items wow fadeInRight" data-wow-delay="1.2s"
+				href="trading_strategy.html">
+				<div class="view img">
+				<video autoplay loop muted playsinline>
+					<source src="images/portfolio/tradingstrat.webm" type="video/webm">
+					<source src="images/portfolio/tradingstrat.mp4" type="video/mp4">
+				</video>
+				</div>
+				<div class="gallery-text">
+				<h2>Trading Strategy Explorer</h2>
+				<p>
+					An end-to-end AI-based trading strategy evaluator built with Python
+					and Streamlit to compare ML-driven strategies versus market performance.
+				</p>
+				</div>
+			</a>
+			</div>
+
+			<!-- Breakeven valuation -->
+			<div class="col-sm-12 col-md-12 col-lg-12">
+			<a class="gallery-items wow fadeInRight" data-wow-delay="1.2s"
+				href="ml_implied_fundamentals.html">
+				<div class="view img">
+				<video autoplay loop muted playsinline>
+					<source src="images/portfolio/breakevenrevenue.webm" type="video/webm">
+					<source src="images/portfolio/breakevenrevenue.mov" type="video/mov">
+				</video>
+				</div>
+				<div class="gallery-text">
+				<h2>Breakeven Revenue Valuation</h2>
+				<p>
+					A theoretically grounded equity valuation tool deriving the revenue
+					required to justify market capitalisation, with interactive comparison
+					across comparable firms.
+				</p>
+				</div>
+			</a>
+			</div>
+
+		</div>
+		</div>
+	</div>
+
 	</section>
+	<!-- Portfolio area ends -->
+
+
 	<!--Portfolio area ends-->
 	<!--Testimonial Area Starts-->
 	<!-- 
@@ -690,6 +683,8 @@
 	<script src="js/jquery.waypoints.js"></script> 
 
 	<script src="js/validator.js"></script> 
+
+	<script src="js/bg-animation.js"></script>
 
 	<script src="js/main.js"></script> 
 
