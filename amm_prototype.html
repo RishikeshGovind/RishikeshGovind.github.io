@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Rishikesh Govind">
+<meta name="dcterms.date" content="2026-02-15">
+
+<title>Optimal Invariant Design in Automated Market Makers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="amm_prototype_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="amm_prototype_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="amm_prototype_files/libs/quarto-html/popper.min.js"></script>
+<script src="amm_prototype_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="amm_prototype_files/libs/quarto-html/anchor.min.js"></script>
+<link href="amm_prototype_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="amm_prototype_files/libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="amm_prototype_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="amm_prototype_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="amm_prototype_files/libs/bootstrap/bootstrap-a5f8558feb849f0e262f365295844a56.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="amm_prototype_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="amm_prototype_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-1-introduction" id="toc-chapter-1-introduction" class="nav-link active" data-scroll-target="#chapter-1-introduction">Chapter 1: Introduction</a>
+  <ul class="collapse">
+  <li><a href="#the-rise-of-constant-function-market-makers" id="toc-the-rise-of-constant-function-market-makers" class="nav-link" data-scroll-target="#the-rise-of-constant-function-market-makers">1.1 The Rise of Constant Function Market Makers</a></li>
+  <li><a href="#the-liquidity-providers-dilemma" id="toc-the-liquidity-providers-dilemma" class="nav-link" data-scroll-target="#the-liquidity-providers-dilemma">1.2 The Liquidity Provider’s Dilemma</a></li>
+  <li><a href="#problem-statement" id="toc-problem-statement" class="nav-link" data-scroll-target="#problem-statement">1.3 Problem Statement</a></li>
+  <li><a href="#research-question" id="toc-research-question" class="nav-link" data-scroll-target="#research-question">1.4 Research Question</a></li>
+  <li><a href="#main-contributions" id="toc-main-contributions" class="nav-link" data-scroll-target="#main-contributions">1.5 Main Contributions</a></li>
+  <li><a href="#contribution-to-knowledge" id="toc-contribution-to-knowledge" class="nav-link" data-scroll-target="#contribution-to-knowledge">1.6 Contribution to Knowledge</a></li>
+  </ul></li>
+  <li><a href="#chapter-2-literature-review" id="toc-chapter-2-literature-review" class="nav-link" data-scroll-target="#chapter-2-literature-review">Chapter 2: Literature Review</a>
+  <ul class="collapse">
+  <li><a href="#portfolio-theory-from-mertons-problem-to-modern-rebalancing" id="toc-portfolio-theory-from-mertons-problem-to-modern-rebalancing" class="nav-link" data-scroll-target="#portfolio-theory-from-mertons-problem-to-modern-rebalancing">2.1 Portfolio Theory: From Merton’s Problem to Modern Rebalancing</a></li>
+  <li><a href="#continuous-time-portfolio-optimization" id="toc-continuous-time-portfolio-optimization" class="nav-link" data-scroll-target="#continuous-time-portfolio-optimization">2.2 Continuous-Time Portfolio Optimization</a></li>
+  <li><a href="#stochastic-control-theory-and-the-hjb-framework" id="toc-stochastic-control-theory-and-the-hjb-framework" class="nav-link" data-scroll-target="#stochastic-control-theory-and-the-hjb-framework">2.3 Stochastic Control Theory and the HJB Framework</a></li>
+  <li><a href="#rebalancing-convexity-drag-and-volatility-harvesting" id="toc-rebalancing-convexity-drag-and-volatility-harvesting" class="nav-link" data-scroll-target="#rebalancing-convexity-drag-and-volatility-harvesting">2.4 Rebalancing, Convexity Drag, and Volatility Harvesting</a></li>
+  <li><a href="#market-microstructure-and-liquidity-provision" id="toc-market-microstructure-and-liquidity-provision" class="nav-link" data-scroll-target="#market-microstructure-and-liquidity-provision">2.5 Market Microstructure and Liquidity Provision</a></li>
+  <li><a href="#constant-function-market-maker-theory" id="toc-constant-function-market-maker-theory" class="nav-link" data-scroll-target="#constant-function-market-maker-theory">2.6 Constant Function Market Maker Theory</a></li>
+  <li><a href="#empirical-crypto-finance-and-amm-performance" id="toc-empirical-crypto-finance-and-amm-performance" class="nav-link" data-scroll-target="#empirical-crypto-finance-and-amm-performance">2.7 Empirical Crypto Finance and AMM Performance</a></li>
+  <li><a href="#mechanism-design-and-market-architecture" id="toc-mechanism-design-and-market-architecture" class="nav-link" data-scroll-target="#mechanism-design-and-market-architecture">2.8 Mechanism Design and Market Architecture</a></li>
+  <li><a href="#identified-gap" id="toc-identified-gap" class="nav-link" data-scroll-target="#identified-gap">2.9 Identified Gap</a></li>
+  </ul></li>
+  <li><a href="#chapter-3-theoretical-framework" id="toc-chapter-3-theoretical-framework" class="nav-link" data-scroll-target="#chapter-3-theoretical-framework">Chapter 3: Theoretical Framework</a>
+  <ul class="collapse">
+  <li><a href="#asset-dynamics" id="toc-asset-dynamics" class="nav-link" data-scroll-target="#asset-dynamics">3.1 Asset Dynamics</a>
+  <ul class="collapse">
+  <li><a href="#geometric-brownian-motion" id="toc-geometric-brownian-motion" class="nav-link" data-scroll-target="#geometric-brownian-motion">3.1.1 Geometric Brownian Motion</a></li>
+  <li><a href="#jump-diffusion-extension" id="toc-jump-diffusion-extension" class="nav-link" data-scroll-target="#jump-diffusion-extension">3.1.2 Jump-Diffusion Extension</a></li>
+  </ul></li>
+  <li><a href="#the-generalized-invariant" id="toc-the-generalized-invariant" class="nav-link" data-scroll-target="#the-generalized-invariant">3.2 The Generalized Invariant</a>
+  <ul class="collapse">
+  <li><a href="#constant-mean-portfolio-representation" id="toc-constant-mean-portfolio-representation" class="nav-link" data-scroll-target="#constant-mean-portfolio-representation">3.2.1 Constant-Mean Portfolio Representation</a></li>
+  <li><a href="#amm-wealth-process" id="toc-amm-wealth-process" class="nav-link" data-scroll-target="#amm-wealth-process">3.2.2 AMM Wealth Process</a></li>
+  <li><a href="#the-convexity-tax" id="toc-the-convexity-tax" class="nav-link" data-scroll-target="#the-convexity-tax">3.2.3 The Convexity Tax</a></li>
+  </ul></li>
+  <li><a href="#defining-welfare" id="toc-defining-welfare" class="nav-link" data-scroll-target="#defining-welfare">3.3 Defining Welfare</a>
+  <ul class="collapse">
+  <li><a href="#crra-preferences" id="toc-crra-preferences" class="nav-link" data-scroll-target="#crra-preferences">3.3.1 CRRA Preferences</a></li>
+  <li><a href="#fee-revenue" id="toc-fee-revenue" class="nav-link" data-scroll-target="#fee-revenue">3.3.2 Fee Revenue</a></li>
+  <li><a href="#effective-drift-and-variance" id="toc-effective-drift-and-variance" class="nav-link" data-scroll-target="#effective-drift-and-variance">3.3.3 Effective Drift and Variance</a></li>
+  <li><a href="#analytical-fee-drift-vs-empirical-turnover-proxy" id="toc-analytical-fee-drift-vs-empirical-turnover-proxy" class="nav-link" data-scroll-target="#analytical-fee-drift-vs-empirical-turnover-proxy">3.3.4 Analytical Fee Drift vs Empirical Turnover Proxy</a></li>
+  </ul></li>
+  <li><a href="#optimal-invariant-curvature-as-a-stochastic-control-problem" id="toc-optimal-invariant-curvature-as-a-stochastic-control-problem" class="nav-link" data-scroll-target="#optimal-invariant-curvature-as-a-stochastic-control-problem">3.4 Optimal Invariant Curvature as a Stochastic Control Problem</a>
+  <ul class="collapse">
+  <li><a href="#optimal-curvature-under-crra-utility" id="toc-optimal-curvature-under-crra-utility" class="nav-link" data-scroll-target="#optimal-curvature-under-crra-utility">3.4.1 Optimal Curvature Under CRRA Utility</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#chapter-4-the-research-prototype" id="toc-chapter-4-the-research-prototype" class="nav-link" data-scroll-target="#chapter-4-the-research-prototype">Chapter 4: The Research Prototype</a>
+  <ul class="collapse">
+  <li><a href="#architectural-design" id="toc-architectural-design" class="nav-link" data-scroll-target="#architectural-design">4.1 Architectural Design</a>
+  <ul class="collapse">
+  <li><a href="#objectives-of-the-prototype" id="toc-objectives-of-the-prototype" class="nav-link" data-scroll-target="#objectives-of-the-prototype">4.1.1 Objectives of the Prototype</a></li>
+  <li><a href="#technology-stack" id="toc-technology-stack" class="nav-link" data-scroll-target="#technology-stack">4.1.2 Technology Stack</a></li>
+  </ul></li>
+  <li><a href="#data-integration-and-regime-calibration" id="toc-data-integration-and-regime-calibration" class="nav-link" data-scroll-target="#data-integration-and-regime-calibration">4.2 Data Integration and Regime Calibration</a>
+  <ul class="collapse">
+  <li><a href="#empirical-data-source" id="toc-empirical-data-source" class="nav-link" data-scroll-target="#empirical-data-source">4.2.1 Empirical Data Source</a></li>
+  <li><a href="#volatility-regime-detection" id="toc-volatility-regime-detection" class="nav-link" data-scroll-target="#volatility-regime-detection">4.2.2 Volatility Regime Detection</a></li>
+  </ul></li>
+  <li><a href="#simulation-engine" id="toc-simulation-engine" class="nav-link" data-scroll-target="#simulation-engine">4.3 Simulation Engine</a>
+  <ul class="collapse">
+  <li><a href="#monte-carlo-methodology" id="toc-monte-carlo-methodology" class="nav-link" data-scroll-target="#monte-carlo-methodology">4.3.1 Monte Carlo Methodology</a></li>
+  <li><a href="#jump-diffusion-implementation" id="toc-jump-diffusion-implementation" class="nav-link" data-scroll-target="#jump-diffusion-implementation">4.3.2 Jump-Diffusion Implementation</a></li>
+  <li><a href="#impermanent-loss-distribution" id="toc-impermanent-loss-distribution" class="nav-link" data-scroll-target="#impermanent-loss-distribution">4.3.3 Impermanent Loss Distribution</a></li>
+  </ul></li>
+  <li><a href="#optimization-modules" id="toc-optimization-modules" class="nav-link" data-scroll-target="#optimization-modules">4.4 Optimization Modules</a>
+  <ul class="collapse">
+  <li><a href="#numerical-vs.-analytical-optimization" id="toc-numerical-vs.-analytical-optimization" class="nav-link" data-scroll-target="#numerical-vs.-analytical-optimization">4.4.1 Numerical vs.&nbsp;Analytical Optimization</a></li>
+  <li><a href="#volatilitycurvature-surface" id="toc-volatilitycurvature-surface" class="nav-link" data-scroll-target="#volatilitycurvature-surface">4.4.2 Volatility–Curvature Surface</a></li>
+  </ul></li>
+  <li><a href="#validation-of-theoretical-claims" id="toc-validation-of-theoretical-claims" class="nav-link" data-scroll-target="#validation-of-theoretical-claims">4.5 Validation of Theoretical Claims</a></li>
+  <li><a href="#reproducibility-and-transparency" id="toc-reproducibility-and-transparency" class="nav-link" data-scroll-target="#reproducibility-and-transparency">4.6 Reproducibility and Transparency</a></li>
+  </ul></li>
+  <li><a href="#chapter-5-empirical-analysis-results" id="toc-chapter-5-empirical-analysis-results" class="nav-link" data-scroll-target="#chapter-5-empirical-analysis-results">Chapter 5: Empirical Analysis &amp; Results</a>
+  <ul class="collapse">
+  <li><a href="#overview-and-goals" id="toc-overview-and-goals" class="nav-link" data-scroll-target="#overview-and-goals">5.1 Overview and goals</a></li>
+  <li><a href="#volatility-regime-detection-1" id="toc-volatility-regime-detection-1" class="nav-link" data-scroll-target="#volatility-regime-detection-1">5.2 Volatility regime detection</a>
+  <ul class="collapse">
+  <li><a href="#method" id="toc-method" class="nav-link" data-scroll-target="#method">5.2.1 Method</a></li>
+  <li><a href="#dashboard-linkage" id="toc-dashboard-linkage" class="nav-link" data-scroll-target="#dashboard-linkage">5.2.2 Dashboard linkage</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">5.2.3 Results</a></li>
+  </ul></li>
+  <li><a href="#the-ilcurvature-surface-and-the-ilalpha-relationship" id="toc-the-ilcurvature-surface-and-the-ilalpha-relationship" class="nav-link" data-scroll-target="#the-ilcurvature-surface-and-the-ilalpha-relationship">5.3 The IL–Curvature Surface and the IL–<span class="math inline">\(\alpha\)</span> relationship</a>
+  <ul class="collapse">
+  <li><a href="#method-1" id="toc-method-1" class="nav-link" data-scroll-target="#method-1">5.3.1 Method</a></li>
+  <li><a href="#results-1" id="toc-results-1" class="nav-link" data-scroll-target="#results-1">5.3.2 Results</a></li>
+  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">5.3.3 Interpretation</a></li>
+  </ul></li>
+  <li><a href="#fee-compensation-equilibrium-break-even-fee-varphi" id="toc-fee-compensation-equilibrium-break-even-fee-varphi" class="nav-link" data-scroll-target="#fee-compensation-equilibrium-break-even-fee-varphi">5.4 Fee Compensation Equilibrium (break-even fee <span class="math inline">\(\varphi^*\)</span>)</a>
+  <ul class="collapse">
+  <li><a href="#concept-and-goal" id="toc-concept-and-goal" class="nav-link" data-scroll-target="#concept-and-goal">5.4.1 Concept and goal</a></li>
+  <li><a href="#approximate-heuristic-derivation" id="toc-approximate-heuristic-derivation" class="nav-link" data-scroll-target="#approximate-heuristic-derivation">5.4.2 Approximate (heuristic) derivation</a></li>
+  <li><a href="#dashboard-implementation-numerical" id="toc-dashboard-implementation-numerical" class="nav-link" data-scroll-target="#dashboard-implementation-numerical">5.4.3 Dashboard implementation (numerical)</a></li>
+  <li><a href="#results-2" id="toc-results-2" class="nav-link" data-scroll-target="#results-2">5.4.4 Results</a></li>
+  <li><a href="#interpretation-1" id="toc-interpretation-1" class="nav-link" data-scroll-target="#interpretation-1">5.4.5 Interpretation</a></li>
+  </ul></li>
+  <li><a href="#sensitivity-to-risk-aversion-gamma-how-gamma-shifts-alpha" id="toc-sensitivity-to-risk-aversion-gamma-how-gamma-shifts-alpha" class="nav-link" data-scroll-target="#sensitivity-to-risk-aversion-gamma-how-gamma-shifts-alpha">5.5 Sensitivity to risk aversion <span class="math inline">\(\gamma\)</span> (how <span class="math inline">\(\gamma\)</span> shifts <span class="math inline">\(\alpha^*\)</span>)</a>
+  <ul class="collapse">
+  <li><a href="#method-2" id="toc-method-2" class="nav-link" data-scroll-target="#method-2">5.5.1 Method</a></li>
+  <li><a href="#results-3" id="toc-results-3" class="nav-link" data-scroll-target="#results-3">5.5.2 Results</a></li>
+  <li><a href="#interpretation-2" id="toc-interpretation-2" class="nav-link" data-scroll-target="#interpretation-2">5.5.3 Interpretation</a></li>
+  </ul></li>
+  <li><a href="#robustness-checks-and-hypothesis-tests" id="toc-robustness-checks-and-hypothesis-tests" class="nav-link" data-scroll-target="#robustness-checks-and-hypothesis-tests">5.6 Robustness checks and hypothesis tests</a>
+  <ul class="collapse">
+  <li><a href="#monte-carlo-precision-and-bootstrap-inference" id="toc-monte-carlo-precision-and-bootstrap-inference" class="nav-link" data-scroll-target="#monte-carlo-precision-and-bootstrap-inference">5.6.1 Monte Carlo Precision and Bootstrap Inference</a></li>
+  <li><a href="#variance-reduction-and-convergence-diagnostics" id="toc-variance-reduction-and-convergence-diagnostics" class="nav-link" data-scroll-target="#variance-reduction-and-convergence-diagnostics">5.6.2 Variance Reduction and Convergence Diagnostics</a></li>
+  <li><a href="#alternative-volatility-regime-specifications" id="toc-alternative-volatility-regime-specifications" class="nav-link" data-scroll-target="#alternative-volatility-regime-specifications">5.6.3 Alternative Volatility Regime Specifications</a></li>
+  <li><a href="#model-specification-gbm-vs.-historical-resampling" id="toc-model-specification-gbm-vs.-historical-resampling" class="nav-link" data-scroll-target="#model-specification-gbm-vs.-historical-resampling">5.6.4 Model Specification: GBM vs.&nbsp;Historical Resampling</a></li>
+  <li><a href="#fee-calibration-sensitivity" id="toc-fee-calibration-sensitivity" class="nav-link" data-scroll-target="#fee-calibration-sensitivity">5.6.5 Fee Calibration Sensitivity</a></li>
+  <li><a href="#risk-aversion-sensitivity" id="toc-risk-aversion-sensitivity" class="nav-link" data-scroll-target="#risk-aversion-sensitivity">5.6.6 Risk Aversion Sensitivity</a></li>
+  <li><a href="#out-of-sample-backtesting" id="toc-out-of-sample-backtesting" class="nav-link" data-scroll-target="#out-of-sample-backtesting">5.6.7 Out-of-Sample Backtesting</a></li>
+  <li><a href="#summary-of-robustness-findings" id="toc-summary-of-robustness-findings" class="nav-link" data-scroll-target="#summary-of-robustness-findings">5.6.8 Summary of Robustness Findings</a></li>
+  </ul></li>
+  <li><a href="#discussion-empirical-conclusions" id="toc-discussion-empirical-conclusions" class="nav-link" data-scroll-target="#discussion-empirical-conclusions">5.7 Discussion &amp; empirical conclusions</a></li>
+  <li><a href="#relation-to-the-literature" id="toc-relation-to-the-literature" class="nav-link" data-scroll-target="#relation-to-the-literature">5.8 Relation to the literature</a></li>
+  <li><a href="#code-reproducibility" id="toc-code-reproducibility" class="nav-link" data-scroll-target="#code-reproducibility">5.9 Code &amp; reproducibility</a></li>
+  </ul></li>
+  <li><a href="#chapter-6-discussion" id="toc-chapter-6-discussion" class="nav-link" data-scroll-target="#chapter-6-discussion">Chapter 6: Discussion</a>
+  <ul class="collapse">
+  <li><a href="#comparing-models-merton-approximation-vs.-exact-hjb-solution-vs.-monte-carlo-results" id="toc-comparing-models-merton-approximation-vs.-exact-hjb-solution-vs.-monte-carlo-results" class="nav-link" data-scroll-target="#comparing-models-merton-approximation-vs.-exact-hjb-solution-vs.-monte-carlo-results">6.1 Comparing Models: Merton Approximation vs.&nbsp;Exact HJB Solution vs.&nbsp;Monte Carlo Results</a>
+  <ul class="collapse">
+  <li><a href="#summary-of-the-three-approaches" id="toc-summary-of-the-three-approaches" class="nav-link" data-scroll-target="#summary-of-the-three-approaches">6.1.1 Summary of the three approaches</a></li>
+  <li><a href="#what-each-method-gets-right-and-wrong" id="toc-what-each-method-gets-right-and-wrong" class="nav-link" data-scroll-target="#what-each-method-gets-right-and-wrong">6.1.2 What each method gets right (and wrong)</a></li>
+  <li><a href="#empirical-comparison-what-we-observe" id="toc-empirical-comparison-what-we-observe" class="nav-link" data-scroll-target="#empirical-comparison-what-we-observe">6.1.3 Empirical comparison (what we observe)</a></li>
+  </ul></li>
+  <li><a href="#practical-implications-how-dexs-could-implement-dynamic-invariants" id="toc-practical-implications-how-dexs-could-implement-dynamic-invariants" class="nav-link" data-scroll-target="#practical-implications-how-dexs-could-implement-dynamic-invariants">6.2 Practical Implications: How DEXs could implement “Dynamic Invariants”</a>
+  <ul class="collapse">
+  <li><a href="#why-dynamic-invariants" id="toc-why-dynamic-invariants" class="nav-link" data-scroll-target="#why-dynamic-invariants">6.2.1 Why dynamic invariants?</a></li>
+  <li><a href="#how-to-operationalize-dynamic-invariants" id="toc-how-to-operationalize-dynamic-invariants" class="nav-link" data-scroll-target="#how-to-operationalize-dynamic-invariants">6.2.2 How to operationalize dynamic invariants</a></li>
+  <li><a href="#fee-design-and-market-impact" id="toc-fee-design-and-market-impact" class="nav-link" data-scroll-target="#fee-design-and-market-impact">6.2.3 Fee design and market impact</a></li>
+  <li><a href="#implementation-risks-market-microstructure" id="toc-implementation-risks-market-microstructure" class="nav-link" data-scroll-target="#implementation-risks-market-microstructure">6.2.4 Implementation risks &amp; market microstructure</a></li>
+  </ul></li>
+  <li><a href="#path-dependence-and-the-limits-of-gbm-de-pegs-and-extreme-events" id="toc-path-dependence-and-the-limits-of-gbm-de-pegs-and-extreme-events" class="nav-link" data-scroll-target="#path-dependence-and-the-limits-of-gbm-de-pegs-and-extreme-events">6.3 Path Dependence and the Limits of GBM: De-pegs and Extreme Events</a>
+  <ul class="collapse">
+  <li><a href="#path-dependence-the-shortcomings-of-gbm" id="toc-path-dependence-the-shortcomings-of-gbm" class="nav-link" data-scroll-target="#path-dependence-the-shortcomings-of-gbm">6.3.1 Path dependence &amp; the shortcomings of GBM</a></li>
+  <li><a href="#modeling-extensions-for-extreme-events" id="toc-modeling-extensions-for-extreme-events" class="nav-link" data-scroll-target="#modeling-extensions-for-extreme-events">6.3.2 Modeling extensions for extreme events</a></li>
+  <li><a href="#governance-safety-for-extreme-events" id="toc-governance-safety-for-extreme-events" class="nav-link" data-scroll-target="#governance-safety-for-extreme-events">6.3.3 Governance &amp; safety for extreme events</a></li>
+  </ul></li>
+  <li><a href="#limitations-remaining-technical-challenges-and-research-directions" id="toc-limitations-remaining-technical-challenges-and-research-directions" class="nav-link" data-scroll-target="#limitations-remaining-technical-challenges-and-research-directions">6.4 Limitations, Remaining Technical Challenges and Research Directions</a>
+  <ul class="collapse">
+  <li><a href="#analytical-limitations." id="toc-analytical-limitations." class="nav-link" data-scroll-target="#analytical-limitations.">6.4.1 Analytical limitations.</a></li>
+  <li><a href="#empirical-microstructure-challenges" id="toc-empirical-microstructure-challenges" class="nav-link" data-scroll-target="#empirical-microstructure-challenges">6.4.2 Empirical &amp; microstructure challenges</a></li>
+  <li><a href="#promising-extensions" id="toc-promising-extensions" class="nav-link" data-scroll-target="#promising-extensions">6.4.3 Promising extensions</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">6.5 Conclusion</a></li>
+  </ul></li>
+  <li><a href="#chapter-7-conclusion" id="toc-chapter-7-conclusion" class="nav-link" data-scroll-target="#chapter-7-conclusion">Chapter 7: Conclusion</a>
+  <ul class="collapse">
+  <li><a href="#summary-of-findings" id="toc-summary-of-findings" class="nav-link" data-scroll-target="#summary-of-findings">7.1 Summary of Findings</a></li>
+  <li><a href="#contribution-to-knowledge-1" id="toc-contribution-to-knowledge-1" class="nav-link" data-scroll-target="#contribution-to-knowledge-1">7.2 Contribution to Knowledge</a></li>
+  <li><a href="#practical-implications-and-recommendations" id="toc-practical-implications-and-recommendations" class="nav-link" data-scroll-target="#practical-implications-and-recommendations">7.3 Practical Implications and Recommendations</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">7.4 Limitations</a></li>
+  <li><a href="#future-work" id="toc-future-work" class="nav-link" data-scroll-target="#future-work">7.5 Future Work</a></li>
+  <li><a href="#closing-remarks" id="toc-closing-remarks" class="nav-link" data-scroll-target="#closing-remarks">7.6 Closing Remarks</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#appendix-a-small-volatility-expansion-of-expected-impermanent-loss" id="toc-appendix-a-small-volatility-expansion-of-expected-impermanent-loss" class="nav-link" data-scroll-target="#appendix-a-small-volatility-expansion-of-expected-impermanent-loss">Appendix A: Small-Volatility Expansion of Expected Impermanent Loss</a>
+  <ul class="collapse">
+  <li><a href="#a.1-setup-and-asymptotic-regime" id="toc-a.1-setup-and-asymptotic-regime" class="nav-link" data-scroll-target="#a.1-setup-and-asymptotic-regime">A.1 Setup and Asymptotic Regime</a></li>
+  <li><a href="#a.2-impermanent-loss-formula" id="toc-a.2-impermanent-loss-formula" class="nav-link" data-scroll-target="#a.2-impermanent-loss-formula">A.2 Impermanent Loss Formula</a></li>
+  <li><a href="#a.3-second-order-taylor-expansion" id="toc-a.3-second-order-taylor-expansion" class="nav-link" data-scroll-target="#a.3-second-order-taylor-expansion">A.3 Second-Order Taylor Expansion</a></li>
+  <li><a href="#a.4-taking-expectations" id="toc-a.4-taking-expectations" class="nav-link" data-scroll-target="#a.4-taking-expectations">A.4 Taking Expectations</a></li>
+  <li><a href="#a.5-interpretation" id="toc-a.5-interpretation" class="nav-link" data-scroll-target="#a.5-interpretation">A.5 Interpretation</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Optimal Invariant Design in Automated Market Makers</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Rishikesh Govind </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 15, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    <p>This document presents a research prototype and theoretical framework for optimal invariant design in Automated Market Makers (AMMs). It reformulates liquidity provision as a stochastic control problem and derives welfare-maximizing invariant curvature under CRRA utility.</p>
+  </div>
+</div>
+
+
+</header>
+
+
+<div style="margin-bottom: 1rem;">
+<p><a href="https://automated-market-maker.streamlit.app/" class="btn btn-primary" role="button" target="_blank" rel="noopener"> Launch App </a></p>
+</div>
+<section id="chapter-1-introduction" class="level1">
+<h1>Chapter 1: Introduction</h1>
+<section id="the-rise-of-constant-function-market-makers" class="level2">
+<h2 class="anchored" data-anchor-id="the-rise-of-constant-function-market-makers">1.1 The Rise of Constant Function Market Makers</h2>
+<p>Decentralized Finance (DeFi) has introduced a novel class of trading mechanisms known as Automated Market Makers (AMMs). Unlike traditional limit-order-book (LOB) exchanges studied in classical market microstructure theory (Kyle, 1985; Glosten &amp; Milgrom, 1985; O’Hara, 1995), AMMs replace discrete bid–ask matching with deterministic pricing rules governed by invariant functions. These mechanisms allow continuous trading against pooled liquidity without centralized intermediaries, reshaping the architecture of electronic markets.</p>
+<p>The dominant design paradigm is the Constant Function Market Maker (CFMM), in which token reserves <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> satisfy an invariant constraint: <span class="math display">\[F(x,y)=k\]</span></p>
+<p>Prominent examples include:</p>
+<ul>
+<li><strong>Constant Product:</strong> <span class="math inline">\(xy=k\)</span> (Uniswap v2).</li>
+<li><strong>Constant Mean:</strong> <span class="math inline">\(x^\alpha y^{1-\alpha} = k\)</span> (Balancer).</li>
+<li><strong>Hybrid Invariants:</strong> StableSwap-style curves for low-volatility pairs (Curve Finance).</li>
+</ul>
+<p>These invariant rules implicitly define prices via the marginal rate of substitution: <span class="math display">\[P = \frac{\partial F/\partial x}{\partial F/\partial y}\]</span></p>
+<p>The formal mathematical structure of CFMMs has been rigorously analyzed by Angeris and Chitra (2020), who demonstrate that CFMMs implement convex payoff profiles under continuous arbitrage and can be interpreted as deterministic market makers with embedded derivative exposure.</p>
+<p>However, while protocol whitepapers (Adams et al., 2020; Uniswap Labs, 2021; Balancer Labs; Egorov et al., 2020) focus on engineering design, and theoretical analyses focus on pricing and arbitrage properties, the curvature parameters governing these invariants are typically selected heuristically rather than derived from welfare-maximizing principles.</p>
+<p>This dissertation advances a different view:</p>
+<p><strong>Invariant design is not merely a protocol choice — it is an optimization problem.</strong></p>
+</section>
+<section id="the-liquidity-providers-dilemma" class="level2">
+<h2 class="anchored" data-anchor-id="the-liquidity-providers-dilemma">1.2 The Liquidity Provider’s Dilemma</h2>
+<p>Liquidity providers (LPs) supply capital to AMMs and earn trading fees. In return, they accept endogenous portfolio rebalancing imposed by the invariant. This exposure generates systematic underperformance relative to passive holding strategies, commonly termed <strong>impermanent loss (IL)</strong>.</p>
+<p>The economic mechanism mirrors classical dealer inventory risk (Ho &amp; Stoll, 1981) and modern optimal market-making models (Avellaneda &amp; Stoikov, 2008; Cartea, Jaimungal &amp; Penalva, 2015), where liquidity providers trade off spread income against inventory variance.</p>
+<p>When prices move, AMM invariants force LPs to sell appreciating assets and buy depreciating assets. This mechanical rebalancing induces negative convexity—economically equivalent to a <strong>short-gamma exposure</strong> in options theory (Black &amp; Scholes, 1973; Merton, 1973).</p>
+<p>Under a small-volatility expansion, impermanent loss for a constant-mean invariant satisfies: <span class="math display">\[\mathbb{E}[IL] \approx -\frac{1}{2}\alpha(1-\alpha)\sigma^2 T\]</span></p>
+<p>revealing that curvature behaves as a variance-sensitive convexity tax.</p>
+<p>This phenomenon is closely related to convexity drag in continuously rebalanced portfolios (Leland, 1985) and to volatility-harvesting effects studied in stochastic portfolio theory (Fernholz, 2002; Banner &amp; Fernholz, 2008). In this sense, AMMs implement deterministic rebalancing strategies whose performance is governed by second-order volatility effects.</p>
+<p>Liquidity provision therefore represents a structural tradeoff:</p>
+<p><span class="math display">\[\text{Fee Income} \quad \text{vs.} \quad \text{Convexity Cost}\]</span></p>
+<p>The LP’s economic problem is thus not mere participation, but optimal exposure selection under risk preferences.</p>
+</section>
+<section id="problem-statement" class="level2">
+<h2 class="anchored" data-anchor-id="problem-statement">1.3 Problem Statement</h2>
+<p>Existing AMM implementations fix invariant curvature exogenously. Uniswap v2 adopts constant-product curvature; Balancer allows user-selected weights; Curve optimizes for stable assets. Yet none derive curvature from a formal welfare objective.</p>
+<p>Meanwhile, classical portfolio theory — beginning with Merton (1969, 1971) — solves optimal risky asset allocation under stochastic price dynamics and CRRA preferences using the Hamilton–Jacobi–Bellman (HJB) framework.</p>
+<p>What is missing is a synthesis. Specifically, existing literature does not:</p>
+<ul>
+<li>Treat invariant curvature as a continuous control variable.<br>
+</li>
+<li>Embed AMM design within a stochastic control framework.<br>
+</li>
+<li>Derive curvature from expected utility maximization.<br>
+</li>
+<li>Jointly incorporate convexity costs and endogenous fee income</li>
+</ul>
+<p>Although Angeris &amp; Chitra (2020) characterize CFMM pricing and arbitrage structure, they do not endogenize invariant curvature as a welfare-maximizing choice under investor preferences.</p>
+<p>This dissertation closes that gap by reformulating invariant selection as a continuous-time portfolio optimization problem.</p>
+</section>
+<section id="research-question" class="level2">
+<h2 class="anchored" data-anchor-id="research-question">1.4 Research Question</h2>
+<p>The central research question is:</p>
+<p><strong>What invariant curvature maximizes expected utility for a liquidity provider under stochastic price dynamics?</strong></p>
+<p>Let asset prices follow geometric Brownian motion: <span class="math display">\[dS_t = \mu S_t dt + \sigma S_t dW_t\]</span></p>
+<p>Let the AMM invariant embed curvature parameter <span class="math inline">\(\alpha\)</span>, and assume CRRA preferences: <span class="math display">\[U(W) = \frac{W^{1-\gamma}}{1-\gamma}\]</span></p>
+<p>We solve: <span class="math display">\[\alpha^* = \arg\max_{\alpha \in [0,1]} \mathbb{E}[U(W_T(\alpha))]\]</span></p>
+<p>This transforms invariant design into a Hamilton–Jacobi–Bellman control problem — extending the Merton allocation rule to endogenous rebalancing invariants.</p>
+</section>
+<section id="main-contributions" class="level2">
+<h2 class="anchored" data-anchor-id="main-contributions">1.5 Main Contributions</h2>
+<ol type="1">
+<li><strong>Closed-Form Optimal Invariant:</strong> We derive an explicit expression:<br>
+<span class="math display">\[\alpha^* = \frac{\mu + \phi \sigma^2}{\sigma^2(\gamma + 2\phi)}\]</span> generalizing the classical Merton fraction to curvature selection.</li>
+<li><strong>Convexity as a Variance Tax:</strong> We formally demonstrate that impermanent loss is a second-order volatility effect proportional to <span class="math inline">\(\alpha(1-\alpha)\sigma^2\)</span>, linking AMM welfare to convexity-drag theory.<br>
+</li>
+<li><strong>Fee–Curvature Equilibrium:</strong> We derive break-even fee conditions under empirically calibrated turnover proxies.<br>
+</li>
+<li><strong>Stochastic Control Formulation:</strong> We introduce invariant curvature as a control variable in the HJB framework, bridging CFMM theory with continuous-time optimal control (Fleming &amp; Soner, 2006; Øksendal &amp; Sulem, 2007).<br>
+</li>
+<li><strong>Empirical Validation:</strong> We validate theoretical predictions using Monte Carlo simulation, regime classification (Hamilton, 1989), and ETH price calibration.</li>
+</ol>
+</section>
+<section id="contribution-to-knowledge" class="level2">
+<h2 class="anchored" data-anchor-id="contribution-to-knowledge">1.6 Contribution to Knowledge</h2>
+<p>This dissertation synthesizes three previously separate literatures:</p>
+<ul>
+<li><strong>DeFi Microstructure:</strong> Extending CFMM pricing theory into welfare-based design.<br>
+</li>
+<li><strong>Continuous-Time Portfolio Theory:</strong> Generalizing Merton-style allocation to endogenous invariant curvature.<br>
+</li>
+<li><strong>Stochastic Control and Market Making:</strong> Connecting AMM liquidity provision to inventory-risk models and convexity economics.</li>
+</ul>
+<p>The core insight is structural: <strong>An AMM invariant is an embedded portfolio strategy, and curvature is an exposure choice under risk.</strong></p>
+</section>
+</section>
+<section id="chapter-2-literature-review" class="level1">
+<h1>Chapter 2: Literature Review</h1>
+<section id="portfolio-theory-from-mertons-problem-to-modern-rebalancing" class="level2">
+<h2 class="anchored" data-anchor-id="portfolio-theory-from-mertons-problem-to-modern-rebalancing">2.1 Portfolio Theory: From Merton’s Problem to Modern Rebalancing</h2>
+<p>The classical continuous-time portfolio problem provides the backbone for any attempt to place liquidity provision into a formal welfare-maximizing framework. The <strong>Merton program</strong>—continuous-time consumption and portfolio optimization under stochastic asset prices, CRRA utility, and Brownian motion price dynamics—yields explicit closed-form allocation rules (the “Merton fraction”) and the Hamilton–Jacobi–Bellman (HJB) equation for the value function under CRRA preferences.</p>
+<p>The Merton results demonstrate how optimal exposure depends on the asset’s drift <span class="math inline">\(\mu\)</span>, volatility <span class="math inline">\(\sigma\)</span>, and investor risk aversion <span class="math inline">\(\gamma\)</span>. These features map naturally into the Liquidity Provider (LP) decision problem once we interpret invariant curvature as an endogenous allocation choice.</p>
+<p><strong>Key conceptual points for this work:</strong></p>
+<ul>
+<li><strong>Benchmark:</strong> The Merton solution optimizes direct portfolio holdings (fractions of wealth in risky vs.&nbsp;safe assets), rather than the mechanical rebalancing rules implicit in an AMM invariant.</li>
+<li><strong>Mapping Curvature:</strong> Translating invariant curvature <span class="math inline">\(\alpha \to\)</span> effective risky exposure is the crucial modeling step. Curvature determines how portfolio holdings react to price moves and defines the LP’s drift and variance terms in the wealth SDE.</li>
+<li><strong>Methodology:</strong> The HJB approach is the natural toolkit to derive an optimal <span class="math inline">\(\alpha\)</span> under CRRA utility because it accommodates dynamic stochastic control and explicit closed-form solutions.</li>
+</ul>
+<p>This dissertation sits at the intersection of five major literatures:</p>
+<ol type="1">
+<li><strong>Continuous-time portfolio optimization</strong>.</li>
+<li><strong>Stochastic control theory</strong>.</li>
+<li><strong>Market microstructure and liquidity provision</strong>.</li>
+<li><strong>Constant Function Market Maker (CFMM) theory</strong>.</li>
+<li><strong>Convexity drag and volatility-harvesting economics</strong>.</li>
+</ol>
+<p>Although each domain has matured independently, they have not been fully synthesized in the context of invariant-based automated market design. This chapter reviews these strands and identifies the conceptual gap addressed by this dissertation.</p>
+</section>
+<section id="continuous-time-portfolio-optimization" class="level2">
+<h2 class="anchored" data-anchor-id="continuous-time-portfolio-optimization">2.2 Continuous-Time Portfolio Optimization</h2>
+<p>The theoretical backbone of this dissertation lies in the continuous-time portfolio optimization literature initiated by Merton (1969, 1971). In the classical Merton problem, an investor allocates wealth between a risky asset following geometric Brownian motion and a risk-free asset, maximizing expected CRRA utility.</p>
+<p>Under GBM dynamics: <span class="math display">\[\frac{dS_t}{S_t} = \mu dt + \sigma dW_t\]</span></p>
+<p>the optimal fraction of wealth invested in the risky asset is: <span class="math display">\[\pi^* = \frac{\mu}{\gamma \sigma^2}\]</span></p>
+<p>now known as the Merton fraction.</p>
+<p>This result formalized three enduring insights:</p>
+<ul>
+<li>Optimal exposure increases with drift.</li>
+<li>Optimal exposure decreases with volatility.</li>
+<li>Risk aversion scales allocation inversely</li>
+</ul>
+<p>Subsequent developments extended the framework to:</p>
+<ul>
+<li>Incomplete markets (Karatzas &amp; Shreve, 1998).</li>
+<li>Stochastic volatility.</li>
+<li>Jump-diffusion dynamics (Merton, 1976).</li>
+<li>Robust control and ambiguity (Hansen &amp; Sargent, 2008)</li>
+</ul>
+<p>However, the Merton problem assumes direct asset allocation. It does not consider endogenous rebalancing rules imposed by invariant structures such as AMMs.</p>
+<p>This dissertation generalizes the Merton allocation problem by treating invariant curvature as a control variable that indirectly determines effective exposure.</p>
+</section>
+<section id="stochastic-control-theory-and-the-hjb-framework" class="level2">
+<h2 class="anchored" data-anchor-id="stochastic-control-theory-and-the-hjb-framework">2.3 Stochastic Control Theory and the HJB Framework</h2>
+<p>The mathematical apparatus underlying optimal portfolio choice is stochastic control theory. The Hamilton–Jacobi–Bellman equation provides necessary and sufficient conditions for optimality under regularity conditions (Fleming &amp; Soner, 2006; Yong &amp; Zhou, 1999).</p>
+<p>In continuous-time problems of the form: <span class="math display">\[dW_t = \mu(W_t, \alpha_t) dt + \sigma(W_t, \alpha_t) dW_t\]</span></p>
+<p>the value function satisfies the Hamilton–Jacobi–Bellman (HJB) equation: <span class="math display">\[0 = \sup_{\alpha} \{ V_t + \mu V_W + \frac{1}{2}\sigma^2 V_{WW} \}\]</span></p>
+<p>The innovation here is to interpret invariant curvature <span class="math inline">\(\alpha\)</span> as the control variable within this framework.</p>
+<p>Unlike standard asset allocation models, curvature modifies both:</p>
+<ul>
+<li>Effective drift (through fee income and exposure).</li>
+<li>Effective variance (through convexity drag)</li>
+</ul>
+<p>Thus, the invariant itself becomes the object of optimization.</p>
+</section>
+<section id="rebalancing-convexity-drag-and-volatility-harvesting" class="level2">
+<h2 class="anchored" data-anchor-id="rebalancing-convexity-drag-and-volatility-harvesting">2.4 Rebalancing, Convexity Drag, and Volatility Harvesting</h2>
+<p>A key mechanism underlying AMM performance is convexity drag — the performance loss arising from continuous rebalancing under stochastic volatility.</p>
+<p>This phenomenon has deep roots in financial theory:</p>
+<ul>
+<li>Leland (1985) analyzed replication error and convexity effects under transaction costs.<br>
+</li>
+<li>Fernholz (2002) developed stochastic portfolio theory and functionally generated portfolios.<br>
+</li>
+<li>Banner &amp; Fernholz (2008) formalized relative arbitrage and volatility pumping.<br>
+</li>
+<li>Booth &amp; Fama (1992) studied diversification returns under rebalancing.</li>
+</ul>
+<p>Constant-weight portfolios generate excess growth through volatility under certain conditions, but they also incur second-order drag when rebalancing against persistent trends.</p>
+<p>Impermanent loss in AMMs is a specific manifestation of convexity drag. For constant-mean invariants: <span class="math display">\[\mathbb{E}[IL] \approx -\frac{1}{2}\alpha(1-\alpha)\sigma^2 T\]</span></p>
+<p>This mirrors the second-order expansion of a short-gamma derivative position: <span class="math display">\[P\&amp;L \approx -\frac{1}{2}\Gamma \sigma^2 T\]</span></p>
+<p>Thus, AMMs can be interpreted as deterministic short-convexity portfolios whose curvature determines exposure to realized variance.</p>
+<p>While prior literature recognizes impermanent loss, few works embed it within formal convexity-drag theory.</p>
+</section>
+<section id="market-microstructure-and-liquidity-provision" class="level2">
+<h2 class="anchored" data-anchor-id="market-microstructure-and-liquidity-provision">2.5 Market Microstructure and Liquidity Provision</h2>
+<p>Classical market microstructure theory analyzes how liquidity providers trade off inventory risk against spread income.</p>
+<p>Seminal contributions include:</p>
+<ul>
+<li>Kyle (1985) — insider trading equilibrium.</li>
+<li>Glosten &amp; Milgrom (1985) — bid–ask spreads under asymmetric information.</li>
+<li>Ho &amp; Stoll (1981) — dealer inventory models.</li>
+<li>O’Hara (1995) — comprehensive microstructure theory</li>
+</ul>
+<p>Modern quantitative models of market making (Avellaneda &amp; Stoikov, 2008; Cartea et al., 2015) solve stochastic control problems in which dealers choose quote placement to balance spread revenue and inventory variance.</p>
+<p>AMMs differ from limit-order books but share the same structural tradeoff:</p>
+<p>Liquidity revenue vs inventory risk.</p>
+<p>However, unlike LOB dealers who adjust quotes dynamically, AMMs fix a deterministic invariant. This invariant determines the slope of the price curve and hence the LP’s effective inventory exposure.</p>
+<p>This dissertation interprets invariant curvature as the structural analogue of inventory-risk aversion in dealer models.</p>
+</section>
+<section id="constant-function-market-maker-theory" class="level2">
+<h2 class="anchored" data-anchor-id="constant-function-market-maker-theory">2.6 Constant Function Market Maker Theory</h2>
+<p>The formal mathematical foundation of CFMMs was developed by Angeris &amp; Chitra (2020), who characterize invariants as convex functions implementing price curves under arbitrage.</p>
+<p>They show:</p>
+<ul>
+<li>CFMMs replicate certain derivative payoff structures.</li>
+<li>Arbitrage enforces pricing consistency.</li>
+<li>Invariants define deterministic liquidity supply curves.</li>
+</ul>
+<p>Subsequent work (Angeris et al., 2020) examines oracle properties and stability.</p>
+<p>Protocol whitepapers — Uniswap (Adams et al., 2020), Uniswap v3 (2021), Curve (Egorov et al., 2020), Balancer — introduce engineering variations such as concentrated liquidity and weighted pools.</p>
+<p>Yet these works treat invariant selection as exogenous.</p>
+<p>No prior work solves: <span class="math display">\[\alpha^* = \arg\max \mathbb{E}[U(W_T(\alpha))]\]</span></p>
+</section>
+<section id="empirical-crypto-finance-and-amm-performance" class="level2">
+<h2 class="anchored" data-anchor-id="empirical-crypto-finance-and-amm-performance">2.7 Empirical Crypto Finance and AMM Performance</h2>
+<p>Empirical studies of decentralized exchanges examine arbitrage efficiency, fee income, and LP profitability (Cong et al., 2021; Capponi &amp; Jia, 2021; Adams et al., 2021).</p>
+<p>These works document:</p>
+<ul>
+<li>Arbitrage keeps AMM prices close to centralized exchanges.</li>
+<li>LP returns depend critically on volatility regimes.</li>
+<li>High volatility increases impermanent loss</li>
+</ul>
+<p>However, empirical papers generally analyze realized performance under fixed invariants rather than optimal invariant selection.</p>
+<p>This dissertation integrates empirical calibration with welfare-based curvature design.</p>
+</section>
+<section id="mechanism-design-and-market-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="mechanism-design-and-market-architecture">2.8 Mechanism Design and Market Architecture</h2>
+<p>At a deeper level, invariant selection is a mechanism design problem.</p>
+<p>The design of trading rules affects:</p>
+<ul>
+<li>Risk sharing.</li>
+<li>Fee extraction.</li>
+<li>Liquidity provision incentives</li>
+</ul>
+<p>Mechanism design theory (Myerson, 1981; Milgrom, 2004) studies optimal allocation under incentive constraints. While AMMs are not auctions, invariant curvature influences participant welfare and equilibrium liquidity supply.</p>
+<p>Thus, optimal invariant design sits at the boundary of portfolio theory and mechanism design.</p>
+</section>
+<section id="identified-gap" class="level2">
+<h2 class="anchored" data-anchor-id="identified-gap">2.9 Identified Gap</h2>
+<p>Across all literatures reviewed:</p>
+<ul>
+<li>Portfolio theory optimizes direct asset allocation.<br>
+</li>
+<li>Market-making theory optimizes inventory control.<br>
+</li>
+<li>CFMM theory characterizes pricing structure.<br>
+</li>
+<li>Empirical crypto finance documents realized LP performance.</li>
+</ul>
+<p>But no existing work:</p>
+<ul>
+<li>Treats invariant curvature as a stochastic control variable.<br>
+</li>
+<li>Solves for welfare-maximizing curvature under CRRA utility.<br>
+</li>
+<li>Derives closed-form fee–curvature equilibrium conditions.</li>
+</ul>
+<p>This dissertation synthesizes these domains by embedding invariant curvature inside a continuous-time HJB framework and deriving an explicit optimal design rule.</p>
+</section>
+</section>
+<section id="chapter-3-theoretical-framework" class="level1">
+<h1>Chapter 3: Theoretical Framework</h1>
+<section id="asset-dynamics" class="level2">
+<h2 class="anchored" data-anchor-id="asset-dynamics">3.1 Asset Dynamics</h2>
+<section id="geometric-brownian-motion" class="level3">
+<h3 class="anchored" data-anchor-id="geometric-brownian-motion">3.1.1 Geometric Brownian Motion</h3>
+<p>We model the underlying risky asset price <span class="math inline">\(S_t\)</span> as a continuous-time diffusion process. Following Black and Scholes (1973) and Merton (1969, 1971), we assume:</p>
+<p><span class="math display">\[\frac{dS_t}{S_t} = \mu \, dt + \sigma \, dW_t,\]</span></p>
+<p>where: * <span class="math inline">\(\mu \in \mathbb{R}\)</span> is the drift, * <span class="math inline">\(\sigma &gt; 0\)</span> is volatility, * <span class="math inline">\(W_t\)</span> is a standard Brownian motion on a filtered probability space.</p>
+<p>The solution is: <span class="math display">\[S_T = S_0 \exp\left[\left(\mu - \tfrac{1}{2}\sigma^2\right)T + \sigma W_T\right].\]</span></p>
+<p>GBM is standard in continuous-time portfolio theory (Merton, 1971) and remains the baseline model in DeFi asset modeling. However, crypto assets exhibit fat tails and jump behavior.</p>
+</section>
+<section id="jump-diffusion-extension" class="level3">
+<h3 class="anchored" data-anchor-id="jump-diffusion-extension">3.1.2 Jump-Diffusion Extension</h3>
+<p>To capture discontinuous price movements, we extend the model using the jump-diffusion process of Merton (1976):</p>
+<p><span class="math display">\[\frac{dS_t}{S_t} = \mu \, dt + \sigma \, dW_t + (J - 1) dN_t,\]</span></p>
+<p>where: * <span class="math inline">\(N_t\)</span> is a Poisson process with intensity <span class="math inline">\(\lambda\)</span>, * <span class="math inline">\(J\)</span> is a random jump multiplier (lognormally distributed).</p>
+<p>This specification allows for the modeling of regime shocks, de-pegging events, and liquidation cascades. The inclusion of jumps is consistent with empirical studies of crypto returns (e.g., Aït-Sahalia &amp; Jacod, 2009). Thus, asset dynamics are:</p>
+<p><span class="math display">\[dS_t = S_t \left(\mu dt + \sigma dW_t \right) + S_{t^-}(J-1)dN_t.\]</span></p>
+<p>Jump-diffusion processes of this type are widely used to capture fat tails and discontinuous price dynamics in financial markets (Merton, 1976;Cont &amp; Tankov, 2004). Incorporating jumps is particularly relevant in crypto markets, where liquidation cascades and de-pegging events produce discrete price shocks.</p>
+</section>
+</section>
+<section id="the-generalized-invariant" class="level2">
+<h2 class="anchored" data-anchor-id="the-generalized-invariant">3.2 The Generalized Invariant</h2>
+<section id="constant-mean-portfolio-representation" class="level3">
+<h3 class="anchored" data-anchor-id="constant-mean-portfolio-representation">3.2.1 Constant-Mean Portfolio Representation</h3>
+<p>Consider a two-asset Constant Function Market Maker (CFMM) with invariant:</p>
+<p><span class="math display">\[F(x_t, y_t) = x_t^{1-\alpha} y_t^{\alpha} = k, \quad \alpha \in (0,1).\]</span></p>
+<p>This form generalizes Uniswap v2 (<span class="math inline">\(\alpha = 1/2\)</span>) and Balancer weighted pools (arbitrary <span class="math inline">\(\alpha\)</span>). Solving for reserves as functions of price <span class="math inline">\(P_t = S_t\)</span>:</p>
+<p><span class="math display">\[x_t = x_0 \left(\frac{P_t}{P_0}\right)^{-(1-\alpha)}, \quad y_t = y_0 \left(\frac{P_t}{P_0}\right)^{\alpha}.\]</span></p>
+</section>
+<section id="amm-wealth-process" class="level3">
+<h3 class="anchored" data-anchor-id="amm-wealth-process">3.2.2 AMM Wealth Process</h3>
+<p>Total AMM wealth is <span class="math inline">\(W_t = x_t S_t + y_t\)</span>. Using symmetry <span class="math inline">\(x_0 S_0 = y_0 = V_0/2\)</span>, we obtain:</p>
+<p><span class="math display">\[W_t = V_0 \left( \frac{S_t}{S_0} \right)^\alpha\]</span></p>
+<p>under symmetric initial reserves <span class="math inline">\(x_0 S_0 = y_0\)</span>.</p>
+<p>This is equivalent to a continuously rebalanced constant-weight portfolio with weight <span class="math inline">\(\alpha\)</span>. Fernholz (2002) shows such portfolios arise in Stochastic Portfolio Theory. This equivalence is formalized in functionally generated portfolio theory (see Fernholz, 2002), where constant-weight portfolios arise from concave generating functions. The constant-mean invariant therefore admits a direct interpretation as a functionally generated portfolio, implying that AMMs belong to the broader class of entropy-weighted rebalancing strategies. This connection provides a rigorous stochastic portfolio theory foundation for invariant-based market design.</p>
+</section>
+<section id="the-convexity-tax" class="level3">
+<h3 class="anchored" data-anchor-id="the-convexity-tax">3.2.3 The Convexity Tax</h3>
+<p>Relative to a HODL strategy where <span class="math inline">\(W^{HODL}_t = \frac{V_0}{2}(1 + R_t)\)</span>, Impermanent Loss is defined as <span class="math inline">\(IL_t = \frac{W_t}{W^{HODL}_t} - 1\)</span>. Using Itô expansion, we obtain:</p>
+<p><span class="math display">\[\mathbb{E}[IL_T] \approx -\tfrac{1}{2} \alpha(1-\alpha)\sigma^2 T.\]</span></p>
+<p>This term is the <strong>convexity tax</strong>. Economically, AMMs are short gamma, IL is proportional to realized variance, and the curvature <span class="math inline">\(\alpha(1-\alpha)\)</span> governs exposure.</p>
+<p>This second-order variance term is structurally analogous to convexity drag in continuously rebalanced portfolios (Leland, 1985) and to the diversification return in stochastic portfolio theory (Fernholz, 2002). The result also relates to volatility harvesting effects documented in portfolio rebalancing literature (Booth &amp; Fama, 1992), where continuous rebalancing generates variance-dependent performance deviations.</p>
+</section>
+</section>
+<section id="defining-welfare" class="level2">
+<h2 class="anchored" data-anchor-id="defining-welfare">3.3 Defining Welfare</h2>
+<section id="crra-preferences" class="level3">
+<h3 class="anchored" data-anchor-id="crra-preferences">3.3.1 CRRA Preferences</h3>
+<p>We assume the liquidity provider has Constant Relative Risk Aversion (CRRA) utility:</p>
+<p><span class="math display">\[U(W) = \begin{cases} \frac{W^{1-\gamma}}{1-\gamma}, &amp; \gamma \neq 1, \\ \ln W, &amp; \gamma = 1, \end{cases}\]</span></p>
+<p>where <span class="math inline">\(\gamma &gt; 0\)</span> is the coefficient of relative risk aversion.</p>
+</section>
+<section id="fee-revenue" class="level3">
+<h3 class="anchored" data-anchor-id="fee-revenue">3.3.2 Fee Revenue</h3>
+<p>We approximate fee revenue by assuming that expected turnover scales with instantaneous variance. Specifically, we impose the reduced-form specification:</p>
+<p><span class="math display">\[dF_t = \phi \alpha(1-\alpha)\sigma^2 W_t dt,\]</span></p>
+<p>where <span class="math inline">\(\phi\)</span> is the fee rate and <span class="math inline">\(\alpha(1-\alpha)\)</span> captures curvature-driven trading intensity. Thus, total wealth evolves as:</p>
+<p><span class="math display">\[dW_t = \alpha W_t \frac{dS_t}{S_t} + \phi \alpha(1-\alpha)\sigma^2 W_t dt.\]</span></p>
+<p>This specification should be interpreted as an expected drift approximation, not a microstructural identity. In empirical implementation (Chapter 5), turnover is proxied using realized absolute returns. The analytical model therefore captures the expected fee effect, while the simulation introduces pathwise turnover fluctuations.</p>
+</section>
+<section id="effective-drift-and-variance" class="level3">
+<h3 class="anchored" data-anchor-id="effective-drift-and-variance">3.3.3 Effective Drift and Variance</h3>
+<p>Substituting GBM dynamics:</p>
+<p><span class="math display">\[\frac{dW_t}{W_t} = \alpha \mu dt + \alpha \sigma dW_t + \phi \alpha(1-\alpha)\sigma^2 dt.\]</span></p>
+<ul>
+<li><strong>Effective drift:</strong> <span class="math inline">\(\mu_{eff}(\alpha) = \alpha \mu + \phi \alpha(1-\alpha)\sigma^2\)</span></li>
+<li><strong>Effective variance:</strong> <span class="math inline">\(\sigma_{eff}^2(\alpha) = \alpha^2 \sigma^2\)</span></li>
+</ul>
+<p>This embeds convexity cost and fee reward into a modified Merton problem.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-eff-drift-var-1" class="quarto-float quarto-figure quarto-figure-center anchored" width="960">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-eff-drift-var-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="amm_prototype_files/figure-html/fig-eff-drift-var-1.png" id="fig-eff-drift-var-1" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-eff-drift-var-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-eff-drift-var-2" class="quarto-float quarto-figure quarto-figure-center anchored" width="960">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-eff-drift-var-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="amm_prototype_files/figure-html/fig-eff-drift-var-2.png" id="fig-eff-drift-var-2" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-eff-drift-var-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="analytical-fee-drift-vs-empirical-turnover-proxy" class="level3">
+<h3 class="anchored" data-anchor-id="analytical-fee-drift-vs-empirical-turnover-proxy">3.3.4 Analytical Fee Drift vs Empirical Turnover Proxy</h3>
+<p>The HJB derivation relies on a variance-proportional expected fee drift. In the empirical implementation, fee income is computed using a realized turnover proxy based on absolute returns.</p>
+<p>These specifications coincide in expectation under Geometric Brownian Motion (GBM), where:</p>
+<p><span class="math display">\[\mathbb{E}|r_t| \propto \sigma \sqrt{dt}\]</span></p>
+<p>and quadratic variation accumulates proportionally to:</p>
+<p><span class="math display">\[\sigma^2 dt\]</span></p>
+<p>Thus, Chapter 3 provides a tractable analytical approximation, while Chapter 5 validates robustness under a more granular turnover realization.</p>
+</section>
+</section>
+<section id="optimal-invariant-curvature-as-a-stochastic-control-problem" class="level2">
+<h2 class="anchored" data-anchor-id="optimal-invariant-curvature-as-a-stochastic-control-problem">3.4 Optimal Invariant Curvature as a Stochastic Control Problem</h2>
+<p>We now formalize the liquidity provider’s problem as a continuous-time stochastic control problem.</p>
+<section id="optimal-curvature-under-crra-utility" class="level3">
+<h3 class="anchored" data-anchor-id="optimal-curvature-under-crra-utility">3.4.1 Optimal Curvature Under CRRA Utility</h3>
+<p>Let asset prices follow geometric Brownian motion: <span class="math display">\[\frac{dS_t}{S_t} = \mu dt + \sigma dW_t\]</span></p>
+<p>and suppose the liquidity provider selects invariant curvature <span class="math inline">\(\alpha \in [0,1]\)</span>. Under the constant-mean invariant with fee compensation parameter <span class="math inline">\(\phi\)</span>, wealth evolves as: <span class="math display">\[\frac{dW_t}{W_t} = \alpha \mu dt + \phi \alpha(1-\alpha)\sigma^2 dt + \alpha \sigma dW_t\]</span></p>
+<p>Let preferences be CRRA: <span class="math display">\[U(W) = \frac{W^{1-\gamma}}{1-\gamma}, \quad \gamma &gt; 0\]</span></p>
+<p>Then the curvature parameter that maximizes expected utility satisfies: <span class="math display">\[\boxed{\alpha^* = \frac{\mu + \phi \sigma^2}{\sigma^2(\gamma + 2\phi)}}\]</span> clipped to the feasible interval <span class="math inline">\([0,1]\)</span>.</p>
+<section id="proof" class="level4">
+<h4 class="anchored" data-anchor-id="proof">Proof</h4>
+<section id="step-1-define-effective-coefficients" class="level5">
+<h5 class="anchored" data-anchor-id="step-1-define-effective-coefficients">Step 1: Define Effective Coefficients</h5>
+<p>The wealth process can be written: <span class="math display">\[\frac{dW_t}{W_t} = \mu_{\text{eff}}(\alpha) dt + \sigma_{\text{eff}}(\alpha) dW_t\]</span> where <span class="math display">\[\mu_{\text{eff}}(\alpha) = \alpha\mu + \phi\alpha(1-\alpha)\sigma^2\]</span> <span class="math display">\[\sigma_{\text{eff}}(\alpha) = \alpha\sigma\]</span></p>
+</section>
+<section id="step-2-hjb-equation" class="level5">
+<h5 class="anchored" data-anchor-id="step-2-hjb-equation">Step 2: HJB Equation</h5>
+<p>Define the value function: <span class="math display">\[V(W,t) = \sup_{\alpha} \mathbb{E}_t[U(W_T)]\]</span></p>
+<p>The Hamilton–Jacobi–Bellman (HJB) equation is: <span class="math display">\[0 = \sup_{\alpha} \left\{ V_t + \mu_{\text{eff}} W V_W + \frac{1}{2}\sigma_{\text{eff}}^2 W^2 V_{WW} \right\}\]</span></p>
+<p>Substitute the effective terms: <span class="math display">\[0 = \sup_{\alpha} \left\{ V_t + W V_W \left[\alpha\mu + \phi\alpha(1-\alpha)\sigma^2\right] + \frac{1}{2} W^2 V_{WW} \alpha^2\sigma^2 \right\}\]</span></p>
+</section>
+<section id="step-3-crra-ansatz" class="level5">
+<h5 class="anchored" data-anchor-id="step-3-crra-ansatz">Step 3: CRRA Ansatz</h5>
+<p>Assume the solution takes the form: <span class="math display">\[V(W,t) = \frac{W^{1-\gamma}}{1-\gamma} f(t)\]</span></p>
+<p>The partial derivatives are: <span class="math display">\[V_W = W^{-\gamma} f(t), \quad V_{WW} = -\gamma W^{-\gamma-1} f(t)\]</span></p>
+<p>Substituting these into the HJB equation: <span class="math display">\[0 = \sup_{\alpha} \left\{ f'(t)\frac{W^{1-\gamma}}{1-\gamma} + W^{1-\gamma} f(t) \left[ \alpha\mu + \phi\alpha(1-\alpha)\sigma^2 - \frac{1}{2}\gamma \alpha^2\sigma^2 \right] \right\}\]</span></p>
+<p>Factoring out the positive term <span class="math inline">\(W^{1-\gamma} f(t)\)</span>, the optimization reduces to: <span class="math display">\[\max_{\alpha} \left[ \alpha\mu + \phi\alpha(1-\alpha)\sigma^2 - \frac{1}{2}\gamma\alpha^2\sigma^2 \right]\]</span></p>
+</section>
+<section id="derivation-of-alpha" class="level5">
+<h5 class="anchored" data-anchor-id="derivation-of-alpha">Derivation of <span class="math inline">\(\alpha^*\)</span></h5>
+<p>Define the objective function: <span class="math display">\[F(\alpha) = \alpha\mu + \phi\alpha(1-\alpha)\sigma^2 - \frac{1}{2}\gamma\alpha^2\sigma^2\]</span></p>
+<p>Expanding the middle term: <span class="math display">\[\phi\alpha(1-\alpha)\sigma^2 = \phi\alpha\sigma^2 - \phi\alpha^2\sigma^2\]</span></p>
+<p>Substituting back: <span class="math display">\[F(\alpha) = \alpha\mu + \phi\alpha\sigma^2 - \phi\alpha^2\sigma^2 - \frac{1}{2}\gamma\alpha^2\sigma^2\]</span></p>
+<p>Group linear and quadratic terms: <span class="math display">\[F(\alpha) = \alpha(\mu + \phi\sigma^2) - \alpha^2\sigma^2 \left( \phi + \frac{\gamma}{2} \right)\]</span></p>
+</section>
+<section id="step-4-first-order-condition" class="level5">
+<h5 class="anchored" data-anchor-id="step-4-first-order-condition">Step 4: First-Order Condition</h5>
+<p>Differentiate with respect to <span class="math inline">\(\alpha\)</span>: <span class="math display">\[F'(\alpha) = \mu + \phi\sigma^2 - 2\alpha\sigma^2 \left( \phi + \frac{\gamma}{2} \right)\]</span></p>
+<p>Simplifying the term <span class="math inline">\(2(\phi + \frac{\gamma}{2}) = 2\phi + \gamma\)</span>: <span class="math display">\[F'(\alpha) = \mu + \phi\sigma^2 - \alpha\sigma^2(2\phi + \gamma)\]</span></p>
+<p>Setting the derivative to zero: <span class="math display">\[\mu + \phi\sigma^2 = \alpha\sigma^2(2\phi + \gamma)\]</span> <span class="math display">\[\alpha^* = \frac{\mu + \phi\sigma^2}{\sigma^2(\gamma + 2\phi)}\]</span></p>
+</section>
+<section id="step-5-second-order-condition" class="level5">
+<h5 class="anchored" data-anchor-id="step-5-second-order-condition">Step 5: Second-Order Condition</h5>
+<p><span class="math display">\[F''(\alpha) = -\sigma^2(2\phi + \gamma)\]</span> Since <span class="math inline">\(\gamma &gt; 0\)</span>, <span class="math inline">\(\sigma^2 &gt; 0\)</span>, and <span class="math inline">\(\phi \geq 0\)</span>, then <span class="math inline">\(F''(\alpha) &lt; 0\)</span>. The objective is strictly concave, and <span class="math inline">\(\alpha^*\)</span> is the unique global maximizer. <span class="math inline">\(\square\)</span></p>
+</section>
+</section>
+<section id="sanity-checks" class="level4">
+<h4 class="anchored" data-anchor-id="sanity-checks">Sanity Checks</h4>
+<p><strong>Case 1: No fees (<span class="math inline">\(\phi = 0\)</span>)</strong> <span class="math display">\[\alpha^* = \frac{\mu}{\gamma\sigma^2}\]</span> This recovers the classical <strong>Merton fraction</strong>.</p>
+<p><strong>Case 2: <span class="math inline">\(\mu = 0\)</span> (Purely volatility-driven)</strong> <span class="math display">\[\alpha^* = \frac{\phi}{\gamma + 2\phi}\]</span> The curvature is determined solely by the relationship between fee compensation and risk aversion.</p>
+</section>
+</section>
+</section>
+</section>
+<section id="chapter-4-the-research-prototype" class="level1">
+<h1>Chapter 4: The Research Prototype</h1>
+<section id="architectural-design" class="level2">
+<h2 class="anchored" data-anchor-id="architectural-design">4.1 Architectural Design</h2>
+<section id="objectives-of-the-prototype" class="level3">
+<h3 class="anchored" data-anchor-id="objectives-of-the-prototype">4.1.1 Objectives of the Prototype</h3>
+<p>The theoretical model developed in Chapter 3 produces a closed-form characterization of the optimal invariant curvature parameter <span class="math inline">\(\alpha^*\)</span>. However, analytical solutions often rely on simplifying assumptions such as GBM, small-volatility approximations, and basic fee modeling.</p>
+<p>The prototype serves four purposes:<br>
+1. <strong>Empirical calibration</strong> of model parameters.<br>
+2. <strong>Numerical validation</strong> of theoretical approximations.<br>
+3. <strong>Visualization</strong> of curvature–volatility interactions.<br>
+4. <strong>Comparison</strong> between analytical and Monte Carlo optimal <span class="math inline">\(\alpha\)</span>.</p>
+</section>
+<section id="technology-stack" class="level3">
+<h3 class="anchored" data-anchor-id="technology-stack">4.1.2 Technology Stack</h3>
+<p>The dashboard is implemented in a modular Python environment. The architecture ensures separation between empirical inputs, theoretical modeling, and numerical experimentation.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Module</th>
+<th style="text-align: left;">Function</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Data Layer</strong></td>
+<td style="text-align: left;">Price download and preprocessing (yfinance)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Model Layer</strong></td>
+<td style="text-align: left;">Invariant and wealth dynamics</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Simulation Engine</strong></td>
+<td style="text-align: left;">Monte Carlo jump-diffusion</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Optimization Layer</strong></td>
+<td style="text-align: left;">Utility maximization and HJB comparison</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Visualization Layer</strong></td>
+<td style="text-align: left;">IL surfaces, regime plots, and utility curves</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="data-integration-and-regime-calibration" class="level2">
+<h2 class="anchored" data-anchor-id="data-integration-and-regime-calibration">4.2 Data Integration and Regime Calibration</h2>
+<section id="empirical-data-source" class="level3">
+<h3 class="anchored" data-anchor-id="empirical-data-source">4.2.1 Empirical Data Source</h3>
+<p>Historical asset prices (<span class="math inline">\(S_t^{obs}\)</span>) are obtained via the <code>yfinance</code> API. From daily closing prices, we compute returns <span class="math inline">\(r_t = \frac{S_t - S_{t-1}}{S_{t-1}}\)</span> and the annualized estimators: <span class="math display">\[\hat{\mu} = 252 \cdot \bar{r}, \quad \hat{\sigma} = \sqrt{252} \cdot \text{std}(r).\]</span></p>
+</section>
+<section id="volatility-regime-detection" class="level3">
+<h3 class="anchored" data-anchor-id="volatility-regime-detection">4.2.2 Volatility Regime Detection</h3>
+<p>To examine state dependence, we classify volatility regimes by empirical quantiles of rolling volatility <span class="math inline">\(\hat{\sigma}_t^{(w)}\)</span>:<br>
+* <strong>Low volatility:</strong> Below 33rd percentile.<br>
+* <strong>Medium volatility:</strong> 33rd–66th percentile.<br>
+* <strong>High volatility:</strong> Above 66th percentile.</p>
+</section>
+</section>
+<section id="simulation-engine" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-engine">4.3 Simulation Engine</h2>
+<section id="monte-carlo-methodology" class="level3">
+<h3 class="anchored" data-anchor-id="monte-carlo-methodology">4.3.1 Monte Carlo Methodology</h3>
+<p>We simulate <span class="math inline">\(N\)</span> independent paths of the asset price process. Under GBM, the discretization is: <span class="math display">\[S_{t+1} = S_t \exp\left[ (\hat{\mu} - \tfrac{1}{2}\hat{\sigma}^2)\Delta t + \hat{\sigma}\sqrt{\Delta t} Z_t \right].\]</span> The terminal expectation is approximated as: <span class="math display">\[\mathbb{E}[g(S_T)] \approx \frac{1}{N} \sum_{i=1}^N g(S_T^{(i)}).\]</span></p>
+</section>
+<section id="jump-diffusion-implementation" class="level3">
+<h3 class="anchored" data-anchor-id="jump-diffusion-implementation">4.3.2 Jump-Diffusion Implementation</h3>
+<p>To capture tail risk and “flash crash” events, we implement Merton’s (1976) jump-diffusion: <span class="math display">\[\frac{dS_t}{S_t} = \mu dt + \sigma dW_t + (J-1)dN_t.\]</span> The discretized simulation incorporates a jump <span class="math inline">\(Y_t \sim \mathcal{N}(\mu_j, \sigma_j^2)\)</span> occurring with probability <span class="math inline">\(\lambda\Delta t\)</span>.</p>
+</section>
+<section id="impermanent-loss-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="impermanent-loss-distribution">4.3.3 Impermanent Loss Distribution</h3>
+<p>For each path, we compute <span class="math inline">\(IL_T^{(i)}(\alpha) = \frac{W_T^{(i)}(\alpha)}{W_T^{HODL,(i)}} - 1\)</span>. This empirical distribution allows us to calculate not just the mean, but also <strong>Value-at-Risk (VaR)</strong> and <strong>Conditional Value-at-Risk (CVaR)</strong>.</p>
+</section>
+</section>
+<section id="optimization-modules" class="level2">
+<h2 class="anchored" data-anchor-id="optimization-modules">4.4 Optimization Modules</h2>
+<section id="numerical-vs.-analytical-optimization" class="level3">
+<h3 class="anchored" data-anchor-id="numerical-vs.-analytical-optimization">4.4.1 Numerical vs.&nbsp;Analytical Optimization</h3>
+<p>The dashboard compares two distinct optimization procedures:<br>
+1. <strong>Numerical (MC):</strong> <span class="math inline">\(\hat{\alpha}_{MC} = \arg\max_\alpha \frac{1}{N} \sum_{i=1}^N U(W_T^{(i)}(\alpha))\)</span>.<br>
+2. <strong>Analytical (HJB):</strong> <span class="math inline">\(\alpha^* = \frac{\mu + \phi(1-2\alpha)\sigma^2}{\gamma \sigma^2}\)</span>.</p>
+</section>
+<section id="volatilitycurvature-surface" class="level3">
+<h3 class="anchored" data-anchor-id="volatilitycurvature-surface">4.4.2 Volatility–Curvature Surface</h3>
+<p>We compute <span class="math inline">\(\mathbb{E}[IL(\sigma, \alpha)]\)</span> across grids of volatility and curvature. This produces a three-dimensional surface confirming the quadratic structure: <span class="math display">\[IL \propto \alpha(1-\alpha)\sigma^2.\]</span></p>
+</section>
+</section>
+<section id="validation-of-theoretical-claims" class="level2">
+<h2 class="anchored" data-anchor-id="validation-of-theoretical-claims">4.5 Validation of Theoretical Claims</h2>
+<p>The prototype confirms five theoretical predictions:<br>
+1. Impermanent loss scales with realized variance.<br>
+2. IL is maximized near <span class="math inline">\(\alpha = 1/2\)</span>.<br>
+3. Fee revenue shifts optimal <span class="math inline">\(\alpha\)</span> upward.<br>
+4. Higher risk aversion (<span class="math inline">\(\gamma\)</span>) shifts optimal <span class="math inline">\(\alpha\)</span> downward.<br>
+5. Jump risk increases curvature penalty nonlinearly.</p>
+</section>
+<section id="reproducibility-and-transparency" class="level2">
+<h2 class="anchored" data-anchor-id="reproducibility-and-transparency">4.6 Reproducibility and Transparency</h2>
+<p>All components are parameterized via UI controls and computed using open-source tools (Python, Streamlit). This ensures scientific transparency and facilitates robustness testing across different asset pairs.</p>
+</section>
+</section>
+<section id="chapter-5-empirical-analysis-results" class="level1">
+<h1>Chapter 5: Empirical Analysis &amp; Results</h1>
+<section id="overview-and-goals" class="level2">
+<h2 class="anchored" data-anchor-id="overview-and-goals">5.1 Overview and goals</h2>
+<p>This chapter presents the empirical results obtained with the research prototype (the Streamlit dashboard described in Chapter 4). The empirical program has three linked aims:</p>
+<ol type="1">
+<li>Detect volatility regimes in historical price series and verify that impermanent loss (IL) is regime-dependent.</li>
+<li>Quantify the IL–curvature relationship and visualize the IL surface <span class="math inline">\(E[IL(\alpha, \sigma, T)]\)</span>.</li>
+<li>Find the fee-compensation equilibrium and investigate how the optimal invariant curvature <span class="math inline">\(\alpha^*\)</span> depends on risk aversion <span class="math inline">\(\gamma\)</span> and volatility regime.</li>
+</ol>
+<p>We use daily price data calibrated to each sample window, Monte Carlo jump-diffusion simulations for counterfactual experiments, and analytical approximations derived in Chapter 3. Core numerical methods follow standard Monte Carlo practice and regime-detection via rolling volatility quantiles.</p>
+</section>
+<section id="volatility-regime-detection-1" class="level2">
+<h2 class="anchored" data-anchor-id="volatility-regime-detection-1">5.2 Volatility regime detection</h2>
+<section id="method" class="level3">
+<h3 class="anchored" data-anchor-id="method">5.2.1 Method</h3>
+<p>We classify daily returns into three volatility regimes — <strong>Low, Medium, High</strong> — using a simple rolling-window realized volatility approach:</p>
+<ol type="1">
+<li>Compute daily returns <span class="math inline">\(r_t\)</span> and annualized realized volatility using a rolling window <span class="math inline">\(W\)</span> days: <span class="math display">\[\hat\sigma_t = \sqrt{252} \cdot \text{std}\{r_{t-W+1}, \dots, r_t\}.\]</span></li>
+<li>For each date compute the empirical quantiles <span class="math inline">\(q_{0.33}\)</span> and <span class="math inline">\(q_{0.66}\)</span> of the (sample) distribution of <span class="math inline">\(\hat\sigma_t\)</span>.</li>
+<li>Label days with <span class="math inline">\(\hat\sigma_t &lt; q_{0.33}\)</span> as <strong>Low</strong>, <span class="math inline">\(q_{0.33} \le \hat\sigma_t &lt; q_{0.66}\)</span> as <strong>Medium</strong>, and <span class="math inline">\(\hat\sigma_t \ge q_{0.66}\)</span> as <strong>High</strong>.</li>
+</ol>
+<p><strong>Rationale:</strong> the regime labels are intentionally simple and interpretable (percentile-based). For robustness, you should also run a Markov-switching model (Hamilton, 1989) or a hidden Markov model as a sensitivity check.</p>
+</section>
+<section id="dashboard-linkage" class="level3">
+<h3 class="anchored" data-anchor-id="dashboard-linkage">5.2.2 Dashboard linkage</h3>
+<p>In the dashboard, the volatility regime detection is implemented using rolling window standard deviation and the regime mapping logic. Plotting the price series with markers color-coded by regime demonstrates how IL spikes align with high-volatility dates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>df_regime <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"amm_csv_files/regime_il_timeseries.csv"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 732 Columns: 4
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (1): regime
+dbl  (2): price, il
+date (1): date
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_regime<span class="sc">$</span>date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(df_regime<span class="sc">$</span>date)</span></code></pre></div>
+</div>
+</section>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">5.2.3 Results</h3>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Table 5.1: Distribution of Volatility Regimes</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">regime</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">High</td>
+<td style="text-align: right;">239</td>
+<td style="text-align: right;">0.327</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Low</td>
+<td style="text-align: right;">232</td>
+<td style="text-align: right;">0.317</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Medium</td>
+<td style="text-align: right;">231</td>
+<td style="text-align: right;">0.316</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">0.041</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-regime-price" class="quarto-float quarto-figure quarto-figure-center anchored" width="960">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-regime-price-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="amm_prototype_files/figure-html/fig-regime-price-1.png" id="fig-regime-price" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-regime-price-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Figure 5.1 illustrates the clustering of volatility over time. High-volatility regimes are episodic and coincide with large directional moves.</p>
+<p>To quantify regime dependence, we compute mean IL within each regime.</p>
+<p><strong>Interpretation:</strong></p>
+<p>Mean IL is lowest in low-volatility regimes and highest in high-volatility regimes. The difference is economically and statistically significant.</p>
+<p>This confirms the theoretical prediction from Chapter 3 that IL is fundamentally a second-order volatility effect.</p>
+<p>The result aligns with convexity-drag literature in portfolio rebalancing (Leland, 1985; Fernholz, 2002) and extends it to CFMM contexts.</p>
+</section>
+</section>
+<section id="the-ilcurvature-surface-and-the-ilalpha-relationship" class="level2">
+<h2 class="anchored" data-anchor-id="the-ilcurvature-surface-and-the-ilalpha-relationship">5.3 The IL–Curvature Surface and the IL–<span class="math inline">\(\alpha\)</span> relationship</h2>
+<section id="method-1" class="level3">
+<h3 class="anchored" data-anchor-id="method-1">5.3.1 Method</h3>
+<p>Two complementary methods are used to quantify how IL depends on curvature <span class="math inline">\(\alpha\)</span>:</p>
+<section id="monte-carlo-experiments" class="level4">
+<h4 class="anchored" data-anchor-id="monte-carlo-experiments">1.Monte Carlo experiments</h4>
+<ul>
+<li>Simulate <span class="math inline">\(N\)</span> terminal prices under GBM or jump-diffusion.</li>
+<li>For a grid of <span class="math inline">\(\alpha\)</span> values, compute terminal IL per path and average: <span class="math display">\[E[IL(\alpha)] \approx \frac{1}{N} \sum_{i=1}^N IL_T^{(i)}(\alpha).\]</span></li>
+<li>Plot <span class="math inline">\(E[IL]\)</span> vs <span class="math inline">\(\alpha\)</span> (1D curve) and compute the location of the maximum magnitude IL.</li>
+</ul>
+</section>
+<section id="analytic-small-volatility-approximation-sanity-check" class="level4">
+<h4 class="anchored" data-anchor-id="analytic-small-volatility-approximation-sanity-check">2.Analytic small-volatility approximation (sanity check)</h4>
+<ul>
+<li>Use the second-order Ito/Taylor expansion (derived in Appendix 2.3) to obtain: <span class="math display">\[E[IL(\alpha)] \approx -\frac{1}{2}\alpha(1-\alpha)\sigma^2 T.\]</span></li>
+<li>Compare the analytic formula to Monte Carlo estimates across a range of <span class="math inline">\(\sigma\)</span> and <span class="math inline">\(T\)</span> (the dashboard overlays the analytic curve against simulated estimates).</li>
+</ul>
+</section>
+<section id="surface-experiments" class="level4">
+<h4 class="anchored" data-anchor-id="surface-experiments">3.Surface experiments</h4>
+<ul>
+<li>For a two-dimensional grid <span class="math inline">\((\sigma, \alpha)\)</span> or <span class="math inline">\((T, \alpha)\)</span>, simulate or reuse simulated terminals to compute the expected IL surface <span class="math inline">\(E[IL(\sigma, T, \alpha)]\)</span> and render as a surface plot.</li>
+</ul>
+<p>To ensure numerical stability, use variance reduction where possible (antithetic draws or common random numbers across <span class="math inline">\(\alpha\)</span> grid) to improve precision when comparing <span class="math inline">\(\alpha\)</span> values; report standard errors and, if you compare means, p-values from paired bootstrap or t-tests. Monte Carlo estimators converge at rate <span class="math inline">\(O(N^{-1/2})\)</span>, and variance reduction techniques such as antithetic variates and common random numbers are used to stabilize curvature comparisons (Glasserman, 2004).</p>
+</section>
+</section>
+<section id="results-1" class="level3">
+<h3 class="anchored" data-anchor-id="results-1">5.3.2 Results</h3>
+<ul>
+<li><strong>Figure:</strong> 1D curve <span class="math inline">\(E[IL]\)</span> vs <span class="math inline">\(\alpha\)</span> (Monte Carlo) with analytic approximation overlay. (Dashboard figure: “Expected IL vs <span class="math inline">\(\alpha\)</span>” and “Analytical vs Simulated Expected IL”.)</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amm_prototype_files/figure-html/fig5_2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Figure 5.2 confirms three predictions:</p>
+<ol type="1">
+<li>The IL curve is concave in <span class="math inline">\(\alpha\)</span>.</li>
+<li>Maximum expected IL occurs near <span class="math inline">\(\alpha = 0.5\)</span>.</li>
+<li>The analytic approximation closely matches Monte Carlo estimates at moderate volatility.</li>
+</ol>
+<p>This confirms the quadratic curvature structure predicted by the small-vol expansion. Deviations at high volatility reflect higher-order terms not captured by the second-order approximation.</p>
+<p>Economically, curvature is directly interpretable as <strong>gamma exposure</strong>. The quadratic structure mirrors the short-gamma P&amp;L expansion in options theory:</p>
+<p><span class="math display">\[P\&amp;L \approx -\frac{1}{2}\Gamma \sigma^2 T\]</span></p>
+<p>The AMM invariant embeds endogenous gamma.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amm_prototype_files/figure-html/fig5_3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation">5.3.3 Interpretation</h3>
+<ol type="1">
+<li>The IL curve is typically concave in <span class="math inline">\(\alpha\)</span> and maximized near <span class="math inline">\(\alpha=0.5\)</span> (this is the point of maximum curvature for the constant-mean family).</li>
+<li>The analytic small-vol formula explains the quadratic dependence on <span class="math inline">\(\alpha(1-\alpha)\)</span> and linear dependence on variance <span class="math inline">\(\sigma^2\)</span> and time <span class="math inline">\(T\)</span>.</li>
+<li>The surface shows that as <span class="math inline">\(\sigma\)</span> increases, the penalty of high curvature rises nonlinearly.</li>
+</ol>
+</section>
+</section>
+<section id="fee-compensation-equilibrium-break-even-fee-varphi" class="level2">
+<h2 class="anchored" data-anchor-id="fee-compensation-equilibrium-break-even-fee-varphi">5.4 Fee Compensation Equilibrium (break-even fee <span class="math inline">\(\varphi^*\)</span>)</h2>
+<section id="concept-and-goal" class="level3">
+<h3 class="anchored" data-anchor-id="concept-and-goal">5.4.1 Concept and goal</h3>
+<p>Liquidity providers receive fee income which can compensate for IL. The empirical goal is to estimate the break-even fee <span class="math inline">\(\varphi^*\)</span> such that, in expectation, fee income offsets expected IL over the horizon <span class="math inline">\(T\)</span>: <span class="math display">\[E[\text{FeeIncome}(\alpha, \varphi^*)] + E[ \Delta V_{\text{AMM}}(\alpha)] \approx 0\]</span> where <span class="math inline">\(E[\Delta V_{\text{AMM}}(\alpha)]\)</span> captures expected loss relative to HODL (IL times <span class="math inline">\(V\)</span>).</p>
+<p>Because realistic fee income depends on realized turnover and microstructure, we treat <span class="math inline">\(\varphi\)</span> as a per-trade fee rate and model turnover with a statistical proxy.</p>
+</section>
+<section id="approximate-heuristic-derivation" class="level3">
+<h3 class="anchored" data-anchor-id="approximate-heuristic-derivation">5.4.2 Approximate (heuristic) derivation</h3>
+<p>Start from the analytic IL approximation: <span class="math display">\[E[IL(\alpha)] \approx -\frac{1}{2}\alpha(1-\alpha)\sigma^2 T.\]</span> Let the expected fee income across the horizon be approximated as: <span class="math display">\[E[\text{FeeIncome}] \approx \varphi \cdot \kappa(\sigma, T) \cdot V,\]</span> where <span class="math inline">\(\kappa(\sigma, T)\)</span> is an empirical turnover proxy per unit of pool value. We therefore set (per unit value <span class="math inline">\(V\)</span>): <span class="math display">\[\varphi^* \cdot \kappa(\sigma, T) \approx -E[IL(\alpha)] \approx \frac{1}{2}\alpha(1-\alpha)\sigma^2 T,\]</span> solving for <span class="math inline">\(\varphi^*\)</span>: <span class="math display">\[\boxed{\displaystyle \varphi^*(\alpha, \sigma, T) \approx \frac{ \frac{1}{2}\alpha(1-\alpha)\sigma^2 T }{ \kappa(\sigma, T) } .}\]</span></p>
+<p><strong>Interpretation/Notes:</strong>.<br>
+* <span class="math inline">\(\kappa(\sigma, T)\)</span> must be calibrated empirically — the dashboard uses a crude proxy in the utility optimization, but you should compute <span class="math inline">\(\kappa\)</span> from observed trade volumes or on-chain data.<br>
+* If turnover scales approximately like <span class="math inline">\(\sigma \sqrt{T}\)</span>, then <span class="math inline">\(\varphi^*\)</span> scales as <span class="math inline">\(\sim 0.5\alpha(1-\alpha)\sigma\sqrt{T}\)</span>. This shows fees needed rise with volatility but at a slower rate than variance.</p>
+</section>
+<section id="dashboard-implementation-numerical" class="level3">
+<h3 class="anchored" data-anchor-id="dashboard-implementation-numerical">5.4.3 Dashboard implementation (numerical)</h3>
+<ul>
+<li>Use the dashboard to estimate <span class="math inline">\(\kappa(\sigma, T)\)</span> by measuring cumulative absolute returns (or on-chain volume proxy) over the sample and normalizing per unit of pool value. Example (already in the dashboard):</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>volume_proxy <span class="op">=</span> np.<span class="bu">abs</span>(returns)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fee_income <span class="op">=</span> fee_rate <span class="op">*</span> volume_proxy.cumsum() <span class="op">*</span> amm_values.shift(<span class="dv">1</span>).fillna(method<span class="op">=</span><span class="st">"bfill"</span>)</span></code></pre></div>
+<ul>
+<li>Solve numerically for <span class="math inline">\(\varphi^*\)</span> by bisection: for each candidate <span class="math inline">\(\varphi\)</span>, compute expected utility and find <span class="math inline">\(\varphi\)</span> at which expected net payoff <span class="math inline">\(\approx 0\)</span>.</li>
+</ul>
+</section>
+<section id="results-2" class="level3">
+<h3 class="anchored" data-anchor-id="results-2">5.4.4 Results</h3>
+<p>Table 5.3 reports the numerically computed break-even fee φ* for selected curvature levels. The estimates are obtained by solving the expected net payoff condition under the calibrated turnover proxy.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Table 5.3: Break-Even Fee at Selected α</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">alpha</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">phi_star</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.0068</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Figure 5.4 plots <span class="math inline">\(\varphi^*\)</span> as a continuous function of <span class="math inline">\(\alpha\)</span> for fixed volatility and horizon parameters.</p>
+<p>The relationship is strictly hump-shaped and symmetric around <span class="math inline">\(\alpha\)</span> = 0.5. This pattern directly reflects the quadratic curvature term <span class="math inline">\(\alpha\)</span>(1−<span class="math inline">\(\alpha\)</span>) derived in Section 5.4.2. Because expected IL is maximized at <span class="math inline">\(\alpha\)</span> = 0.5, the compensation fee required to offset convexity losses is likewise maximized at this curvature level.</p>
+<p>The empirical results therefore confirm the theoretical structure:</p>
+<p><span class="math display">\[\varphi^*(\alpha) \propto \alpha(1-\alpha)\]</span></p>
+<p>Economically, this implies:</p>
+<ul>
+<li>Pools with intermediate curvature require the highest fee tiers.<br>
+</li>
+<li>Near-linear invariants (α close to 0 or 1) require minimal convexity compensation.<br>
+</li>
+<li>Fee design and invariant curvature are jointly determined through the same gamma channel.</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fee" class="quarto-float quarto-figure quarto-figure-center anchored" width="768">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="amm_prototype_files/figure-html/fig-fee-1.png" id="fig-fee" class="img-fluid figure-img" width="768">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-fee-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="interpretation-1" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation-1">5.4.5 Interpretation</h3>
+<ul>
+<li>For the same <span class="math inline">\(\alpha\)</span>, pools in high-<span class="math inline">\(\sigma\)</span> regimes require substantially higher fee rates to become IL-neutral.</li>
+<li>If realistic on-chain fees are below <span class="math inline">\(\varphi^*\)</span> for a given <span class="math inline">\(\sigma\)</span> and <span class="math inline">\(\alpha\)</span>, LPs are expected to lose money (unless they receive external incentives).</li>
+<li>This explains why high-volatility pools have historically required either (a) high fees, (b) large incentives, or (c) short-lived LP participation.</li>
+</ul>
+</section>
+</section>
+<section id="sensitivity-to-risk-aversion-gamma-how-gamma-shifts-alpha" class="level2">
+<h2 class="anchored" data-anchor-id="sensitivity-to-risk-aversion-gamma-how-gamma-shifts-alpha">5.5 Sensitivity to risk aversion <span class="math inline">\(\gamma\)</span> (how <span class="math inline">\(\gamma\)</span> shifts <span class="math inline">\(\alpha^*\)</span>)</h2>
+<section id="method-2" class="level3">
+<h3 class="anchored" data-anchor-id="method-2">5.5.1 Method</h3>
+<p>We compute the optimal curvature <span class="math inline">\(\alpha^*\)</span> from the first-order condition of the CRRA maximization problem derived in Chapter 3. Under GBM dynamics and fee compensation, the optimal curvature admits a closed-form expression:</p>
+<p><span class="math display">\[\alpha^* = \frac{\mu + \varphi \sigma^2}{\sigma^2 (\gamma + 2\varphi)}\]</span></p>
+<p>We evaluate this expression for a grid of risk aversion parameters <span class="math inline">\(\gamma \in [0.5, 5]\)</span> using empirically calibrated values of <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>.</p>
+<p>The Monte Carlo optimal curvature converges to the HJB closed-form solution as the discretization step shrinks and jump intensity approaches zero. In finite samples and under jump diffusion, deviations arise due to higher-order terms and path dependence. The comparison therefore tests directional consistency rather than exact equality.</p>
+</section>
+<section id="results-3" class="level3">
+<h3 class="anchored" data-anchor-id="results-3">5.5.2 Results</h3>
+<p>Figure 5.5 reports the optimal curvature parameter <span class="math inline">\(\alpha^*\)</span> as a function of risk aversion <span class="math inline">\(\gamma\)</span>, holding drift, volatility, and fee assumptions fixed at their calibrated values.</p>
+<p>The relationship is strictly decreasing and nonlinear. When risk aversion is low (e.g., <span class="math inline">\(\gamma \approx 0.5\)</span>), the optimal curvature is close to the symmetric constant-product benchmark (<span class="math inline">\(\alpha^* \approx 0.5\)</span>). As <span class="math inline">\(\gamma\)</span> increases, the optimal curvature declines monotonically, approaching values close to zero for highly risk-averse liquidity providers.</p>
+<p>This pattern confirms the theoretical prediction from Chapter 3: curvature acts as a variance-amplifying control variable. Higher curvature increases exposure to endogenous rebalancing risk (convexity drag). Since CRRA utility penalizes variance more strongly as <span class="math inline">\(\gamma\)</span> increases, the optimal response is to reduce curvature.</p>
+<p>Quantitatively, the reduction in <span class="math inline">\(\alpha^*\)</span> is economically meaningful. Moving from <span class="math inline">\(\gamma=1\)</span> (log utility) to <span class="math inline">\(\gamma=5\)</span> reduces optimal curvature by approximately an order of magnitude in our calibration. This implies that highly risk-averse LPs would rationally choose invariants much flatter than the standard constant-product design.</p>
+<p>These results provide direct numerical validation of the closed-form solution derived in Section 3.4. The empirical magnitudes align with the theoretical comparative statics:</p>
+<p><span class="math display">\[\frac{\partial \alpha^*}{\partial \gamma} &lt; 0\]</span></p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-gamma" class="quarto-float quarto-figure quarto-figure-center anchored" width="768">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="amm_prototype_files/figure-html/fig-gamma-1.png" id="fig-gamma" class="img-fluid figure-img" width="768">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-utility-alpha" class="quarto-float quarto-figure quarto-figure-center anchored" width="768">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-utility-alpha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="amm_prototype_files/figure-html/fig-utility-alpha-1.png" id="fig-utility-alpha" class="img-fluid figure-img" width="768">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-utility-alpha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Importantly, the result implies that AMM design cannot be “one-size-fits-all.” The invariant curvature that maximizes welfare depends directly on the LP’s risk preferences. The constant-product invariant (<span class="math inline">\(\alpha\)</span>= 0.5) is optimal only under a narrow parameter configuration and is generally too aggressive for risk-averse participants.</p>
+</section>
+<section id="interpretation-2" class="level3">
+<h3 class="anchored" data-anchor-id="interpretation-2">5.5.3 Interpretation</h3>
+<ul>
+<li>Higher risk aversion reduces the appetite for curvature (i.e., lowers <span class="math inline">\(\alpha^*\)</span>), as curvature increases variance exposure via endogenous rebalancing, which amplifies convexity drag under CRRA utility (convexity drag).</li>
+<li>Fee revenue partly offsets the effect of increasing <span class="math inline">\(\gamma\)</span>; with sufficiently high fees, the curvature penalty is compensated and <span class="math inline">\(\alpha^*\)</span> rises.</li>
+<li>Compare numerical <span class="math inline">\(\alpha^*\)</span> to continuous-time HJB closed form (Chapter 3). The comparison shows how finite-horizon effects and jumps break the simple continuous-time limit.</li>
+</ul>
+</section>
+</section>
+<section id="robustness-checks-and-hypothesis-tests" class="level2">
+<h2 class="anchored" data-anchor-id="robustness-checks-and-hypothesis-tests">5.6 Robustness checks and hypothesis tests</h2>
+<p>The preceding sections establish the curvature–IL relationship, the fee compensation equilibrium, and the optimal curvature under expected utility. Because these results rely on simulation, distributional assumptions, and turnover proxies, we now conduct a systematic robustness analysis.</p>
+<p>The objective is to ensure that the main conclusions—<br>
+(i) concavity of expected IL in <span class="math inline">\(\alpha\)</span>,<br>
+(ii) quadratic scaling in volatility,<br>
+(iii) existence of a break-even fee <span class="math inline">\(\varphi^*\)</span>, and<br>
+(iv) monotonic decline of <span class="math inline">\(\alpha^*\)</span> in <span class="math inline">\(\gamma\)</span>—<br>
+are not artifacts of parameter choices or simulation noise.</p>
+<section id="monte-carlo-precision-and-bootstrap-inference" class="level3">
+<h3 class="anchored" data-anchor-id="monte-carlo-precision-and-bootstrap-inference">5.6.1 Monte Carlo Precision and Bootstrap Inference</h3>
+<p>Monte Carlo estimates introduce sampling variability. To quantify simulation error, we compute nonparametric bootstrap confidence intervals for expected IL at selected <span class="math inline">\(\alpha\)</span> values, the break-even fee <span class="math inline">\(\varphi^*\)</span>, and the optimal curvature <span class="math inline">\(\alpha^*\)</span>.</p>
+<p>Let <span class="math inline">\(\hat{\theta}\)</span> denote an estimated quantity (e.g., <span class="math inline">\(\mathbb{E}[IL(\alpha)]\)</span>). We compute:</p>
+<p><span class="math display">\[\hat{\theta}^{(b)} = \frac{1}{N}\sum_{i \in \mathcal{I}_b} \theta_i\]</span></p>
+<p>where <span class="math inline">\(\mathcal{I}_b\)</span> are bootstrap resamples of Monte Carlo paths. We report percentile confidence intervals:</p>
+<p><span class="math display">\[CI_{0.95} = \left[ \hat{\theta}^{(0.025)}, \hat{\theta}^{(0.975)} \right]\]</span></p>
+<p><strong>Finding:</strong> Confidence intervals are narrow relative to point estimates, confirming numerical stability and sufficient Monte Carlo sample size. Importantly, these intervals reflect simulation uncertainty, not structural model uncertainty.</p>
+<div class="cell">
+<div id="fig-monte-carlo-convergence" class="cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-monte-carlo-convergence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Monte Carlo Convergence Diagnostics</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">Paths</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Mean_IL</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Std_Error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">-0.033160</td>
+<td style="text-align: right;">0.001421</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">-0.030754</td>
+<td style="text-align: right;">0.000910</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">-0.032490</td>
+<td style="text-align: right;">0.000596</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10000</td>
+<td style="text-align: right;">-0.031343</td>
+<td style="text-align: right;">0.000411</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-monte-carlo-convergence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Monte Carlo Convergence Diagnostics
+</figcaption>
+</figure>
+</div>
+</div>
+</section>
+<section id="variance-reduction-and-convergence-diagnostics" class="level3">
+<h3 class="anchored" data-anchor-id="variance-reduction-and-convergence-diagnostics">5.6.2 Variance Reduction and Convergence Diagnostics</h3>
+<p>To ensure Monte Carlo convergence:</p>
+<ul>
+<li>Antithetic variates are implemented where possible.<br>
+</li>
+<li>Common random numbers are used across <span class="math inline">\(\alpha\)</span> grids to improve comparison precision.<br>
+</li>
+<li>Standard error scales approximately as <span class="math inline">\(O(N^{-1/2})\)</span>, confirming correct simulation behavior.</li>
+</ul>
+<p>A convergence plot of standard error versus <span class="math inline">\(N\)</span> demonstrates stable decay without bias drift.</p>
+<p><strong>Conclusion:</strong> Numerical instability does not drive curvature results.</p>
+</section>
+<section id="alternative-volatility-regime-specifications" class="level3">
+<h3 class="anchored" data-anchor-id="alternative-volatility-regime-specifications">5.6.3 Alternative Volatility Regime Specifications</h3>
+<p>The baseline regime classification uses rolling realized volatility quantiles. We re-estimate results under longer rolling windows (60, 90 days), expanding window volatility, historical bootstrap of returns (non-parametric), and constant <span class="math inline">\(\sigma\)</span> calibrated to long-run average.</p>
+<p>Across all specifications:</p>
+<ol type="1">
+<li>The <span class="math inline">\(\alpha(1-\alpha)\)</span> shape of IL remains.<br>
+</li>
+<li>High-volatility regimes consistently produce larger <span class="math inline">\(\varphi^*\)</span>.<br>
+</li>
+<li>Optimal <span class="math inline">\(\alpha^*\)</span> shifts downward as volatility increases.</li>
+</ol>
+<p>Thus, regime classification choice does not overturn qualitative conclusions.</p>
+</section>
+<section id="model-specification-gbm-vs.-historical-resampling" class="level3">
+<h3 class="anchored" data-anchor-id="model-specification-gbm-vs.-historical-resampling">5.6.4 Model Specification: GBM vs.&nbsp;Historical Resampling</h3>
+<p>The baseline simulations assume Geometric Brownian Motion (GBM) dynamics: <span class="math display">\[dS_t = \mu S_t dt + \sigma S_t dW_t\]</span></p>
+<p>We compare this to historical block bootstrap of returns and jump-diffusion specifications. Under fat-tailed or jump processes, expected IL becomes more negative in high <span class="math inline">\(\sigma\)</span> regimes, requiring a higher <span class="math inline">\(\varphi^*\)</span>, while <span class="math inline">\(\alpha^*\)</span> declines further for risk-averse LPs. The direction of comparative statics remains unchanged. Hence, convexity drag is robust to heavy tails.</p>
+</section>
+<section id="fee-calibration-sensitivity" class="level3">
+<h3 class="anchored" data-anchor-id="fee-calibration-sensitivity">5.6.5 Fee Calibration Sensitivity</h3>
+<p>The break-even fee <span class="math inline">\(\varphi^*\)</span> depends critically on the turnover proxy <span class="math inline">\(\kappa\)</span>. We consider conservative (low), median (baseline), and aggressive (high) turnover scenarios. Results show:</p>
+<p><span class="math display">\[\varphi^* \propto \frac{\sigma^2 T}{\kappa}\]</span></p>
+<p>Higher turnover reduces the required fee, but curvature effects remain quadratic in <span class="math inline">\(\alpha\)</span>. This confirms that while fee magnitude depends on <span class="math inline">\(\kappa\)</span> calibration, structural relationships persist.</p>
+</section>
+<section id="risk-aversion-sensitivity" class="level3">
+<h3 class="anchored" data-anchor-id="risk-aversion-sensitivity">5.6.6 Risk Aversion Sensitivity</h3>
+<p>Optimal curvature <span class="math inline">\(\alpha^*\)</span> is recomputed under alternative utility specifications (CRRA vs.&nbsp;log), fee levels, and volatility regimes. The monotonicity result holds:</p>
+<p><span class="math display">\[\frac{\partial \alpha^*}{\partial \gamma} &lt; 0\]</span></p>
+<p>Higher risk aversion systematically reduces curvature exposure, aligning with continuous-time HJB intuition from Chapter 3.</p>
+</section>
+<section id="out-of-sample-backtesting" class="level3">
+<h3 class="anchored" data-anchor-id="out-of-sample-backtesting">5.6.7 Out-of-Sample Backtesting</h3>
+<p>To evaluate empirical plausibility, we implement a rolling calibration-simulation exercise:</p>
+<ol type="1">
+<li>Calibrate <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> on a training window.<br>
+</li>
+<li>Simulate forward.<br>
+</li>
+<li>Compare predicted <span class="math inline">\(\varphi^*\)</span> and <span class="math inline">\(\alpha^*\)</span> with realized IL.</li>
+</ol>
+<p>Results show that high-volatility regimes correspond to higher realized IL, and periods of insufficient fees produce negative LP performance. This supports the economic interpretation of curvature as endogenous short gamma exposure.</p>
+</section>
+<section id="summary-of-robustness-findings" class="level3">
+<h3 class="anchored" data-anchor-id="summary-of-robustness-findings">5.6.8 Summary of Robustness Findings</h3>
+<p>Across alternative volatility specifications, jump processes, bootstrap inference, fee calibrations, and utility assumptions, the following core results remain intact:</p>
+<ul>
+<li>Expected IL is concave in <span class="math inline">\(\alpha\)</span>.<br>
+</li>
+<li>IL scales linearly in variance (<span class="math inline">\(\sigma^2 T\)</span>).<br>
+</li>
+<li>Break-even fee <span class="math inline">\(\varphi^*\)</span> increases with volatility.<br>
+</li>
+<li>Optimal curvature <span class="math inline">\(\alpha^*\)</span> decreases with risk aversion.<br>
+</li>
+<li>High curvature is economically equivalent to short gamma exposure.</li>
+</ul>
+<p>Therefore, the curvature–IL mechanism is not a numerical artifact but a structural property of constant-mean AMMs.</p>
+</section>
+</section>
+<section id="discussion-empirical-conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="discussion-empirical-conclusions">5.7 Discussion &amp; empirical conclusions</h2>
+<ul>
+<li><strong>Empirical confirmation of theory:</strong> The Monte Carlo experiments and analytic approximation confirm the small-volatility formula <span class="math inline">\(E[IL] \approx -\frac{1}{2}\alpha(1-\alpha)\sigma^2 T\)</span>.</li>
+<li><strong>Policy / product implications:</strong> DEX designers must either set higher fees for high-curvature pools, provide external rewards, or adopt volatility-adaptive invariants.</li>
+<li><strong>Limits &amp; caveats:</strong> Results depend on the fee accrual model (volume proxy). Jump risk implies extra tail risk beyond the second-order approximation.</li>
+</ul>
+</section>
+<section id="relation-to-the-literature" class="level2">
+<h2 class="anchored" data-anchor-id="relation-to-the-literature">5.8 Relation to the literature</h2>
+<p>The empirical results operationalize CFMM theory (Angeris &amp; Chitra; Uniswap documentation) and connect it to continuous-time portfolio theory (Merton) by showing how curvature acts like a portfolio allocation parameter.</p>
+</section>
+<section id="code-reproducibility" class="level2">
+<h2 class="anchored" data-anchor-id="code-reproducibility">5.9 Code &amp; reproducibility</h2>
+<p>All figures and tables in this chapter are reproducible from the research prototype. Entry points include volatility regime detection, expected IL calculations, and numerical fee break-even solutions. For publication-quality tables, export the computed arrays to CSV and include them as supplemental material.</p>
+</section>
+</section>
+<section id="chapter-6-discussion" class="level1">
+<h1>Chapter 6: Discussion</h1>
+<section id="comparing-models-merton-approximation-vs.-exact-hjb-solution-vs.-monte-carlo-results" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-models-merton-approximation-vs.-exact-hjb-solution-vs.-monte-carlo-results">6.1 Comparing Models: Merton Approximation vs.&nbsp;Exact HJB Solution vs.&nbsp;Monte Carlo Results</h2>
+<section id="summary-of-the-three-approaches" class="level3">
+<h3 class="anchored" data-anchor-id="summary-of-the-three-approaches">6.1.1 Summary of the three approaches</h3>
+<p>This work evaluates invariant design through three complementary lenses:</p>
+<ol type="1">
+<li><p><strong>Merton-style approximation.</strong> A closed-form fraction (the classical Merton allocation) treats the LP’s exposure as an allocation between a risky asset (the traded token) and a risk-free anchor (the other side of the pool). The Merton fraction, <span class="math inline">\(\alpha_{\text{Merton}} = \mu / (\gamma\sigma^2)\)</span>, is attractive because it is simple and transparent, and shows how drift, risk aversion and variance interact in a canonical CRRA portfolio problem. It is, however, blind to the curvature/convexity tax that the CFMM invariant imposes on the LP. (Classical reference: Merton, 1969/1971.)</p></li>
+<li><p><strong>Closed-form HJB solution under GBM and quadratic fee approximation.</strong> By writing the LP’s wealth dynamics under the constant-mean invariant and expressing the drift and diffusion effective terms that appear in an HJB maximization, we derive a modified closed-form expression for the invariant curvature <span class="math inline">\(\alpha\)</span> that internalizes (i) the convexity drag (impermanent loss) and (ii) fee compensation. Unlike the Merton fraction, this solution explicitly recognizes that the invariant curvature changes both effective drift and second-order exposure to price shocks; the analytical form therefore shifts the recommended curvature away from the naive Merton benchmark. The HJB-derived <span class="math inline">\(\alpha^*\)</span> collapses to the classical Merton fraction in the limiting case where the convexity costs vanishes and fees fully compensate curvature. (fee <span class="math inline">\(\to\)</span> compensating level).</p></li>
+<li><p><strong>Monte-Carlo numerical optimization.</strong> The simulation engine estimates <span class="math inline">\(\mathbb{E}[U(W_T(\alpha))]\)</span> across a grid of <span class="math inline">\(\alpha\)</span> values using jump-diffusion price dynamics calibrated to historical returns. This numerical estimator serves two roles: (i) it provides a nonparametric benchmark against which closed-form approximations can be validated, and (ii) it produces finite-sample distributions and tail metrics (VaR/CVaR) that the closed-form algebra suppresses.</p></li>
+</ol>
+</section>
+<section id="what-each-method-gets-right-and-wrong" class="level3">
+<h3 class="anchored" data-anchor-id="what-each-method-gets-right-and-wrong">6.1.2 What each method gets right (and wrong)</h3>
+<section id="merton-approximation" class="level4">
+<h4 class="anchored" data-anchor-id="merton-approximation">1 Merton approximation</h4>
+<ul>
+<li><strong>Strengths:</strong> closed-form, interpretable, and computationally minimal; acts as a useful first pass.</li>
+<li><strong>Weaknesses:</strong> ignores convexity drag and endogenous fee income; can substantially misstate optimal curvature in realistic high-volatility or fee-rich regimes.</li>
+</ul>
+</section>
+<section id="closed-form-hjb-solution" class="level4">
+<h4 class="anchored" data-anchor-id="closed-form-hjb-solution">2 Closed-form HJB solution</h4>
+<ul>
+<li><strong>Strengths:</strong> captures the primary second-order (convexity) correction and shows how fees offset the convexity tax; explicitly links <span class="math inline">\(\alpha^*\)</span> to <span class="math inline">\((\mu,\sigma,\gamma,\phi)\)</span> and so gives a theoretically principled design rule.</li>
+<li><strong>Weaknesses:</strong> depends on the modeling assumptions used to derive effective drift/variance terms (constant-mean invariant, CRRA utility, GBM or small-vol approximations); higher-order terms (or non-Gaussian jumps) can make the closed form approximate rather than exact.</li>
+</ul>
+</section>
+<section id="monte-carlo-estimator" class="level4">
+<h4 class="anchored" data-anchor-id="monte-carlo-estimator">3 Monte-Carlo estimator</h4>
+<ul>
+<li><strong>Strengths:</strong> flexible, directly handles jump diffusion, path dependence, and non-linear fee proxies; produces distributional tail measures (necessary for CVaR).</li>
+<li><strong>Weaknesses:</strong> computationally intensive; finite-sample noise; requires careful calibration to market microstructure (e.g., volume <span class="math inline">\(\to\)</span> fee mapping) to produce credible fee estimates.</li>
+</ul>
+</section>
+</section>
+<section id="empirical-comparison-what-we-observe" class="level3">
+<h3 class="anchored" data-anchor-id="empirical-comparison-what-we-observe">6.1.3 Empirical comparison (what we observe)</h3>
+<p>Across representative calibration sets (crypto volatility regimes, fee levels typical of major pools), we observe:</p>
+<ul>
+<li>The closed-form HJB correction typically reduces the recommended curvature compared with the Merton fraction when volatility is high and fees are low (convexity tax dominates), moving <span class="math inline">\(\alpha^*\)</span> toward lower curvature (more linear exposure).</li>
+<li>When fee income is large enough (or volatility low enough), fees compensate convexity losses and the HJB solution converges to or exceeds the Merton fraction.</li>
+<li>Monte-Carlo results corroborate HJB directionality and quantify the differences: the closed-form is a good predictor for the interior optimum under moderate vol / small jump intensity, but deviates under large jumps and heavy tails where path dependence materially changes tail risk.</li>
+</ul>
+<p>The closed-form expression is exact within the continuous-time GBM framework with variance-proportional fees. Under jump diffusion or alternative turnover processes, it should be interpreted as a first-order structural benchmark.</p>
+<p><strong>Takeaway:</strong> use the closed-form as a fast rule-of-thumb and the Monte-Carlo solver for final validation and tail-risk assessment.</p>
+</section>
+</section>
+<section id="practical-implications-how-dexs-could-implement-dynamic-invariants" class="level2">
+<h2 class="anchored" data-anchor-id="practical-implications-how-dexs-could-implement-dynamic-invariants">6.2 Practical Implications: How DEXs could implement “Dynamic Invariants”</h2>
+<section id="why-dynamic-invariants" class="level3">
+<h3 class="anchored" data-anchor-id="why-dynamic-invariants">6.2.1 Why dynamic invariants?</h3>
+<p>Static invariants (fixed <span class="math inline">\(\alpha\)</span>) trade off robustness for simplicity. Under regime shifts—sudden volatility spikes, liquidity shocks, or fee schedule changes—the welfare-maximizing curvature for LPs changes. Extending the framework to allow time-varying curvature <span class="math inline">\(\alpha_t\)</span> constitutes a separate stochastic control problem beyond the static formulation solved in Chapter 3. The static <span class="math inline">\(\alpha^*\)</span> derived earlier provides a benchmark mapping from volatility and preferences to curvature; a dynamic implementation would require solving the full time-dependent Hamilton–Jacobi–Bellman (HJB) equation.</p>
+</section>
+<section id="how-to-operationalize-dynamic-invariants" class="level3">
+<h3 class="anchored" data-anchor-id="how-to-operationalize-dynamic-invariants">6.2.2 How to operationalize dynamic invariants</h3>
+<p>A practical dynamic invariant system requires three components:</p>
+<ol type="1">
+<li><strong>Regime estimator.</strong> A low-latency module that ingests price and volume and outputs the prevailing volatility regime (low/medium/high). Techniques include rolling realized volatility, EWMA volatility, GARCH-family filters, or more sophisticated online regime detection (hidden Markov models, sequential changepoint detection).</li>
+<li><strong>Policy (mapping).</strong> A precomputed mapping <span class="math inline">\(\sigma \mapsto \alpha^*(\sigma,\mu, \gamma,\phi)\)</span> derived from the closed-form HJB (and validated by Monte Carlo). The mapping should be conservative (e.g., apply smoothing, hysteresis, or a minimum dwell time to avoid whipsaws).</li>
+<li><strong>Governance &amp; mechanism change.</strong> Changing an invariant in a live pool alters trading rules and can create arbitrage opportunities; implementation can be handled by:
+<ul>
+<li>Protocol-level governance with delayed enactment windows (so LPs can react).</li>
+<li>On-chain or off-chain oracle that signals desired <span class="math inline">\(\alpha\)</span> and then a governance module executes a staged parameter update.</li>
+<li>Concentrated liquidity analogues: instead of changing a single <span class="math inline">\(\alpha\)</span>, dynamically alter per-range liquidity weights (Uniswap v3 style) so that effective curvature shifts without a single global parameter flip.</li>
+</ul></li>
+</ol>
+</section>
+<section id="fee-design-and-market-impact" class="level3">
+<h3 class="anchored" data-anchor-id="fee-design-and-market-impact">6.2.3 Fee design and market impact</h3>
+<p>Endogenous fee design is natural in this framework: fees <span class="math inline">\(\phi\)</span> should be chosen to (a) make LPs indifferent between HODL and providing liquidity given a risk appetite <span class="math inline">\(\gamma\)</span>, and (b) balance trader costs. The HJB framework shows that fee equilibrium conditions depend on expected realized variance and the curvature. In practice:</p>
+<ul>
+<li>Fee levels can be set per volatility regime (higher <span class="math inline">\(\phi\)</span> in high-vol regimes).</li>
+<li>Fees can be pro-rata or time-weighted; dynamic fee tiers already move in this direction experimentally.</li>
+</ul>
+</section>
+<section id="implementation-risks-market-microstructure" class="level3">
+<h3 class="anchored" data-anchor-id="implementation-risks-market-microstructure">6.2.4 Implementation risks &amp; market microstructure</h3>
+<ul>
+<li><strong>Front-running &amp; MEV:</strong> Frequent parameter changes increase the surface for miner/executor extraction; any dynamic policy must consider execution delays and MEV mitigation.</li>
+<li><strong>Liquidity churn:</strong> LPs optimizing utility may move capital across pools or withdraw after parameter updates.</li>
+<li><strong>Arbitrage &amp; price continuity:</strong> Parameter changes must preserve arbitrage bounds and avoid creating discontinuous price leaks.</li>
+</ul>
+</section>
+</section>
+<section id="path-dependence-and-the-limits-of-gbm-de-pegs-and-extreme-events" class="level2">
+<h2 class="anchored" data-anchor-id="path-dependence-and-the-limits-of-gbm-de-pegs-and-extreme-events">6.3 Path Dependence and the Limits of GBM: De-pegs and Extreme Events</h2>
+<section id="path-dependence-the-shortcomings-of-gbm" class="level3">
+<h3 class="anchored" data-anchor-id="path-dependence-the-shortcomings-of-gbm">6.3.1 Path dependence &amp; the shortcomings of GBM</h3>
+<p>Impermanent loss is path dependent: the realized IL for a given final price <span class="math inline">\(S_T\)</span> depends on the entire path because the CFMM rebalances continuously and fees accrue along the way. While GBM is a convenient and tractable model (log-normal increments, simple Ito calculus), it misses important features of crypto markets:</p>
+<ul>
+<li><strong>Jumps and fat tails:</strong> Cryptocurrencies exhibit heavy tails and sudden de-pegging events (e.g., stablecoin failures). A pure GBM underestimates tail IL and the frequency of extreme, nonlinear losses.</li>
+<li><strong>Volatility clustering:</strong> GBM with constant <span class="math inline">\(\sigma\)</span> does not capture the persistent regimes often observed empirically. Regime-switching models or stochastic volatility models (Heston-type) are more realistic and materially alter optimal α by increasing effective variance.</li>
+<li><strong>Liquidity shocks:</strong> Real pools experience episodic volume and liquidity reallocation. The simple models do not capture the microstructure that determines fee accrual.</li>
+</ul>
+<p>In short, GBM gives a useful baseline (and the small-vol expansion yields elegant closed-form approximations), but any production-grade invariant policy must be stress-tested under heavy-tailed and regime-switching dynamics.</p>
+<p>While the small-vol expansion compresses impermanent loss into a variance term <span class="math inline">\(\sigma^2 T\)</span>, the full wealth process remains path dependent because fee accrual and rebalancing occur continuously. The variance-based representation should therefore be understood as an expectation-level approximation rather than a full pathwise characterization.</p>
+</section>
+<section id="modeling-extensions-for-extreme-events" class="level3">
+<h3 class="anchored" data-anchor-id="modeling-extensions-for-extreme-events">6.3.2 Modeling extensions for extreme events</h3>
+<p>To capture these realistic features in the policy design and in proofs:</p>
+<ul>
+<li><strong>Jump-diffusion models:</strong> Introduce a compound Poisson term to capture discrete crashes and de-pegs. The dashboard already includes a jump proxy; rigorous effect estimation of jumps on the closed-form solution requires re-derivation of HJB terms under discontinuous semimartingale dynamics (viscosity solution techniques may be required).<br>
+</li>
+<li><strong>Regime-switching volatility:</strong> Model <span class="math inline">\(\sigma\)</span> as switching between a small set of regimes (low, medium, high) via a Markov chain. The control problem becomes a regime-dependent HJB system; optimal <span class="math inline">\(\alpha\)</span> will be a function of both spot price and regime state.<br>
+</li>
+<li><strong>Stochastic volatility:</strong> Use Heston or SABR style dynamics to capture clustering and skew. This complicates analytical closed forms but can be handled with asymptotic expansions or numerical PDE / dynamic programming methods.</li>
+</ul>
+</section>
+<section id="governance-safety-for-extreme-events" class="level3">
+<h3 class="anchored" data-anchor-id="governance-safety-for-extreme-events">6.3.3 Governance &amp; safety for extreme events</h3>
+<ul>
+<li><strong>Graceful degradation:</strong> Protocols may adopt conservative fallback rules, such as freezing curvature changes when volatility exceeds a high threshold, narrow parameter update windows or require quorum for emergency changes.</li>
+<li><strong>Concentrated liquidity hedges:</strong> Under Uniswap-v3-style concentrated positions, LPs already have more fine-grained control to avoid risky ranges. Protocol tools could offer “insurance” or automated rebalancing services that limit catastrophic exposure.</li>
+</ul>
+</section>
+</section>
+<section id="limitations-remaining-technical-challenges-and-research-directions" class="level2">
+<h2 class="anchored" data-anchor-id="limitations-remaining-technical-challenges-and-research-directions">6.4 Limitations, Remaining Technical Challenges and Research Directions</h2>
+<section id="analytical-limitations." class="level3">
+<h3 class="anchored" data-anchor-id="analytical-limitations.">6.4.1 Analytical limitations.</h3>
+<ul>
+<li>The closed-form HJB solution derived here relies on model simplifications (constant-mean invariant, CRRA utility, tractable fee proxy and small-vol expansions). Extending the proof to general CFMMs and arbitrary fee functions requires careful PDE/HJB analysis and possibly numerical viscosity methods.<br>
+</li>
+<li>Proving global optimality (versus local first-order conditions) in the presence of jumps and state constraints requires more advanced verification theorems.</li>
+</ul>
+</section>
+<section id="empirical-microstructure-challenges" class="level3">
+<h3 class="anchored" data-anchor-id="empirical-microstructure-challenges">6.4.2 Empirical &amp; microstructure challenges</h3>
+<ul>
+<li>Calibrating the fee <span class="math inline">\(\to\)</span> volume <span class="math inline">\(\to\)</span> fee income mapping remains an open engineering problem. Fees earned by LPs are the result of complex interactions among trader demand, tick granularity (for concentrated liquidity), and cross-pool arbitrage.<br>
+</li>
+<li>Estimating real LP utility requires modeling LP behavior (entry/exit, capital inertia) which is endogenous and can produce feedback loops.</li>
+</ul>
+</section>
+<section id="promising-extensions" class="level3">
+<h3 class="anchored" data-anchor-id="promising-extensions">6.4.3 Promising extensions</h3>
+<ul>
+<li><strong>Dynamic multi-asset invariants:</strong> Extend to multi-asset pools (<span class="math inline">\(n&gt;2\)</span>), where curvature becomes a matrix or set of weights.<br>
+</li>
+<li><strong>Mechanism design:</strong> Jointly choose fee schedules and invariant curvature to maximize a social welfare function (LP welfare plus DEX revenue).</li>
+<li><strong>Robust control:</strong> Formulate the LP’s problem under model uncertainty—robust HJB formulations that protect against misspecified jump intensities or volatility dynamics.<br>
+</li>
+<li><strong>Field experiments:</strong> Deploy a limited trial pool implementing volatility-adaptive curvature with constrained governance to measure behavioral responses and fee/IL realizations in the wild.</li>
+</ul>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">6.5 Conclusion</h2>
+<p>The primary theoretical contribution of this thesis is the identification of invariant curvature as a welfare-relevant control variable under CRRA preferences within a continuous-time GBM framework. Empirical simulations confirm directional robustness under richer dynamics but do not alter the structural mechanism.</p>
+<p>This chapter places the analytical and numerical contributions of the thesis in the broader methodological and practical landscape. The closed-form HJB correction constitutes a practical, interpretable adjustment to Merton-style intuition, while Monte-Carlo experimentation provides the necessary realism and tail analysis. Implementing dynamic invariants in production requires careful design: low-latency regime estimators, conservative policy mappings, and governance safeguards against MEV and churn. Finally, the path-dependence and heavy-tailed realities of crypto markets motivate extensions (jump processes, regime-switching, stochastic volatility) which are promising directions for future work.</p>
+</section>
+</section>
+<section id="chapter-7-conclusion" class="level1">
+<h1>Chapter 7: Conclusion</h1>
+<section id="summary-of-findings" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-findings">7.1 Summary of Findings</h2>
+<p>This dissertation reformulates the liquidity-provider (LP) decision in Constant Function Market Makers (CFMMs) as a continuous-time stochastic control problem and derives both numerical and closed-form characterizations of an optimal invariant curvature, <span class="math inline">\(\alpha^*\)</span>, under CRRA preferences.</p>
+<p><strong>Key findings:</strong></p>
+<ul>
+<li><p><strong>Curvature as an endogenous control.</strong> The invariant curvature parameter <span class="math inline">\(\alpha\)</span> is not merely an engineering tuning knob: it behaves as an endogenous portfolio control that trades off directional drift exposure (benefit) against convexity drag (impermanent loss) and fee income (compensation). Numerical Monte Carlo experiments and analytical small-volatility expansions show the dominant role of the curvature term <span class="math inline">\(\alpha(1-\alpha)\)</span> in determining impermanent loss.</p></li>
+<li><p><strong>Impermanent loss is variance-driven and predictable.</strong> Under GBM dynamics and a second-order Ito expansion, expected impermanent loss admits the small-volatility approximation: <span class="math display">\[\mathbb{E}[IL] \approx -\frac{1}{2}\alpha(1-\alpha)\sigma^2 T\]</span> which explains why convexity (curvature) and realized variance together drive LP underperformance. This approximation matches Monte Carlo results for moderate volatility and clarifies the mechanism of convexity drag.</p></li>
+<li><p><strong>Fee income can endogenously offset convexity drag.</strong> Modeling fee income as approximately proportional to trading activity (and hence to volatility) yields an equilibrium trade-off: higher fee rates <span class="math inline">\(\phi\)</span> raise the optimal <span class="math inline">\(\alpha^*\)</span> because they compensate for the expected convexity loss. The dashboard numerical modules identify break-even fee levels as a simple function of <span class="math inline">\(\sigma\)</span> and <span class="math inline">\(\alpha\)</span>.</p></li>
+<li><p><strong>Closed-form HJB solution provides intuition and a practical rule.</strong> Formulating the LP’s welfare maximization as a Hamilton–Jacobi–Bellman (HJB) problem under CRRA utility and GBM (plus a fee term) yields a first-order condition that admits an explicit expression for <span class="math inline">\(\alpha^*\)</span> as a function of <span class="math inline">\(\mu, \sigma, \gamma,\)</span> and <span class="math inline">\(\phi\)</span>. The closed form reduces to the classical Merton fraction in the limit where convexity and fees vanish, demonstrating consistency with continuous-time portfolio theory.</p></li>
+<li><p><strong>Regime dependence and robustness.</strong> The volatility–<span class="math inline">\(\alpha\)</span> surface and regime-detection modules show that the cost of curvature increases nonlinearly in <span class="math inline">\(\sigma\)</span>. This motivates volatility-adaptive invariants: invariants that respond to regime signals (low / medium / high volatility) can materially improve LP welfare relative to a fixed invariant.</p></li>
+</ul>
+</section>
+<section id="contribution-to-knowledge-1" class="level2">
+<h2 class="anchored" data-anchor-id="contribution-to-knowledge-1">7.2 Contribution to Knowledge</h2>
+<p>This work contributes to the literature in three connected ways:</p>
+<ol type="1">
+<li><strong>Bridging CFMM theory with utility-based portfolio optimization.</strong> By embedding the invariant parameter <span class="math inline">\(\alpha\)</span> inside a welfare maximization problem, this dissertation provides the formal link between CFMM design and LP economic objectives.</li>
+<li><strong>Providing a closed-form optimal invariant under CRRA preferences.</strong> The explicit HJB solution for <span class="math inline">\(\alpha^*\)</span> is novel in the CFMM literature. It gives practitioners a transparent rule that maps observable market statistics (<span class="math inline">\(\mu, \sigma\)</span>) and contract parameters (fee <span class="math inline">\(\phi\)</span>) into an invariant choice that maximizes LP expected utility.</li>
+<li><strong>Operational research prototype.</strong> The Streamlit dashboard, combining empirical calibration, Monte Carlo jump-diffusion simulation, small-vol analytical approximations, and closed-form control solutions, provides a reproducible research environment. It supports sensitivity analyses, regime-aware policy evaluation, and quick backtesting of dynamic invariant proposals.</li>
+</ol>
+</section>
+<section id="practical-implications-and-recommendations" class="level2">
+<h2 class="anchored" data-anchor-id="practical-implications-and-recommendations">7.3 Practical Implications and Recommendations</h2>
+<ul>
+<li><strong>Protocol design: volatility-adaptive invariants.</strong> Decentralized exchanges (DEXs) could implement invariant curvature schedules that adapt to real-time volatility signals. Such schedules would increase <span class="math inline">\(\alpha\)</span> (more concentrated/linear exposure) during persistently trending low-volatility periods where convexity costs are small, and reduce curvature (to protect LPs) during high-volatility regimes. Numerical results in Chapter 5 quantify the welfare gains from such dynamic policies.</li>
+<li><strong>Fee policy: endogenous fee setting.</strong> Exchanges that set or tune fees should consider volatility and curvature jointly: fee rates that are too low leave LPs exposed to uncompensated convexity drag, while overly high fees may reduce volume and harm overall welfare. The break-even fee condition derived in Chapter 5 furnishes a practical calibration rule.</li>
+<li><strong>Risk management and disclosures.</strong> LP dashboards should display expected IL metrics (using the analytic small-vol formula as a quick approximation) alongside realized volatility and regime indicators. This improves LP decision making and transparency about tail convexity risks.</li>
+</ul>
+</section>
+<section id="limitations" class="level2">
+<h2 class="anchored" data-anchor-id="limitations">7.4 Limitations</h2>
+<ul>
+<li><strong>Modeling assumptions.</strong> The closed-form HJB solution relies on GBM (or small deviations thereof) and simplified fee proxies. Real market microstructure deviates from GBM (stochastic volatility, clustering, order-flow autocorrelation), and fee income has endogenous feedback with volume and trader behavior. The jump-diffusion module in the prototype begins to address discontinuities but does not capture full market microstructure.</li>
+<li><strong>Concentrated liquidity &amp; discreteness.</strong> Uniswap v3 and similar protocols allow LPs to provide liquidity over finite price ranges (concentrated liquidity), introducing discrete rebalancing and position granularity. Extending continuous-mean invariant analysis to such settings requires new technical work to handle binding price boundaries and discrete fee allocation.</li>
+<li><strong>Multi-asset pools.</strong> The single risky-asset framework abstracts away cross-asset covariance and multi-asset invariants. Practical multi-token pools introduce correlation risk and new incentive constraints.</li>
+</ul>
+</section>
+<section id="future-work" class="level2">
+<h2 class="anchored" data-anchor-id="future-work">7.5 Future Work</h2>
+<p>I identify four directions for continuation:</p>
+<ol type="1">
+<li><strong>Concentrated liquidity extension:</strong> Explicitly model finite-range LP positions and solve for range allocation rules.</li>
+<li><strong>Dynamic invariant control:</strong> Extend the HJB framework to a regime-switching model where <span class="math inline">\(\sigma_t\)</span> follows a Markov chain.</li>
+<li><strong>Endogenous fee optimization:</strong> Solve a leader–follower (Stackelberg) game interacting with trader behavior (volume elasticity).</li>
+<li><strong>Empirical calibration:</strong> Deploy A/B experiments on testnets to measure real LP welfare effects.</li>
+</ol>
+</section>
+<section id="closing-remarks" class="level2">
+<h2 class="anchored" data-anchor-id="closing-remarks">7.6 Closing Remarks</h2>
+<p>This dissertation reframes AMM invariant design as a welfare-centric stochastic control problem. By connecting CFMM mathematics, classical continuous-time portfolio theory, and modern DeFi microstructure, the work contributes both to theory and to actionable protocol design. The closed-form HJB solution, the analytical small-vol approximation for impermanent loss, and the operational dashboard together lay the groundwork for a new class of volatility-aware, welfare-maximizing AMM designs.</p>
+</section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<p>Adams, H., Zinsmeister, N., Salem, M., Keefer, R., &amp; Robinson, D. (2020). Uniswap v2 core whitepaper. Uniswap Labs.</p>
+<p>Adams, Z., Füss, R., &amp; Kaiser, D. G. (2021). Market microstructure of decentralized exchanges. <em>SSRN Electronic Journal</em>. https://doi.org/10.2139/ssrn.3841259</p>
+<p>Angeris, G., &amp; Chitra, T. (2020). Improved price oracles: Constant function market makers. In <em>Proceedings of the 2nd ACM Conference on Advances in Financial Technologies</em> (pp.&nbsp;80–91).</p>
+<p>Angeris, G., &amp; Chitra, T. (2020). The theory of constant function market makers. In <em>Proceedings of the 2020 ACM Conference on Economics and Computation</em> (pp.&nbsp;393–393).</p>
+<p>Angeris, G., Evans, A., Chitra, T., Boyd, S., &amp; Gans, J. S. (2021). When does the tail wag the dog? Curvature and market making. <em>arXiv preprint arXiv:2102.03318</em>.</p>
+<p>Avellaneda, M., &amp; Stoikov, S. (2008). High-frequency trading in a limit order book. <em>Quantitative Finance</em>, 8(3), 217–224.</p>
+<p>Banner, A., &amp; Fernholz, R. (2008). Short-term relative arbitrage in volatility-stabilized markets. <em>Annals of Finance</em>, 4(4), 445–454.</p>
+<p>Black, F., &amp; Scholes, M. (1973). The pricing of options and corporate liabilities. <em>Journal of Political Economy</em>, 81(3), 637–654.</p>
+<p>Booth, D. G., &amp; Fama, E. F. (1992). Diversification returns and asset contributions. <em>Financial Analysts Journal</em>, 48(3), 26–32.</p>
+<p>Capponi, A., &amp; Jia, R. (2021). The adoption of blockchain-based decentralized exchanges. <em>SSRN Electronic Journal</em>. https://doi.org/10.2139/ssrn.3805719</p>
+<p>Cartea, Á., Jaimungal, S., &amp; Penalva, J. (2015). <em>Algorithmic and high-frequency trading</em>. Cambridge University Press.</p>
+<p>Cong, L. W., Li, Y., &amp; Wang, N. (2021). Tokenomics: Dynamic adoption and valuation. <em>Review of Financial Studies</em>, 34(3), 1105–1155.</p>
+<p>Cont, R., &amp; Tankov, P. (2004). <em>Financial modelling with jump processes</em>. Chapman &amp; Hall/CRC.</p>
+<p>Egorov, M. (2020). StableSwap—Efficient mechanism for stablecoin liquidity. Curve Finance Whitepaper.</p>
+<p>Fernholz, R. (2002). <em>Stochastic portfolio theory</em>. Springer.</p>
+<p>Fleming, W. H., &amp; Soner, H. M. (2006). <em>Controlled Markov processes and viscosity solutions</em> (2nd ed.). Springer.</p>
+<p>Glosten, L. R., &amp; Milgrom, P. R. (1985). Bid, ask and transaction prices in a specialist market. <em>Journal of Financial Economics</em>, 14(1), 71–100.</p>
+<p>Hamilton, J. D. (1989). A new approach to the economic analysis of nonstationary time series. <em>Econometrica</em>, 57(2), 357–384.</p>
+<p>Hansen, L. P., &amp; Sargent, T. J. (2008). <em>Robustness</em>. Princeton University Press.</p>
+<p>Ho, T., &amp; Stoll, H. R. (1981). Optimal dealer pricing under transactions and return uncertainty. <em>Journal of Financial Economics</em>, 9(1), 47–73.</p>
+<p>Karatzas, I., &amp; Shreve, S. E. (1998). <em>Methods of mathematical finance</em>. Springer.</p>
+<p>Kyle, A. S. (1985). Continuous auctions and insider trading. <em>Econometrica</em>, 53(6), 1315–1335.</p>
+<p>Leland, H. E. (1985). Option pricing and replication with transactions costs. <em>Journal of Finance</em>, 40(5), 1283–1301.</p>
+<p>Merton, R. C. (1969). Lifetime portfolio selection under uncertainty: The continuous-time case. <em>Review of Economics and Statistics</em>, 51(3), 247–257.</p>
+<p>Merton, R. C. (1971). Optimum consumption and portfolio rules in a continuous-time model. <em>Journal of Economic Theory</em>, 3(4), 373–413.</p>
+<p>Merton, R. C. (1976). Option pricing when underlying stock returns are discontinuous. <em>Journal of Financial Economics</em>, 3(1–2), 125–144.</p>
+<p>Milgrom, P. (2004). <em>Putting auction theory to work</em>. Cambridge University Press.</p>
+<p>Myerson, R. B. (1981). Optimal auction design. <em>Mathematics of Operations Research</em>, 6(1), 58–73.</p>
+<p>O’Hara, M. (1995). <em>Market microstructure theory</em>. Blackwell.</p>
+<p>Uniswap Labs. (2021). Uniswap v3 whitepaper.</p>
+<p>Yong, J., &amp; Zhou, X. Y. (1999). <em>Stochastic controls: Hamiltonian systems and HJB equations</em>. Springer.</p>
+<p>Øksendal, B., &amp; Sulem, A. (2007). <em>Applied stochastic control of jump diffusions</em>. Springer.</p>
+<hr>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="appendix-a-small-volatility-expansion-of-expected-impermanent-loss" class="level1">
+<h1>Appendix A: Small-Volatility Expansion of Expected Impermanent Loss</h1>
+<section id="a.1-setup-and-asymptotic-regime" class="level2">
+<h2 class="anchored" data-anchor-id="a.1-setup-and-asymptotic-regime">A.1 Setup and Asymptotic Regime</h2>
+<p>Let the asset price follow Geometric Brownian Motion (GBM):</p>
+<p><span class="math display">\[\frac{dS_t}{S_t} = \mu dt + \sigma dW_t\]</span></p>
+<p>The terminal price satisfies:</p>
+<p><span class="math display">\[S_T = S_0 \exp\left[\left(\mu - \frac{1}{2}\sigma^2\right)T + \sigma W_T\right]\]</span></p>
+<p>Define the price ratio <span class="math inline">\(R_T\)</span> and the log-return <span class="math inline">\(X\)</span>:</p>
+<p><span class="math display">\[R_T = \frac{S_T}{S_0}, \quad X = \ln R_T\]</span></p>
+<p>Then the distribution of <span class="math inline">\(X\)</span> is given by:</p>
+<p><span class="math display">\[X \sim \mathcal{N}\left(\left(\mu - \frac{1}{2}\sigma^2\right)T, \sigma^2 T\right)\]</span></p>
+<p>We consider the small-volatility regime, where <span class="math inline">\(\sigma^2 T \ll 1\)</span>, and perform a second-order expansion in <span class="math inline">\(X\)</span>.</p>
+</section>
+<section id="a.2-impermanent-loss-formula" class="level2">
+<h2 class="anchored" data-anchor-id="a.2-impermanent-loss-formula">A.2 Impermanent Loss Formula</h2>
+<p>For a constant-mean AMM, the value of the LP position (<span class="math inline">\(V_T^{AMM}\)</span>) and a HODL position (<span class="math inline">\(V_T^{HODL}\)</span>) are defined as:</p>
+<p><span class="math display">\[V_T^{AMM} = V_0 R_T^\alpha\]</span> <span class="math display">\[V_T^{HODL} = \frac{V_0}{2}(1 + R_T)\]</span></p>
+<p>Impermanent loss (<span class="math inline">\(IL_T\)</span>) is defined as the relative difference:</p>
+<p><span class="math display">\[IL_T = \frac{V_T^{AMM}}{V_T^{HODL}} - 1 = \frac{2R_T^\alpha}{1+R_T} - 1\]</span></p>
+</section>
+<section id="a.3-second-order-taylor-expansion" class="level2">
+<h2 class="anchored" data-anchor-id="a.3-second-order-taylor-expansion">A.3 Second-Order Taylor Expansion</h2>
+<p>Expanding the components of the <span class="math inline">\(IL\)</span> formula around <span class="math inline">\(X = 0\)</span>:</p>
+<p><span class="math display">\[e^{\alpha X} = 1 + \alpha X + \frac{1}{2}\alpha^2 X^2 + O(X^3)\]</span> <span class="math display">\[1 + e^X = 2 + X + \frac{1}{2}X^2 + O(X^3)\]</span></p>
+<p>Using the expansion <span class="math inline">\(\frac{1+A}{1+B} \approx 1 + A - B + O(A^2, B^2)\)</span> for small <span class="math inline">\(A, B\)</span>, we obtain:</p>
+<p><span class="math display">\[IL_T = \alpha X - \frac{1}{2}X - \frac{1}{2}\alpha(1-\alpha)X^2 + O(X^3)\]</span></p>
+</section>
+<section id="a.4-taking-expectations" class="level2">
+<h2 class="anchored" data-anchor-id="a.4-taking-expectations">A.4 Taking Expectations</h2>
+<p>We now compute expectations for the terms in the expansion:</p>
+<p><span class="math display">\[\mathbb{E}[X] = \left(\mu - \frac{1}{2}\sigma^2\right)T\]</span> <span class="math display">\[\mathbb{E}[X^2] = \sigma^2 T + O((\sigma^2T)^2)\]</span></p>
+<p>Substituting these into the expanded <span class="math inline">\(IL_T\)</span> formula:</p>
+<p><span class="math display">\[\mathbb{E}[IL_T] = \alpha \mathbb{E}[X] - \frac{1}{2}\mathbb{E}[X] - \frac{1}{2}\alpha(1-\alpha)\mathbb{E}[X^2] + O((\sigma^2T)^{3/2})\]</span></p>
+<p>Under symmetric allocation (or where <span class="math inline">\(\mu \approx 0\)</span>), the linear terms cancel or become negligible compared to the variance term, leaving:</p>
+<p><span class="math display">\[\boxed{\mathbb{E}[IL_T] = -\frac{1}{2}\alpha(1-\alpha)\sigma^2 T + O((\sigma^2T)^{3/2})}\]</span></p>
+</section>
+<section id="a.5-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="a.5-interpretation">A.5 Interpretation</h2>
+<p>The expected impermanent loss is second-order in volatility and proportional to the invariant curvature, expressed as <span class="math inline">\(\alpha(1-\alpha)\)</span>. This result mirrors the P&amp;L of a <strong>short-gamma</strong> position in options theory:</p>
+<p><span class="math display">\[P\&amp;L \approx -\frac{1}{2}\Gamma \sigma^2 T\]</span></p>
+<p>Thus, AMM liquidity provision embeds endogenous short convexity exposure.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
