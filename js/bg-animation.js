@@ -1,48 +1,88 @@
 const canvases = document.querySelectorAll(".bg-canvas");
 
 if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  canvases.forEach(c => c.remove());
+  canvases.forEach((canvas) => canvas.remove());
 } else {
   canvases.forEach(initCanvas);
 }
 
 function initCanvas(canvas) {
   const ctx = canvas.getContext("2d");
+  const parent = canvas.parentElement;
+
+  if (!ctx || !parent) return;
+
+  const bgContent = parent.querySelector(".bg-content");
+  const density = 0.00015;
+  let shapes = [];
+
+  function createShape() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: 20 + Math.random() * 45,
+      dx: (Math.random() - 0.5) * 0.8,
+      dy: (Math.random() - 0.5) * 0.8
+    };
+  }
+
+  function syncShapeCount() {
+    const targetCount = Math.max(
+      1,
+      Math.floor(canvas.width * canvas.height * density)
+    );
+
+    if (shapes.length < targetCount) {
+      shapes = shapes.concat(
+        Array.from({ length: targetCount - shapes.length }, createShape)
+      );
+    } else if (shapes.length > targetCount) {
+      shapes = shapes.slice(0, targetCount);
+    }
+  }
 
   function resize() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    const rect = parent.getBoundingClientRect();
+    const contentHeight = bgContent
+      ? Math.max(bgContent.scrollHeight, bgContent.offsetHeight)
+      : 0;
+    const nextWidth = Math.ceil(rect.width);
+    const nextHeight = Math.ceil(
+      Math.max(rect.height, parent.scrollHeight, parent.offsetHeight, contentHeight)
+    );
+
+    if (!nextWidth || !nextHeight) return;
+
+    canvas.width = nextWidth;
+    canvas.height = nextHeight;
+    syncShapeCount();
   }
 
   resize();
 
-  const observer = new ResizeObserver(resize);
-  observer.observe(canvas.parentElement);
+  if (typeof ResizeObserver === "function") {
+    const observer = new ResizeObserver(resize);
+    observer.observe(parent);
 
-  const density = 0.00015;
-  const shapeCount = Math.floor(canvas.width * canvas.height * density);
-
-  const shapes = Array.from({ length: shapeCount }, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: 20 + Math.random() * 45,
-    dx: (Math.random() - 0.5) * 0.8,
-    dy: (Math.random() - 0.5) * 0.8
-  }));
+    if (bgContent) {
+      observer.observe(bgContent);
+    }
+  } else {
+    window.addEventListener("resize", resize);
+  }
 
   function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    shapes.forEach(s => {
-      s.x += s.dx;
-      s.y += s.dy;
+    shapes.forEach((shape) => {
+      shape.x += shape.dx;
+      shape.y += shape.dy;
 
-      if (s.x < 0 || s.x > canvas.width) s.dx *= -1;
-      if (s.y < 0 || s.y > canvas.height) s.dy *= -1;
+      if (shape.x < 0 || shape.x > canvas.width) shape.dx *= -1;
+      if (shape.y < 0 || shape.y > canvas.height) shape.dy *= -1;
 
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.arc(shape.x, shape.y, shape.r, 0, Math.PI * 2);
       ctx.fillStyle = "rgba(248, 73, 76, 0.08)";
       ctx.fill();
     });
@@ -51,4 +91,26 @@ function initCanvas(canvas) {
   }
 
   animate();
+
+  window.addEventListener("load", () => {
+    resize();
+    setTimeout(resize, 250);
+    setTimeout(resize, 1000);
+  });
+
+  const media = parent.querySelectorAll("img, video");
+  media.forEach((element) => {
+    if (element.tagName === "IMG") {
+      if (!element.complete) {
+        element.addEventListener("load", resize, { once: true });
+        element.addEventListener("error", resize, { once: true });
+      }
+      return;
+    }
+
+    element.addEventListener("loadedmetadata", resize, { once: true });
+    element.addEventListener("loadeddata", resize, { once: true });
+    element.addEventListener("canplay", resize, { once: true });
+    element.addEventListener("error", resize, { once: true });
+  });
 }

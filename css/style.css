@@ -767,6 +767,8 @@ span#nav-close {
 */
 .portfolio-area{
     background: #121d30;
+    min-height: 100vh;
+    overflow: hidden;
 }
 #portfolio h1 {
     padding-left: 15px;
