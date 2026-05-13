@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsAPI — Rishikesh Govind</title>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:#070e19;color:#fff;font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+img,video{display:block;max-width:100%}
+:root{
+  --bg:#070e19;--surface:#111b2e;--accent:#f8494c;
+  --border:rgba(255,255,255,0.07);--muted:rgba(255,255,255,0.55);
+  --mono:'JetBrains Mono',monospace;
+  --pad:clamp(18px,4vw,48px);--max:1180px;--radius:18px;--tr:0.22s ease;
+}
+.animated-bg{position:relative;overflow:hidden}
+.bg-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.bg-content{position:relative;z-index:1}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--pad)}
+.wrap-narrow{max-width:760px;margin:0 auto;padding:0 var(--pad)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background var(--tr),border-color var(--tr)}
+.nav.stuck{background:rgba(7,14,25,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:var(--max);margin:0 auto;padding:0 var(--pad);display:flex;align-items:center;justify-content:space-between;height:64px}
+.nav-logo{font-family:var(--mono);font-size:20px;font-weight:700}
+.nav-logo em{color:var(--accent);font-style:normal}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{font-family:var(--mono);font-size:13px;color:rgba(255,255,255,.5);transition:color var(--tr)}
+.nav-links a:hover{color:#fff}
+.hero{padding:128px var(--pad) 80px;background:var(--bg);position:relative;overflow:hidden}
+.breadcrumb{font-family:var(--mono);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.35);transition:color var(--tr);display:inline-block;margin-bottom:32px}
+.breadcrumb:hover{color:var(--accent)}
+.hero-cat{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.hero h1{font-size:clamp(44px,7vw,80px);font-weight:900;line-height:1.0;letter-spacing:-.035em;margin-bottom:20px}
+.hero-desc{font-size:17px;color:var(--muted);line-height:1.75;max-width:600px;margin-bottom:32px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+.chip{font-family:var(--mono);font-size:11px;padding:4px 14px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55)}
+.btn{display:inline-flex;align-items:center;padding:11px 28px;border-radius:999px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;transition:all var(--tr)}
+.btn-primary{background:var(--accent);color:#fff;border:1px solid var(--accent)}
+.btn-primary:hover{background:#e03d40;border-color:#e03d40}
+.media-section{padding:64px 0;background:var(--surface)}
+.media-landscape{border-radius:var(--radius);overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.media-landscape video,.media-landscape img{object-position:top}
+.media-landscape video,.media-landscape img{width:100%;display:block}
+.stats-section{padding:64px 0;background:var(--bg)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
+.stat-val{font-size:clamp(28px,4vw,40px);font-weight:900;color:var(--accent);margin-bottom:6px}
+.stat-label{font-family:var(--mono);font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.case-section{padding:80px 0;background:var(--surface)}
+.case-body{display:flex;flex-direction:column;gap:64px}
+.step-label{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;display:block}
+.case-step h2{font-size:clamp(20px,2.5vw,26px);font-weight:700;margin-bottom:16px}
+.case-step p{color:var(--muted);line-height:1.8;margin-bottom:12px}
+.case-step p:last-child{margin-bottom:0}
+.feature-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.feature-list li{display:flex;gap:12px;color:var(--muted);line-height:1.6}
+.feature-arrow{color:var(--accent);flex-shrink:0;margin-top:2px}
+.next-section{padding:56px 0;background:var(--bg);border-top:1px solid var(--border)}
+.next-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.next-link{font-family:var(--mono);font-size:13px;color:rgba(255,255,255,.35);transition:color var(--tr)}
+.next-link:hover{color:var(--accent)}
+.footer{background:var(--bg);border-top:1px solid var(--border);padding:22px 0}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--mono);font-size:12px;color:rgba(255,255,255,.2)}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important}}
+@media(max-width:700px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .next-inner{flex-direction:column;text-align:center}
+  .footer-inner{flex-direction:column;text-align:center;gap:4px}
+  .nav-links{display:none}
+}
+  </style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo">RG<em>.</em></a>
+    <ul class="nav-links">
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="../index.html#portfolio">Work</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</header>
+
+<section class="hero animated-bg">
+  <canvas class="bg-canvas"></canvas>
+  <div class="bg-content" style="max-width:860px;margin:0 auto">
+    <a href="../index.html#portfolio" class="breadcrumb">← All Projects</a>
+    <p class="hero-cat">API · SaaS · Messaging</p>
+    <h1>WhatsAPI</h1>
+    <p class="hero-desc">A commercial SaaS API platform that enables businesses to send WhatsApp notifications at scale — OTPs, order updates, appointment reminders — on top of Meta's Cloud API with a single HTTPS call.</p>
+    <div class="chips">
+      <span class="chip">REST API</span>
+      <span class="chip">Meta Cloud API</span>
+      <span class="chip">Node.js</span>
+      <span class="chip">Webhooks</span>
+      <span class="chip">Stripe</span>
+      <span class="chip">SaaS</span>
+    </div>
+    <a href="https://whatsapi.cc/" target="_blank" rel="noopener" class="btn btn-primary">Live Site ↗</a>
+  </div>
+</section>
+
+<section class="media-section">
+  <div class="wrap">
+    <div class="media-landscape">
+      <video autoplay loop muted playsinline>
+        <source src="../images/portfolio/whatsapi.webm" type="video/webm">
+        <source src="../images/portfolio/whatsapi.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</section>
+
+<section class="stats-section">
+  <div class="wrap">
+    <div class="stats-grid reveal">
+      <div><p class="stat-val">98%</p><p class="stat-label">WhatsApp Open Rate</p></div>
+      <div><p class="stat-val">1k</p><p class="stat-label">Msgs per Call</p></div>
+      <div><p class="stat-val">Real</p><p class="stat-label">Time Webhooks</p></div>
+      <div><p class="stat-val">SaaS</p><p class="stat-label">Freemium Model</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="case-section">
+  <div class="wrap-narrow">
+    <div class="case-body">
+
+      <div class="case-step reveal">
+        <span class="step-label">01 / Problem</span>
+        <h2>Email is dying as a notification channel</h2>
+        <p>Email open rates average 22%. WhatsApp is at 98%. Businesses sending time-sensitive communications — OTPs, order confirmations, appointment reminders — need a more reliable delivery channel, but building directly on Meta's Cloud API requires significant infrastructure and compliance overhead.</p>
+      </div>
+
+      <div class="case-step reveal">
+        <span class="step-label">02 / Approach</span>
+        <h2>Three-step integration on top of Meta's infrastructure</h2>
+        <p>WhatsAPI wraps Meta's Cloud API with a simple developer-first interface: get an API key, connect a WhatsApp Business number via the Meta portal, then send messages with a single HTTPS POST. No SDK required — any language can integrate in minutes.</p>
+        <p>The platform handles template approval workflows, bulk sending (up to 1,000 messages per API call), real-time delivery and read receipts via webhooks, and retry logic. A no-code conversation flow builder sits alongside the API for teams who want automation without writing code. Billing is handled via Stripe with a freemium tier and per-seat plans.</p>
+      </div>
+
+      <div class="case-step reveal">
+        <span class="step-label">03 / Result</span>
+        <h2>Production-ready WhatsApp messaging for any stack</h2>
+        <p>WhatsAPI abstracts the complexity of Meta's developer ecosystem into a clean REST API that any backend can call. E-commerce, healthcare, and support teams can add WhatsApp as a notification channel with the same effort as adding an email provider — and get significantly higher engagement in return.</p>
+      </div>
+
+      <div class="case-step reveal">
+        <span class="step-label">Key Features</span>
+        <ul class="feature-list">
+          <li><span class="feature-arrow">→</span>Single HTTPS call to send — no SDK required</li>
+          <li><span class="feature-arrow">→</span>Bulk sending up to 1,000 messages per API call</li>
+          <li><span class="feature-arrow">→</span>Real-time delivery receipts and read confirmations via webhooks</li>
+          <li><span class="feature-arrow">→</span>Meta-approved message template management</li>
+          <li><span class="feature-arrow">→</span>No-code automated conversation flow builder</li>
+          <li><span class="feature-arrow">→</span>Message scheduling, retry logic, and campaign management</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="next-section">
+  <div class="wrap">
+    <div class="next-inner">
+      <a href="chainsocial.html" class="next-link">← ChainSocial</a>
+      <a href="crypto-intel-api.html" class="next-link">CryptoIntel API →</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <span>© 2025 Rishikesh Govind</span>
+    <span>Belfast, Northern Ireland</span>
+  </div>
+</footer>
+
+<script src="../js/bg-animation.js"></script>
+<script>
+var nav = document.getElementById('nav');
+window.addEventListener('scroll', function(){ nav.classList.toggle('stuck', window.scrollY > 50); }, {passive:true});
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+},{threshold:0.08, rootMargin:'0px 0px -40px 0px'});
+requestAnimationFrame(function(){ document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); }); });
+</script>
+</body>
+</html>

@@ -1,116 +1,110 @@
-const canvases = document.querySelectorAll(".bg-canvas");
-
-if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  canvases.forEach((canvas) => canvas.remove());
-} else {
-  canvases.forEach(initCanvas);
-}
-
-function initCanvas(canvas) {
-  const ctx = canvas.getContext("2d");
-  const parent = canvas.parentElement;
-
-  if (!ctx || !parent) return;
-
-  const bgContent = parent.querySelector(".bg-content");
-  const density = 0.00015;
-  let shapes = [];
-
-  function createShape() {
-    return {
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: 20 + Math.random() * 45,
-      dx: (Math.random() - 0.5) * 0.8,
-      dy: (Math.random() - 0.5) * 0.8
-    };
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('.bg-canvas').forEach(function (c) { c.remove(); });
+    return;
   }
 
-  function syncShapeCount() {
-    const targetCount = Math.max(
-      1,
-      Math.floor(canvas.width * canvas.height * density)
-    );
+  document.querySelectorAll('.bg-canvas').forEach(initCanvas);
 
-    if (shapes.length < targetCount) {
-      shapes = shapes.concat(
-        Array.from({ length: targetCount - shapes.length }, createShape)
-      );
-    } else if (shapes.length > targetCount) {
-      shapes = shapes.slice(0, targetCount);
+  function initCanvas(canvas) {
+    var ctx = canvas.getContext('2d');
+    var parent = canvas.parentElement;
+    if (!ctx || !parent) return;
+
+    var W = 0, H = 0, particles = [], RAF;
+    var MAX_DIST = 180;
+    var SPEED    = 0.28;
+
+    function countForArea() {
+      return Math.min(100, Math.max(30, Math.floor(W * H / 10000)));
     }
-  }
 
-  function resize() {
-    const rect = parent.getBoundingClientRect();
-    const contentHeight = bgContent
-      ? Math.max(bgContent.scrollHeight, bgContent.offsetHeight)
-      : 0;
-    const nextWidth = Math.ceil(rect.width);
-    const nextHeight = Math.ceil(
-      Math.max(rect.height, parent.scrollHeight, parent.offsetHeight, contentHeight)
-    );
-
-    if (!nextWidth || !nextHeight) return;
-
-    canvas.width = nextWidth;
-    canvas.height = nextHeight;
-    syncShapeCount();
-  }
-
-  resize();
-
-  if (typeof ResizeObserver === "function") {
-    const observer = new ResizeObserver(resize);
-    observer.observe(parent);
-
-    if (bgContent) {
-      observer.observe(bgContent);
+    function resize() {
+      var rect = parent.getBoundingClientRect();
+      var nW   = Math.ceil(rect.width)  || window.innerWidth;
+      var nH   = Math.ceil(Math.max(rect.height, parent.scrollHeight));
+      if (nW === W && nH === H) return;
+      W = canvas.width  = nW;
+      H = canvas.height = nH;
+      respawn();
     }
-  } else {
-    window.addEventListener("resize", resize);
-  }
 
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    shapes.forEach((shape) => {
-      shape.x += shape.dx;
-      shape.y += shape.dy;
-
-      if (shape.x < 0 || shape.x > canvas.width) shape.dx *= -1;
-      if (shape.y < 0 || shape.y > canvas.height) shape.dy *= -1;
-
-      ctx.beginPath();
-      ctx.arc(shape.x, shape.y, shape.r, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(248, 73, 76, 0.08)";
-      ctx.fill();
-    });
-
-    requestAnimationFrame(animate);
-  }
-
-  animate();
-
-  window.addEventListener("load", () => {
-    resize();
-    setTimeout(resize, 250);
-    setTimeout(resize, 1000);
-  });
-
-  const media = parent.querySelectorAll("img, video");
-  media.forEach((element) => {
-    if (element.tagName === "IMG") {
-      if (!element.complete) {
-        element.addEventListener("load", resize, { once: true });
-        element.addEventListener("error", resize, { once: true });
+    function respawn() {
+      var n = countForArea();
+      // keep existing particles, add or trim
+      while (particles.length < n) {
+        particles.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * SPEED,
+          vy: (Math.random() - 0.5) * SPEED,
+          r: Math.random() * 1.8 + 0.8
+        });
       }
-      return;
+      particles.length = n;
     }
 
-    element.addEventListener("loadedmetadata", resize, { once: true });
-    element.addEventListener("loadeddata", resize, { once: true });
-    element.addEventListener("canplay", resize, { once: true });
-    element.addEventListener("error", resize, { once: true });
-  });
-}
+    function tick() {
+      ctx.clearRect(0, 0, W, H);
+
+      var len = particles.length;
+
+      // move
+      for (var i = 0; i < len; i++) {
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0)  { p.x = 0;  p.vx *= -1; }
+        if (p.x > W)  { p.x = W;  p.vx *= -1; }
+        if (p.y < 0)  { p.y = 0;  p.vy *= -1; }
+        if (p.y > H)  { p.y = H;  p.vy *= -1; }
+      }
+
+      // connections
+      ctx.lineWidth = 0.9;
+      var md2 = MAX_DIST * MAX_DIST;
+      for (var i = 0; i < len; i++) {
+        for (var j = i + 1; j < len; j++) {
+          var dx = particles[i].x - particles[j].x;
+          var dy = particles[i].y - particles[j].y;
+          var d2 = dx * dx + dy * dy;
+          if (d2 < md2) {
+            var a = (1 - Math.sqrt(d2) / MAX_DIST) * 0.55;
+            ctx.strokeStyle = 'rgba(248,73,76,' + a + ')';
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // nodes
+      for (var i = 0; i < len; i++) {
+        var p = particles[i];
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        ctx.fill();
+      }
+
+      RAF = requestAnimationFrame(tick);
+    }
+
+    resize();
+    tick();
+
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(resize).observe(parent);
+    } else {
+      window.addEventListener('resize', resize);
+    }
+
+    // handle media load triggering height changes
+    parent.querySelectorAll('img,video').forEach(function (el) {
+      ['load','loadeddata','canplay','error'].forEach(function (ev) {
+        el.addEventListener(ev, resize, { once: true });
+      });
+    });
+  }
+})();
