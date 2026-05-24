@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FraudDetect API — Rishikesh Govind</title>
+  <title>Job Listings API — Rishikesh Govind</title>
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:#070e19;color:#fff;font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
@@ -95,19 +95,19 @@ img,video{display:block;max-width:100%}
   <canvas class="bg-canvas"></canvas>
   <div class="bg-content" style="max-width:860px;margin:0 auto">
     <a href="../index.html#portfolio" class="breadcrumb">← All Projects</a>
-    <p class="hero-cat">API · Machine Learning · Fintech</p>
-    <h1>FraudDetect<br>API</h1>
-    <p class="hero-desc">A real-time transaction fraud detection API that scores each payment across eight independent risk signals — returning a fraud probability, risk tier, and plain-language explanation in under 80ms.</p>
+    <p class="hero-cat">API · Job Aggregation · Labour Market Data</p>
+    <h1>Job Listings<br>API</h1>
+    <p class="hero-desc">A real-time job aggregation API pulling 90,000+ live listings from 1,000+ companies across Greenhouse, Lever, Workday, Adzuna, and more — with salary insights, employer profiles, and hiring market statistics in a single REST call.</p>
     <div class="chips">
       <span class="chip">REST API</span>
-      <span class="chip">Machine Learning</span>
-      <span class="chip">HMAC-SHA256</span>
-      <span class="chip">OpenAPI</span>
-      <span class="chip">Railway</span>
+      <span class="chip">Greenhouse</span>
+      <span class="chip">Lever</span>
+      <span class="chip">Workday</span>
+      <span class="chip">Adzuna</span>
       <span class="chip">RapidAPI</span>
-      <span class="chip">Webhooks</span>
+      <span class="chip">Railway</span>
     </div>
-    <a href="https://fraud-detection-api.up.railway.app/" target="_blank" rel="noopener" class="btn btn-primary">Live API ↗</a>
+    <a href="https://job-listings-api.up.railway.app/" target="_blank" rel="noopener" class="btn btn-primary">Live API ↗</a>
   </div>
 </section>
 
@@ -115,8 +115,8 @@ img,video{display:block;max-width:100%}
   <div class="wrap">
     <div class="media-landscape">
       <video autoplay loop muted playsinline>
-        <source src="../images/portfolio/frauddetectionapi.webm" type="video/webm">
-        <source src="../images/portfolio/frauddetectionapi.mp4" type="video/mp4">
+        <source src="../images/portfolio/realtimejobs-api.webm" type="video/webm">
+        <source src="../images/portfolio/realtimejobs-api.mp4" type="video/mp4">
       </video>
     </div>
   </div>
@@ -125,10 +125,10 @@ img,video{display:block;max-width:100%}
 <section class="stats-section">
   <div class="wrap">
     <div class="stats-grid reveal">
-      <div><p class="stat-val">80ms</p><p class="stat-label">Response Time</p></div>
-      <div><p class="stat-val">8</p><p class="stat-label">Risk Signals</p></div>
-      <div><p class="stat-val">4</p><p class="stat-label">Risk Tiers</p></div>
-      <div><p class="stat-val">ML</p><p class="stat-label">Weighted Model</p></div>
+      <div><p class="stat-val">90K+</p><p class="stat-label">Live Listings</p></div>
+      <div><p class="stat-val">1K+</p><p class="stat-label">Companies</p></div>
+      <div><p class="stat-val">10+</p><p class="stat-label">Sources</p></div>
+      <div><p class="stat-val">Live</p><p class="stat-label">Salary Data</p></div>
     </div>
   </div>
 </section>
@@ -139,34 +139,33 @@ img,video{display:block;max-width:100%}
 
       <div class="case-step reveal">
         <span class="step-label">01 / Problem</span>
-        <h2>Financial fraud is discovered after the loss, not before it</h2>
-        <p>Most fraud detection happens through post-hoc chargeback analysis — by which point the loss has already occurred. Payment processors and fintechs need a way to score transactions before they clear, in real time, without adding latency that kills conversion rates. Building this in-house requires data science infrastructure most teams don't have.</p>
+        <h2>Job data is siloed across dozens of ATS platforms and job boards</h2>
+        <p>A developer building a job search product, recruiting tool, or labour market dashboard needs to integrate with Greenhouse, Lever, Workday, SmartRecruiters, Adzuna, Reed, and half a dozen other platforms — each with its own auth flow, rate limits, pagination scheme, and response schema. The result is months of integration work just to get to a unified dataset, and the integrations break every time a source updates its API.</p>
       </div>
 
       <div class="case-step reveal">
         <span class="step-label">02 / Approach</span>
-        <h2>Eight-signal weighted ML model, sub-80ms response</h2>
-        <p>Each transaction is evaluated across eight independent risk dimensions: spending pattern deviation, device fingerprint recognition, geographic anomaly, transaction frequency, IP reputation history, time-of-day patterns, amount threshold analysis, and transaction category risk. A weighted ML model combines these signals into a single fraud probability score (0–1).</p>
-        <p>The API returns not just a score but a four-tier classification (LOW / MEDIUM / HIGH / CRITICAL) and a plain-language explanation of the primary signals that drove the decision — giving operations teams actionable context, not just a number. HMAC-SHA256-signed webhooks fire on critical-tier events. A chargeback feedback loop feeds confirmed fraud cases back into model retraining.</p>
+        <h2>Real-time parallel queries across 10+ sources, deduplicated into one response</h2>
+        <p>Job Listings API fans out search queries in parallel across Greenhouse, Lever, Ashby, Workday, SmartRecruiters, BambooHR, Reed, Adzuna, and additional sources — deduplicating results and normalising them into a single consistent response schema. Filters for job title, location, employment type, and experience level apply across all sources simultaneously. Individual job detail endpoints return full descriptions, requirements, and direct application URLs.</p>
+        <p>Beyond raw listings, the intelligence layer adds three premium data layers: salary insights with p25, median, and p75 rates broken down by title, location, and experience level; employer profiles with exact open role counts and average advertised salaries; and market statistics covering top hiring companies, trending roles by listing frequency, and skill demand by region and industry. All data reflects live market state, not stale estimates.</p>
       </div>
 
       <div class="case-step reveal">
         <span class="step-label">03 / Result</span>
-        <h2>Production fraud prevention for fintechs and payment gateways</h2>
-        <p>FraudDetect API integrates in a single API call with no ML infrastructure required. Deployed on Railway with RapidAPI marketplace distribution and a full OpenAPI spec. The freemium tier covers prototyping; Pro unlocks fraud network detection across devices and IPs, custom rule engine, and the merchant analytics dashboard — everything a payment processor needs to run fraud ops at scale.</p>
+        <h2>One endpoint replacing a dozen fragile job board integrations</h2>
+        <p>Job boards, recruiting platforms, and career tools can ship real-time job search in a single API call without managing source-specific integrations. The salary and market data layers turn a simple job feed into a labour market intelligence platform. Deployed on Railway with instant API key registration via the auth endpoint and tiered plans on RapidAPI — from a free tier for prototyping to volume plans with overage pricing for high-traffic production apps.</p>
       </div>
 
       <div class="case-step reveal">
         <span class="step-label">Key Features</span>
         <ul class="feature-list">
-          <li><span class="feature-arrow">→</span>Fraud probability score (0–1) in under 80ms</li>
-          <li><span class="feature-arrow">→</span>Four-tier classification: LOW / MEDIUM / HIGH / CRITICAL</li>
-          <li><span class="feature-arrow">→</span>Plain-language explanation of flagging signals</li>
-          <li><span class="feature-arrow">→</span>Fraud network detection across devices and IPs</li>
-          <li><span class="feature-arrow">→</span>Custom rule engine for business-specific logic</li>
-          <li><span class="feature-arrow">→</span>Velocity limits to block burst and replay attacks</li>
-          <li><span class="feature-arrow">→</span>HMAC-SHA256-signed webhook alerts</li>
-          <li><span class="feature-arrow">→</span>Chargeback feedback loop for continuous model retraining</li>
+          <li><span class="feature-arrow">→</span>90,000+ live listings from Greenhouse, Lever, Workday, Adzuna, Reed, and more</li>
+          <li><span class="feature-arrow">→</span>Real-time parallel queries with automatic deduplication</li>
+          <li><span class="feature-arrow">→</span>Filter by title, location, employment type, and experience level</li>
+          <li><span class="feature-arrow">→</span>Full job detail: description, requirements, and direct application URL</li>
+          <li><span class="feature-arrow">→</span>Salary insights: p25 / median / p75 by title, location, and seniority</li>
+          <li><span class="feature-arrow">→</span>Employer profiles with open role counts and average advertised salaries</li>
+          <li><span class="feature-arrow">→</span>Market statistics: top hiring companies, trending roles, skill demand by region</li>
         </ul>
       </div>
 
@@ -177,8 +176,8 @@ img,video{display:block;max-width:100%}
 <section class="next-section">
   <div class="wrap">
     <div class="next-inner">
-      <a href="crypto-intel-api.html" class="next-link">← CryptoIntel API</a>
-      <a href="eurodata-api.html" class="next-link">EuroData API →</a>
+      <a href="ai-jobmatch-api.html" class="next-link">← AI JobMatch API</a>
+      <a href="options-analyser.html" class="next-link">Options Analyser →</a>
     </div>
   </div>
 </section>

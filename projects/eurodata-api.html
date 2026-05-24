@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FraudDetect API — Rishikesh Govind</title>
+  <title>EuroData API — Rishikesh Govind</title>
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,19 +95,19 @@ img,video{display:block;max-width:100%}
   <canvas class="bg-canvas"></canvas>
   <div class="bg-content" style="max-width:860px;margin:0 auto">
     <a href="../index.html#portfolio" class="breadcrumb">← All Projects</a>
-    <p class="hero-cat">API · Machine Learning · Fintech</p>
-    <h1>FraudDetect<br>API</h1>
-    <p class="hero-desc">A real-time transaction fraud detection API that scores each payment across eight independent risk signals — returning a fraud probability, risk tier, and plain-language explanation in under 80ms.</p>
+    <p class="hero-cat">API · European Statistics · Open Data</p>
+    <h1>EuroData<br>API</h1>
+    <p class="hero-desc">A unified REST API consolidating 13 economic and social indicators across all 27 EU member states — normalised from Eurostat, the ECB, and the World Bank into a single clean JSON endpoint.</p>
     <div class="chips">
       <span class="chip">REST API</span>
-      <span class="chip">Machine Learning</span>
-      <span class="chip">HMAC-SHA256</span>
-      <span class="chip">OpenAPI</span>
-      <span class="chip">Railway</span>
+      <span class="chip">Eurostat</span>
+      <span class="chip">ECB</span>
+      <span class="chip">World Bank</span>
       <span class="chip">RapidAPI</span>
-      <span class="chip">Webhooks</span>
+      <span class="chip">Railway</span>
+      <span class="chip">CSV Export</span>
     </div>
-    <a href="https://fraud-detection-api.up.railway.app/" target="_blank" rel="noopener" class="btn btn-primary">Live API ↗</a>
+    <a href="https://eurodata-api.up.railway.app/" target="_blank" rel="noopener" class="btn btn-primary">Live API ↗</a>
   </div>
 </section>
 
@@ -115,8 +115,8 @@ img,video{display:block;max-width:100%}
   <div class="wrap">
     <div class="media-landscape">
       <video autoplay loop muted playsinline>
-        <source src="../images/portfolio/frauddetectionapi.webm" type="video/webm">
-        <source src="../images/portfolio/frauddetectionapi.mp4" type="video/mp4">
+        <source src="../images/portfolio/eurodata-api.webm" type="video/webm">
+        <source src="../images/portfolio/eurodata-api.mp4" type="video/mp4">
       </video>
     </div>
   </div>
@@ -125,10 +125,10 @@ img,video{display:block;max-width:100%}
 <section class="stats-section">
   <div class="wrap">
     <div class="stats-grid reveal">
-      <div><p class="stat-val">80ms</p><p class="stat-label">Response Time</p></div>
-      <div><p class="stat-val">8</p><p class="stat-label">Risk Signals</p></div>
-      <div><p class="stat-val">4</p><p class="stat-label">Risk Tiers</p></div>
-      <div><p class="stat-val">ML</p><p class="stat-label">Weighted Model</p></div>
+      <div><p class="stat-val">13</p><p class="stat-label">Indicators</p></div>
+      <div><p class="stat-val">27</p><p class="stat-label">EU Member States</p></div>
+      <div><p class="stat-val">3</p><p class="stat-label">Authoritative Sources</p></div>
+      <div><p class="stat-val">CSV</p><p class="stat-label">Export Support</p></div>
     </div>
   </div>
 </section>
@@ -139,34 +139,34 @@ img,video{display:block;max-width:100%}
 
       <div class="case-step reveal">
         <span class="step-label">01 / Problem</span>
-        <h2>Financial fraud is discovered after the loss, not before it</h2>
-        <p>Most fraud detection happens through post-hoc chargeback analysis — by which point the loss has already occurred. Payment processors and fintechs need a way to score transactions before they clear, in real time, without adding latency that kills conversion rates. Building this in-house requires data science infrastructure most teams don't have.</p>
+        <h2>EU economic data is fragmented across incompatible institutional sources</h2>
+        <p>Eurostat, the European Central Bank, and the World Bank each publish authoritative EU data — but across different portals, APIs, and response formats. A developer who needs GDP alongside ECB interest rates alongside CO₂ emissions has to write three separate integrations, normalise three different schemas, and manage three sets of rate limits and authentication schemes.</p>
       </div>
 
       <div class="case-step reveal">
         <span class="step-label">02 / Approach</span>
-        <h2>Eight-signal weighted ML model, sub-80ms response</h2>
-        <p>Each transaction is evaluated across eight independent risk dimensions: spending pattern deviation, device fingerprint recognition, geographic anomaly, transaction frequency, IP reputation history, time-of-day patterns, amount threshold analysis, and transaction category risk. A weighted ML model combines these signals into a single fraud probability score (0–1).</p>
-        <p>The API returns not just a score but a four-tier classification (LOW / MEDIUM / HIGH / CRITICAL) and a plain-language explanation of the primary signals that drove the decision — giving operations teams actionable context, not just a number. HMAC-SHA256-signed webhooks fire on critical-tier events. A chargeback feedback loop feeds confirmed fraud cases back into model retraining.</p>
+        <h2>One normalised envelope across three institutional data sources</h2>
+        <p>EuroData API pulls from Eurostat, the ECB, and World Bank Open Data and normalises every response into a consistent JSON envelope — same field names, same date format, same pagination schema — regardless of the underlying source. All 27 EU member states are supported across every indicator.</p>
+        <p>The core free tier covers 20 endpoints including GDP, inflation, unemployment, population, government debt and deficit, trade balance, FDI, CO₂ emissions, health, education, and ECB interest rates. Premium endpoints unlock cross-country comparison, EU-27 rankings, historical trend series with rolling averages, and a single-call country snapshot that returns all 13 indicators at once. Every endpoint supports CSV export via a <code>?format=csv</code> query parameter. Built-in caching with expiration timestamps keeps responses fast without hitting upstream rate limits.</p>
       </div>
 
       <div class="case-step reveal">
         <span class="step-label">03 / Result</span>
-        <h2>Production fraud prevention for fintechs and payment gateways</h2>
-        <p>FraudDetect API integrates in a single API call with no ML infrastructure required. Deployed on Railway with RapidAPI marketplace distribution and a full OpenAPI spec. The freemium tier covers prototyping; Pro unlocks fraud network detection across devices and IPs, custom rule engine, and the merchant analytics dashboard — everything a payment processor needs to run fraud ops at scale.</p>
+        <h2>Institutional-grade EU data in a single developer-friendly call</h2>
+        <p>Developers building economic dashboards, policy tools, or research applications can access the full breadth of EU statistical data through one bearer-authenticated API on RapidAPI — no Eurostat SDMX queries, no ECB API archaeology, no World Bank pagination to manage. Deployed on Railway for global availability with tiered plans from a free prototyping tier to an unlimited premium plan.</p>
       </div>
 
       <div class="case-step reveal">
         <span class="step-label">Key Features</span>
         <ul class="feature-list">
-          <li><span class="feature-arrow">→</span>Fraud probability score (0–1) in under 80ms</li>
-          <li><span class="feature-arrow">→</span>Four-tier classification: LOW / MEDIUM / HIGH / CRITICAL</li>
-          <li><span class="feature-arrow">→</span>Plain-language explanation of flagging signals</li>
-          <li><span class="feature-arrow">→</span>Fraud network detection across devices and IPs</li>
-          <li><span class="feature-arrow">→</span>Custom rule engine for business-specific logic</li>
-          <li><span class="feature-arrow">→</span>Velocity limits to block burst and replay attacks</li>
-          <li><span class="feature-arrow">→</span>HMAC-SHA256-signed webhook alerts</li>
-          <li><span class="feature-arrow">→</span>Chargeback feedback loop for continuous model retraining</li>
+          <li><span class="feature-arrow">→</span>13 indicators: GDP, inflation, unemployment, government debt, CO₂, and more</li>
+          <li><span class="feature-arrow">→</span>Full coverage of all 27 EU member states</li>
+          <li><span class="feature-arrow">→</span>Normalised JSON envelope across Eurostat, ECB, and World Bank sources</li>
+          <li><span class="feature-arrow">→</span>ECB interest rates: main refinancing, deposit, and marginal lending</li>
+          <li><span class="feature-arrow">→</span>Side-by-side country comparisons and EU-27 rankings</li>
+          <li><span class="feature-arrow">→</span>Historical trend series with rolling averages</li>
+          <li><span class="feature-arrow">→</span>Single-call country snapshot: all 13 indicators in one request</li>
+          <li><span class="feature-arrow">→</span>CSV export via <code>?format=csv</code> on every endpoint</li>
         </ul>
       </div>
 
@@ -177,8 +177,8 @@ img,video{display:block;max-width:100%}
 <section class="next-section">
   <div class="wrap">
     <div class="next-inner">
-      <a href="crypto-intel-api.html" class="next-link">← CryptoIntel API</a>
-      <a href="eurodata-api.html" class="next-link">EuroData API →</a>
+      <a href="fraud-detection-api.html" class="next-link">← FraudDetect API</a>
+      <a href="ai-jobmatch-api.html" class="next-link">AI JobMatch API →</a>
     </div>
   </div>
 </section>
