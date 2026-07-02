@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy - OnChain Radar</title>
+  <style>
+    :root {
+      --bg: #050d1c;
+      --card: rgba(10, 18, 36, 0.94);
+      --text: #e8f4ff;
+      --muted: #7a9fc8;
+      --accent: #00d4aa;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(0, 212, 170, 0.12), transparent 30%),
+        linear-gradient(180deg, #050d1c 0%, #0b1628 100%);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 20px 72px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 34px;
+      box-shadow: 0 24px 72px rgba(0, 0, 0, 0.4);
+    }
+
+    h1, h2 {
+      line-height: 1.2;
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin-top: 32px;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    p, li {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    .meta {
+      color: #c0d8f0;
+      font-size: 0.96rem;
+      margin-bottom: 24px;
+    }
+
+    .footer {
+      margin-top: 34px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>Privacy Policy</h1>
+      <p class="meta">
+        <strong>App:</strong> OnChain Radar<br />
+        <strong>Effective date:</strong> July 2026
+      </p>
+
+      <p>
+        OnChain Radar is a macOS menu bar app that surfaces real-time on-chain signals —
+        whale liquidations, large position opens, BTC flow, token movers, and large EVM transfers.
+        This policy explains what data the app accesses, how it is used, and the choices you have.
+      </p>
+
+      <h2>1. No personal data collected</h2>
+      <p>
+        OnChain Radar does not create user accounts, collect your name or email address, or
+        transmit any personally identifiable information to the developer. The app reads
+        publicly available blockchain and market data from external APIs; it does not send any
+        information about you or your device to those APIs.
+      </p>
+
+      <h2>2. Network requests</h2>
+      <p>The app connects to the following external services to fetch market intelligence:</p>
+      <ul>
+        <li>
+          <strong>Hyperliquid WebSocket API</strong> (<code>wss://api.hyperliquid.xyz/ws</code>) —
+          to receive real-time liquidation events, large fills, and position data for
+          configured wallet addresses. All data fetched is publicly available on-chain.
+        </li>
+        <li>
+          <strong>Developer backend API</strong> — to fetch token mover signals and large EVM
+          transfer events. This API surfaces publicly indexed blockchain data and does not
+          receive any personal information from your device.
+        </li>
+      </ul>
+      <p>
+        No request payloads contain device identifiers, location data, or user-specific identifiers.
+      </p>
+
+      <h2>3. Local storage</h2>
+      <p>
+        All app preferences — which feeds are enabled, signal thresholds, notification settings,
+        and launch-at-login state — are stored locally on your Mac using <code>UserDefaults</code>
+        and macOS system APIs. This data never leaves your device.
+      </p>
+
+      <h2>4. Notifications</h2>
+      <p>
+        If you enable notifications, OnChain Radar delivers alerts via the macOS system
+        notification center. No third-party push service or notification SDK is used.
+        Notification permission can be revoked at any time in System Settings → Notifications.
+      </p>
+
+      <h2>5. Subscriptions and purchases</h2>
+      <p>
+        OnChain Radar Pro is available as a monthly subscription, annual subscription, or a
+        one-time lifetime purchase. All transactions are processed entirely by Apple through
+        StoreKit 2. The developer does not receive or store any payment information.
+        Subscription status and purchase receipts are verified locally via Apple's transaction APIs.
+      </p>
+      <p>
+        Auto-renewable subscriptions renew automatically unless cancelled at least 24 hours before
+        the end of the current billing period. You can manage or cancel your subscription at any
+        time in the Mac App Store under your account → Manage Subscriptions.
+      </p>
+
+      <h2>6. No analytics or tracking</h2>
+      <p>
+        OnChain Radar contains no analytics SDKs, advertising SDKs, crash reporters, or
+        third-party tracking libraries. Nothing about how you use the app is recorded or sent anywhere.
+      </p>
+
+      <h2>7. Children's privacy</h2>
+      <p>
+        OnChain Radar is not directed to children under 13, and the developer does not knowingly
+        collect information from children.
+      </p>
+
+      <h2>8. Changes to this policy</h2>
+      <p>
+        This Privacy Policy may be updated from time to time. Any changes will be posted on this
+        page with an updated effective date.
+      </p>
+
+      <h2>9. Contact</h2>
+      <p>
+        If you have questions about this Privacy Policy, contact:
+        <a href="mailto:aethernalytics@gmail.com">aethernalytics@gmail.com</a>
+      </p>
+
+      <div class="footer">
+        <a href="onchain-radar-support.html">Support</a> &nbsp;·&nbsp;
+        <a href="onchain-radar-terms.html">Terms of Use</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

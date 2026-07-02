@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support - OnChain Radar</title>
+  <style>
+    :root {
+      --bg: #050d1c;
+      --card: rgba(10, 18, 36, 0.94);
+      --text: #e8f4ff;
+      --muted: #7a9fc8;
+      --accent: #00d4aa;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(0, 212, 170, 0.12), transparent 30%),
+        linear-gradient(180deg, #050d1c 0%, #0b1628 100%);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 20px 72px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 34px;
+      box-shadow: 0 24px 72px rgba(0, 0, 0, 0.4);
+    }
+
+    h1, h2 {
+      line-height: 1.2;
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      margin-bottom: 32px;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin-top: 32px;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    h2:first-of-type {
+      margin-top: 0;
+    }
+
+    p, li {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    .footer {
+      margin-top: 34px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>Support</h1>
+
+      <h2>Get in touch</h2>
+      <p>
+        For any questions, issues, or feedback, email
+        <a href="mailto:aethernalytics@gmail.com">aethernalytics@gmail.com</a>.
+        I'll get back to you as soon as I can.
+      </p>
+
+      <h2>Restoring Pro access</h2>
+      <p>
+        If you've already subscribed or purchased the lifetime upgrade and Pro isn't showing as
+        active, click the OnChain Radar menu bar icon, open Settings, and click "Restore purchase".
+        Make sure you're signed into the Mac App Store with the same Apple ID used for the
+        original purchase.
+      </p>
+
+      <h2>Managing or cancelling your subscription</h2>
+      <p>
+        To cancel or change your subscription, open the Mac App Store, click your name at the
+        bottom of the sidebar, then go to Account Settings → Manage Subscriptions. Cancel at
+        least 24 hours before your renewal date to avoid being charged for the next period.
+        After cancelling, Pro features remain active until the end of the current billing period.
+      </p>
+
+      <h2>No signals showing up</h2>
+      <p>
+        OnChain Radar polls live blockchain data. If the feed looks empty, check that:
+      </p>
+      <ul>
+        <li>at least one feed (Liquidations, Big Positions, BTC Flow, etc.) is toggled on in Settings,</li>
+        <li>your thresholds aren't set so high that no events qualify — try lowering them temporarily to confirm the feed is working, and</li>
+        <li>your Mac has an active internet connection.</li>
+      </ul>
+
+      <h2>Notifications not appearing</h2>
+      <p>
+        OnChain Radar sends macOS system notifications. If they aren't appearing, go to
+        System Settings → Notifications → OnChain Radar and make sure notifications are allowed.
+        Also confirm that "Notifications" is enabled inside the app's Settings panel.
+      </p>
+
+      <h2>Launch at login</h2>
+      <p>
+        You can toggle launch-at-login from the Settings panel inside the app. When enabled,
+        OnChain Radar registers itself with macOS Login Items so it starts automatically when
+        you log in. You can also manage this from System Settings → General → Login Items.
+      </p>
+
+      <h2>Your data</h2>
+      <p>
+        All your preferences — which feeds are on, threshold values, notification settings —
+        are stored locally on your Mac. Deleting the app removes this data. OnChain Radar
+        does not sync settings to any cloud service.
+      </p>
+
+      <div class="footer">
+        <a href="onchain-radar-privacy.html">Privacy Policy</a> &nbsp;·&nbsp;
+        <a href="onchain-radar-terms.html">Terms of Use</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
