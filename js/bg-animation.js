@@ -70,7 +70,7 @@
           var d2 = dx * dx + dy * dy;
           if (d2 < md2) {
             var a = (1 - Math.sqrt(d2) / MAX_DIST) * 0.55;
-            ctx.strokeStyle = 'rgba(248,73,76,' + a + ')';
+            ctx.strokeStyle = 'rgba(255,77,36,' + a + ')';
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -84,7 +84,7 @@
         var p = particles[i];
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,0.75)';
+        ctx.fillStyle = 'rgba(236,232,225,0.7)';
         ctx.fill();
       }
 
