@@ -3,3 +3,18 @@
 .RData
 .Ruserdata
 images/portfolio/focustimer.mov
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+.env.*
+
+# Netlify local state
+.netlify/
